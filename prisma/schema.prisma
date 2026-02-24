@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  Account_id                          Int       @id @default(autoincrement())
+  Name                                String?   @db.VarChar(255)
+  Postcode                            String?   @db.VarChar(20)
+  E_mail                              String?   @unique(map: "E_mail") @db.VarChar(255)
+  Password                            String?   @db.VarChar(255)
+  BSN                                 String?   @db.VarChar(50)
+  Review_Review_Auteur_idToAccount    Review[]  @relation("Review_Auteur_idToAccount")
+  Review_Review_Ontvanger_idToAccount Review[]  @relation("Review_Ontvanger_idToAccount")
+  Uitleen                             Uitleen[]
+}
+
+model Categorie {
+  Categorie_id Int           @id @default(autoincrement())
+  Naam         String?       @db.VarChar(255)
+  Beschrijving String?       @db.VarChar(255)
+  Gereedschap  Gereedschap[]
+}
+
+model Gereedschap {
+  Gereedschap_id Int        @id @default(autoincrement())
+  Categorie_id   Int?
+  Naam           String?    @db.VarChar(255)
+  Beschrijving   String?    @db.VarChar(255)
+  Staat          String?    @db.VarChar(100)
+  Beschikbaar    Boolean?
+  BorgBedrag     Decimal?   @db.Decimal(10, 2)
+  Categorie      Categorie? @relation(fields: [Categorie_id], references: [Categorie_id], onDelete: NoAction, onUpdate: NoAction, map: "Gereedschap_ibfk_1")
+  Uitleen        Uitleen[]
+
+  @@index([Categorie_id], map: "Categorie_id")
+}
+
+model Review {
+  Review_id                            Int       @id @default(autoincrement())
+  Uitleen_id                           Int?
+  Auteur_id                            Int?
+  Ontvanger_id                         Int?
+  Tekst                                String?   @db.VarChar(255)
+  Rating                               Int?
+  Datum                                DateTime? @db.Date
+  Uitleen                              Uitleen?  @relation(fields: [Uitleen_id], references: [Uitleen_id], onDelete: NoAction, onUpdate: NoAction, map: "Review_ibfk_1")
+  Account_Review_Auteur_idToAccount    Account?  @relation("Review_Auteur_idToAccount", fields: [Auteur_id], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Review_ibfk_2")
+  Account_Review_Ontvanger_idToAccount Account?  @relation("Review_Ontvanger_idToAccount", fields: [Ontvanger_id], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Review_ibfk_3")
+
+  @@index([Auteur_id], map: "Auteur_id")
+  @@index([Ontvanger_id], map: "Ontvanger_id")
+  @@index([Uitleen_id], map: "Uitleen_id")
+}
+
+model Schade {
+  Schade_id    Int       @id @default(autoincrement())
+  Uitleen_id   Int?
+  Beschrijving String?   @db.VarChar(255)
+  SchadeKosten Decimal?  @db.Decimal(10, 2)
+  Datum        DateTime? @db.Date
+  Uitleen      Uitleen?  @relation(fields: [Uitleen_id], references: [Uitleen_id], onDelete: NoAction, onUpdate: NoAction, map: "Schade_ibfk_1")
+
+  @@index([Uitleen_id], map: "Uitleen_id")
+}
+
+model Uitleen {
+  Uitleen_id     Int          @id @default(autoincrement())
+  Account_id     Int?
+  Gereedschap_id Int?
+  StartDatum     DateTime?    @db.Date
+  EindDatum      DateTime?    @db.Date
+  RetourDatum    DateTime?    @db.Date
+  BorgBedrag     Decimal?     @db.Decimal(10, 2)
+  Kosten         Decimal?     @db.Decimal(10, 2)
+  Status         String?      @db.VarChar(100)
+  Review         Review[]
+  Schade         Schade[]
+  Account        Account?     @relation(fields: [Account_id], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Uitleen_ibfk_1")
+  Gereedschap    Gereedschap? @relation(fields: [Gereedschap_id], references: [Gereedschap_id], onDelete: NoAction, onUpdate: NoAction, map: "Uitleen_ibfk_2")
+
+  @@index([Account_id], map: "Account_id")
+  @@index([Gereedschap_id], map: "Gereedschap_id")
+}
