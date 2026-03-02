@@ -4,12 +4,14 @@ import prisma from './prismaClient.mjs';
 
 const app = express();
 app.use(express.json());
+app.use(express.static("public"));
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
 app.get("/", (req, res) => {
   res.send("Server werkt!");
+  res.redirect("/public/index.html");
 });
 
 app.get('/Account', async (req, res) => {
@@ -24,8 +26,4 @@ app.get('/Account', async (req, res) => {
 
 app.listen(PORT, HOST, () => {
   console.log(`Server draait op http://${HOST}:${PORT}`);
-});
-
-app.get("/", (req, res) => {
-  res.redirect("/public/index.html");
 });
