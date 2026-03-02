@@ -25,5 +25,3 @@ app.get('/Account', async (req, res) => {
 app.listen(PORT, HOST, () => {
   console.log(`Server draait op http://${HOST}:${PORT}`);
 });
-
-href="index.html"
