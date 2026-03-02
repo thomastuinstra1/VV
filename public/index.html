@@ -1,11 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <title>Accounts</title>
 </head>
 <body>
-    <button>knop</button>
+  <h1>Test Accounts</h1>
+  <ul id="accounts-list"></ul>
+
+  <script>
+    // Fetch accounts van je backend
+    fetch('http://localhost:3000/Account')
+      .then(response => response.json())
+      .then(accounts => {
+        const list = document.getElementById('accounts-list');
+        accounts.forEach(account => {
+          const li = document.createElement('li');
+          li.textContent = `${account.Account_id}: ${account.Name} (${account.E_mail})`;
+          list.appendChild(li);
+        });
+      })
+      .catch(error => console.error('Fout bij ophalen:', error));
+  </script>
 </body>
 </html>
