@@ -5,8 +5,11 @@ import prisma from './prismaClient.mjs';
 const app = express();
 app.use(express.json());
 
+const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
+
 app.get("/", (req, res) => {
-  res.send("Shitshow werkt");
+  res.send("Server werkt!");
 });
 
 app.get('/Account', async (req, res) => {
@@ -19,6 +22,6 @@ app.get('/Account', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('Server draait op http://localhost:3000');
+app.listen(PORT, HOST, () => {
+  console.log(`Server draait op http://${HOST}:${PORT}`);
 });
