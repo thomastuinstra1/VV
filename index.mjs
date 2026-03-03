@@ -9,11 +9,6 @@ app.use(express.static("public"));
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-app.get("/", (req, res) => {
-  res.send("Server werkt!");
-  res.redirect("/public/index.html");
-});
-
 app.get('/Account', async (req, res) => {
   try {
     const accounts = await prisma.account.findMany();
