@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In</title>
-    <script src="register.js"></script>
+    <title>Register</title>
+    <script src="register.js" defer></script>
 </head>
 <body>
     <div class="login-container">
@@ -12,7 +12,7 @@
         <form>
             <div class="form-group">
                 <label for="E_mail">Email</label>
-                <input type="" email="E_mail" name="E_mail" required>
+                <input type="email" id="E_mail" name="E_mail" required> <!-- ✅ type en id gecorrigeerd -->
             </div>
             <div class="form-group">
                 <label for="Name">Username</label>
@@ -30,7 +30,6 @@
                 <label for="Postcode">Postcode</label>
                 <input type="text" id="Postcode" name="Postcode" required>
             </div>
-
             <button type="submit">Register</button>
             <div class="form-group">
                 <a href="inlog.html">Already have an account? Log in here.</a>

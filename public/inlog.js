@@ -1,26 +1,36 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.querySelector('form');
-    
-    if (loginForm) {
-        loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.querySelector('input[type="email"]').value;
-            const password = document.querySelector('input[type="password"]').value;
-            
-            if (email && password) {
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.querySelector('form');
 
-                if (email.includes('@') && password.length >= 6 && password.match(/[0-9]/) && password.match(/[A-Z]/)) {
-                        console.log('Login attempt:', email);
-                        alert('Login successful!');
-                } else {
-                    alert('Invalid email or password (min 6 characters, must include a number and an uppercase letter)');
-                }
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const login = document.getElementById('login').value;
+        const Password = document.getElementById('Password').value;
+
+        if (!login || !Password) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        // Verstuur naar server
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ login, Password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert(`Welkom ${data.Name}!`);
+                window.location.href = 'dashboard.html'; // stuur door na login
             } else {
-                alert('Please fill in all fields');
+                alert(data.message || 'Er is iets misgegaan');
             }
-        });
-    }
+        } catch (error) {
+            console.error(error);
+            alert('Er is iets misgegaan');
+        }
+    });
 });
-
-
