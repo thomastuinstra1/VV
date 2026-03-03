@@ -1,0 +1,59 @@
+document.addEventListener('DOMContentLoaded', async () => {
+
+    // Huidige gegevens ophalen en invullen
+    try {
+        const response = await fetch('/me');
+        if (!response.ok) {
+            alert('Je bent niet ingelogd');
+            window.location.href = 'inlog.html';
+            return;
+        }
+        const data = await response.json();
+        document.getElementById('Name').value = data.Name || '';
+    } catch (error) {
+        console.error(error);
+    }
+
+    // Formulier opslaan
+    const form = document.getElementById('settings-form');
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const Name = document.getElementById('Name').value;
+        const E_mail = document.getElementById('E_mail').value;
+        const Postcode = document.getElementById('Postcode').value;
+        const Password = document.getElementById('Password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        if (Password && Password !== confirmPassword) {
+            alert('Wachtwoorden komen niet overeen');
+            return;
+        }
+
+        // Alleen gevulde velden meesturen
+        const body = {};
+        if (Name) body.Name = Name;
+        if (E_mail) body.E_mail = E_mail;
+        if (Postcode) body.Postcode = Postcode;
+        if (Password) body.Password = Password;
+
+        try {
+            const response = await fetch('/account', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Gegevens opgeslagen!');
+            } else {
+                alert(data.message || 'Er is iets misgegaan');
+            }
+        } catch (error) {
+            console.error(error);
+            alert('Er is iets misgegaan');
+        }
+    });
+});

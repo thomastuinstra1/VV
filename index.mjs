@@ -124,6 +124,39 @@ app.get('/Account', isLoggedIn, async (req, res) => {
   }
 });
 
+// Account gegevens aanpassen
+app.put('/account', isLoggedIn, async (req, res) => {
+    const { Name, E_mail, Postcode, Password } = req.body;
+
+    try {
+        const data = {};
+        if (Name) data.Name = Name;
+        if (E_mail) data.E_mail = E_mail;
+        if (Postcode) data.Postcode = Postcode;
+        if (Password) data.Password = await bcrypt.hash(Password, 10);
+
+        const account = await prisma.account.update({
+            where: { Account_id: req.session.userId },
+            data: data
+        });
+
+        if (Name) req.session.Name = account.Name;
+
+        console.log(`✅ Account bijgewerkt voor gebruiker: ${account.Name} (ID: ${account.Account_id})`);
+
+        res.json({ message: 'Gegevens bijgewerkt!', Name: account.Name });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Er is iets misgegaan' });
+    }
+});
+
+// ✅ listen altijd als laatste
 app.listen(PORT, HOST, () => {
   console.log(`Server draait op http://${HOST}:${PORT}`);
 });
+
+app.listen(PORT, HOST, () => {
+  console.log(`Server draait op http://${HOST}:${PORT}`);
+});
+
