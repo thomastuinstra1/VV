@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 alert(`Welkom ${data.Name}!`);
-                window.location.href = 'index.html'; // stuur door na login
+                window.location.href = 'index.html'; // stuur door na index
             } else {
                 alert(data.message || 'Er is iets misgegaan');
             }

@@ -156,7 +156,3 @@ app.listen(PORT, HOST, () => {
   console.log(`Server draait op http://${HOST}:${PORT}`);
 });
 
-app.listen(PORT, HOST, () => {
-  console.log(`Server draait op http://${HOST}:${PORT}`);
-});
-
