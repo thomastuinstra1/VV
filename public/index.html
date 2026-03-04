@@ -10,7 +10,6 @@
   <script>
     // Fetch accounts van je backend
     fetch('/Account', {
-      credentials: 'include'
     })
       .then(response => response.json())
       .then(accounts => {
