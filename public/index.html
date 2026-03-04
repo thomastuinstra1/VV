@@ -9,7 +9,7 @@
 
   <script>
     // Fetch accounts van je backend
-    fetch('http://145.89.192.94/Account')
+    fetch('/Account')
       .then(response => response.json())
       .then(accounts => {
         const list = document.getElementById('accounts-list');
