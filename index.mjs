@@ -18,7 +18,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false, // zet op true bij HTTPS
+    secure: true, // zet op true bij HTTPS
     maxAge: 1000 * 60 * 60 * 24 // 24 uur
   }
 }));
