@@ -92,7 +92,11 @@ app.post('/login', async (req, res) => {
     req.session.userId = account.Account_id;
     req.session.Name = account.Name;
 
-    res.json({ message: 'Ingelogd!', Name: account.Name });
+    req.session.save(err => {
+      if (err) return res.status(500).json({ error: 'Sessie opslaan mislukt' });
+      res.json({ message: 'Ingelogd!', Name: account.Name });
+    });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Er is iets misgegaan' });
