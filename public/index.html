@@ -9,7 +9,9 @@
 
   <script>
     // Fetch accounts van je backend
-    fetch('/Account')
+    fetch('/Account', {
+      credentials: 'include'
+    })
       .then(response => response.json())
       .then(accounts => {
         const list = document.getElementById('accounts-list');
