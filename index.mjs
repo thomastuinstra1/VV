@@ -7,6 +7,7 @@ import prisma from './prismaClient.mjs';
 const app = express();
 app.use(express.json());
 app.use(express.static("public"));
+app.set('trust proxy', 1);
 
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -19,6 +20,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     secure: true, // zet op true bij HTTPS
+    sameSite: 'lax',
     maxAge: 1000 * 60 * 60 * 24 // 24 uur
   }
 }));
