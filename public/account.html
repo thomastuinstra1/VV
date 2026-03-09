@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Accounts</title>
+</head>
+<body>
+  <h1>Test Accounts</h1>
+  <ul id="accounts-list"></ul>
+<a href="homepagina/homepagina.html">Home</a>
+  <script>
+    // Fetch accounts van je backend
+    fetch('/Account', {
+    })
+      .then(response => response.json())
+      .then(accounts => {
+        const list = document.getElementById('accounts-list');
+        accounts.forEach(account => {
+          const li = document.createElement('li');
+          li.textContent = `${account.Account_id}: ${account.Name} (${account.E_mail})`;
+          list.appendChild(li);
+        });
+      })
+      .catch(error => console.error('Fout bij ophalen:', error));
+  </script>
+</body>
+</html>
