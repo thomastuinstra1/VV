@@ -4,11 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const E_mail = document.getElementById('E_mail').value;
-        const Name = document.getElementById('Name').value;
-        const Password = document.getElementById('Password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
-        const Postcode = document.getElementById('Postcode').value;
+        const E_mail = document.getElementById("E_mail").value;
+        const Name = document.getElementById("Name").value;
+        const Password = document.getElementById("Password").value;
+        const confirmPassword = document.getElementById("confirm-password").value;
+        const Postcode = document.getElementById("Postcode").value;
 
         // Wachtwoord validatie
         if (Password !== confirmPassword) {
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (error) {
             console.error(error);
-            alert('Er is iets misgegaan');
+            alert('Er is zeker iets misgegaan');
         }
     });
 });
