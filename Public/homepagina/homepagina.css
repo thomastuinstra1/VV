@@ -1,0 +1,173 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f5f7fa;
+    color: #1f2937;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    background-color: white;
+    padding: 15px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.nav-contianer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo a {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #1e3a8a;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #374151;
+    font-weight: 500;
+}
+
+nav a:hover {
+    color: #1e3a8a;
+}
+
+.cta-small {
+    background-color: #f97316;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.cta-small:hover {
+    opacity: 0.9;
+}
+
+.hero {
+    text-align: center;
+    padding: 80px 0;
+    background-color: #e0ecff
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.hero-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    color: #374151;
+}
+
+.btn-primary {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.btn-primary:hover {
+    background-color: #172554;
+}
+
+.btn-secondary {
+    background-color: white;
+    color: #1e3a8a;
+    padding: 12px 20px;
+    border: 2px solid #1e3a8a;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn-secondary:hover {
+    background-color: #1e3a8a;
+    color: white;
+}
+
+.voordelen {
+    padding: 60px 0;
+    background-color: white;
+    text-align: center;
+}
+
+.voordeel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.voordeel h3 {
+    margin-bottom: 10px;
+    color: #1e3a8a;
+}
+
+.hoe-werkt-het {
+    padding: 60px 0;
+    background-color: #f9fafb;
+}
+
+.hoe-werkt-het h2 {
+    text-align: center;
+}
+
+.hoe-werkt-het ol {
+    width: fit-content;      
+    margin: 20px auto;      
+    padding-left: 20px;      
+}
+
+.hoe-werkt-het li {
+    margin-bottom: 10px;
+}
+
+footer {
+    background-color: #1f2937;
+    color: white;
+    padding: 30px 0;
+    text-align: center;
+}
+
+footer ul {
+    list-style: none;
+    margin-top: 15px;
+}
+
+footer li {
+    display: inline;
+    margin: 0 10px;
+}
+
+footer a {
+    color: #d1d5db;
+    text-decoration: none;
+}
+
+footer a:hover {
+    color: white;
+}
