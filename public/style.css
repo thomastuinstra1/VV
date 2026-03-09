@@ -1,21 +1,84 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f8;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #4f8cff, #6fd6ff);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
+/* Container voor login & register */
 .login-container {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  width: 300px;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    width: 380px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
 
-input, button {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
+/* Titel */
+.login-container h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+/* Form groups */
+.form-group {
+    margin-bottom: 18px;
+}
+
+/* Labels */
+label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #555;
+}
+
+/* Inputs */
+input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #4f8cff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #3b6fd8;
+}
+
+/* Link onderaan */
+.form-group a {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #4f8cff;
+    text-decoration: none;
+}
+
+.form-group a:hover {
+    text-decoration: underline;
 }
