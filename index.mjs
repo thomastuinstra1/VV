@@ -59,6 +59,22 @@ app.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'),
   }
 });
 
+app.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+  try {
+    const afbeeldingUrl = '/uploads/' + req.file.filename;
+
+    await prisma.account.update({
+      where: { Account_id: req.session.userId },
+      data: { Afbeelding: afbeeldingUrl }
+    });
+
+    res.json({ message: 'Profielfoto opgeslagen!', url: afbeeldingUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Er is iets misgegaan' });
+  }
+});
+
 // Registreren
 app.post('/register', async (req, res) => {
   const { Name, E_mail, Password, Postcode } = req.body;
@@ -138,7 +154,7 @@ app.get('/me', isLoggedIn, async (req, res) => {
   try {
     const account = await prisma.account.findUnique({
       where: { Account_id: req.session.userId },
-      select: { Name: true, E_mail: true, Postcode: true, BSN: true}
+      select: { Name: true, E_mail: true, Postcode: true, BSN: true, Afbeelding: true }
     });
 
     if (!account) return res.status(404).json({ message: 'User not found' });

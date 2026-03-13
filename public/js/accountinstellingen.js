@@ -9,10 +9,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         const data = await response.json();
+        if (data.Afbeelding) {
+        document.getElementById('profielfoto').src = data.Afbeelding;
+        }
         document.getElementById('Name').value = data.Name || '';
         document.getElementById('E_mail').value = data.E_mail || '';
         document.getElementById('Postcode').value = data.Postcode || '';
         document.getElementById('BSN').value = data.BSN || '';
+        
     } catch (error) {
         console.error(error);
     }
@@ -61,4 +65,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             alert('Er is iets misgegaan');
         }
     });
+});
+
+document.getElementById('upload-btn').addEventListener('click', async () => {
+    const file = document.getElementById('afbeelding-input').files[0];
+    if (!file) return alert('Selecteer eerst een afbeelding');
+
+    const formData = new FormData();
+    formData.append('afbeelding', file);
+
+    const response = await fetch('/account/afbeelding', {
+        method: 'POST',
+        body: formData
+    });
+
+    const data = await response.json();
+    if (response.ok) {
+        document.getElementById('profielfoto').src = data.url;
+        alert('Profielfoto opgeslagen!');
+    } else {
+        alert(data.error || 'Er is iets misgegaan');
+    }
 });
