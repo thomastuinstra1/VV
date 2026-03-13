@@ -41,7 +41,20 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 
-const upload = multer({ storage });
+const fileFilter = (req, file, cb) => {
+  const toegestaan = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  if (toegestaan.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Alleen afbeeldingen zijn toegestaan'), false);
+  }
+};
+
+const upload = multer({ 
+  storage,
+  fileFilter,
+  limits: { fileSize: 2 * 1024 * 1024 } // max 2MB
+});
 
 app.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
   try {
