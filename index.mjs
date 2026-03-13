@@ -161,7 +161,7 @@ app.put('/account', isLoggedIn, async (req, res) => {
 
         if (Name) req.session.Name = account.Name;
 
-        console.log(`✅ Account bijgewerkt voor gebruiker: ${account.Name} (ID: ${account.Account_id})`);
+        console.log(`Account bijgewerkt voor gebruiker: ${account.Name} (ID: ${account.Account_id})`);
 
         res.json({ message: 'Gegevens bijgewerkt!', Name: account.Name });
     } catch (error) {
@@ -170,7 +170,39 @@ app.put('/account', isLoggedIn, async (req, res) => {
     }
 });
 
-// ✅ listen altijd als laatste
+// Gereedschap toevoegen
+app.post('/gereedschap', isLoggedIn, async (req, res) => {
+  const { Categorie_id, Naam, Beschrijving, Staat, Beschikbaar, BorgBedrag, Afbeelding } = req.body;
+
+  try {
+    const tool = await prisma.gereedschap.create({
+      data: {
+        Categorie_id: Categorie_id ? parseInt(Categorie_id) : null,
+        Naam: Naam,
+        Beschrijving: Beschrijving,
+        Staat: Staat,
+        Beschikbaar: Beschikbaar === "true",
+        BorgBedrag: BorgBedrag ? parseFloat(BorgBedrag) : null,
+        Afbeelding: Afbeelding
+      }
+    });
+
+    console.log(`Nieuw gereedschap toegevoegd: ${tool.Naam}`);
+
+    res.json({ message: "Gereedschap opgeslagen!", tool });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Opslaan mislukt" });
+  }
+});
+
+app.get('/categorieen', async (req,res)=>{
+  const cat = await prisma.categorie.findMany();
+  res.json(cat);
+});
+
+// listen altijd als laatste
 app.listen(PORT, HOST, () => {
   console.log(`Server draait op http://${HOST}:${PORT}`);
 });
