@@ -73,6 +73,8 @@ app.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'),
 });
 
 app.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Geen geldig afbeeldingsbestand' });
+  
   try {
     const afbeeldingUrl = '/uploads/' + req.file.filename;
 
