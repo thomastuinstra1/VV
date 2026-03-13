@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         const data = await response.json();
         document.getElementById('Name').value = data.Name || '';
+        document.getElementById('E_mail').value = data.E_mail || '';
+        document.getElementById('Postcode').value = data.Postcode || '';
     } catch (error) {
         console.error(error);
     }
