@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const Postcode = document.getElementById('Postcode').value;
         const Password = document.getElementById('Password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
+        const BSN = document.getElementById('BSN').value.trim();
 
         if (Password && Password !== confirmPassword) {
             alert('Wachtwoorden komen niet overeen');
@@ -39,6 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (E_mail) body.E_mail = E_mail;
         if (Postcode) body.Postcode = Postcode;
         if (Password) body.Password = Password;
+        if (BSN !== '') body.BSN = BSN;
 
         try {
             const response = await fetch('/account', {
