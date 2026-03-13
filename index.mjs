@@ -106,8 +106,18 @@ app.post('/login', async (req, res) => {
 });
 
 // Huidige ingelogde gebruiker ophalen
-app.get('/me', isLoggedIn, (req, res) => {
-  res.json({ userId: req.session.userId, Name: req.session.Name });
+app.get('/me', isLoggedIn, async (req, res) => {
+  try {
+    const [results] = await db.query(
+      'SELECT Name, E_mail, Postcode FROM Account WHERE Account_id = ?', 
+      [req.session.userId]
+    );
+    if (results.length === 0) return res.status(404).json({ message: 'User not found' });
+
+    res.json(results[0]);
+  } catch (err) {
+    res.status(500).json({ message: 'Database error' });
+  }
 });
 
 // Uitloggen
