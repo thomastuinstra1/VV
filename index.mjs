@@ -108,14 +108,16 @@ app.post('/login', async (req, res) => {
 // Huidige ingelogde gebruiker ophalen
 app.get('/me', isLoggedIn, async (req, res) => {
   try {
-    const [results] = await db.query(
-      'SELECT Name, E_mail, Postcode FROM Account WHERE Account_id = ?', 
-      [req.session.userId]
-    );
-    if (results.length === 0) return res.status(404).json({ message: 'User not found' });
+    const account = await prisma.account.findUnique({
+      where: { Account_id: req.session.userId },
+      select: { Name: true, E_mail: true, Postcode: true }
+    });
 
-    res.json(results[0]);
+    if (!account) return res.status(404).json({ message: 'User not found' });
+
+    res.json(account);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Database error' });
   }
 });
