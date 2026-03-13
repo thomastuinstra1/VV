@@ -3,6 +3,9 @@ import express from 'express';
 import session from 'express-session';
 import bcrypt from 'bcryptjs';
 import prisma from './prismaClient.mjs';
+import multer from 'multer';
+import path from 'path';
+
 
 const app = express();
 app.use(express.json());
@@ -30,6 +33,31 @@ function isLoggedIn(req, res, next) {
   if (req.session.userId) return next();
   res.status(401).json({ message: 'Niet ingelogd' });
 }
+
+
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, 'public/uploads/'),
+  filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
+});
+
+const upload = multer({ storage });
+
+app.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+  try {
+    const afbeeldingUrl = '/uploads/' + req.file.filename;
+
+    await prisma.gereedschap.update({
+      where: { Gereedschap_id: parseInt(req.params.id) },
+      data: { Afbeelding: afbeeldingUrl }
+    });
+
+    res.json({ message: 'Afbeelding opgeslagen!', url: afbeeldingUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Er is iets misgegaan' });
+  }
+});
 
 // Registreren
 app.post('/register', async (req, res) => {
