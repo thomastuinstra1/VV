@@ -110,7 +110,7 @@ app.get('/me', isLoggedIn, async (req, res) => {
   try {
     const account = await prisma.account.findUnique({
       where: { Account_id: req.session.userId },
-      select: { Name: true, E_mail: true, Postcode: true }
+      select: { Name: true, E_mail: true, Postcode: true, BSN: true}
     });
 
     if (!account) return res.status(404).json({ message: 'User not found' });
@@ -144,7 +144,7 @@ app.get('/Account', isLoggedIn, async (req, res) => {
 
 // Account gegevens aanpassen
 app.put('/account', isLoggedIn, async (req, res) => {
-    const { Name, E_mail, Postcode, Password } = req.body;
+    const { Name, E_mail, Postcode, Password, BSN } = req.body;
 
     try {
         const data = {};
@@ -152,6 +152,7 @@ app.put('/account', isLoggedIn, async (req, res) => {
         if (E_mail) data.E_mail = E_mail;
         if (Postcode) data.Postcode = Postcode;
         if (Password) data.Password = await bcrypt.hash(Password, 10);
+        if (BSN) data.BSN = BSN;  
 
         const account = await prisma.account.update({
             where: { Account_id: req.session.userId },

@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('Name').value = data.Name || '';
         document.getElementById('E_mail').value = data.E_mail || '';
         document.getElementById('Postcode').value = data.Postcode || '';
+        document.getElementById('BSN').value = data.BSN || '';
     } catch (error) {
         console.error(error);
     }
