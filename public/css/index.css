@@ -23,7 +23,7 @@ header {
     border-bottom: 1px solid #e5e7eb;
 }
 
-.nav-contianer {
+.nav-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
