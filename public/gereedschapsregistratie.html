@@ -38,8 +38,12 @@
 <label>Borg bedrag</label><br>
 <input type="number" step="0.01" name="BorgBedrag"><br><br>
 
-<label>Afbeelding (url)</label><br>
-<input type="text" name="Afbeelding"><br><br>
+<label>Afbeelding</label><br>
+<img id="gereedschap-preview" src="" alt="Afbeelding preview"
+  style="width:100px; height:100px; object-fit:cover; display:none;"><br>
+<input type="file" id="afbeelding-input" accept="image/*"><br>
+<button type="button" id="upload-btn">Upload afbeelding</button>
+<input type="hidden" id="afbeelding-url" name="Afbeelding"><br><br>
 
 <button type="submit">Opslaan</button>
 
