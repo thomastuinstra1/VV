@@ -242,7 +242,7 @@ app.post('/gereedschap', isLoggedIn, async (req, res) => {
         Beschrijving: Beschrijving,
         Begindatum: Begindatum ? new Date(Begindatum) : null,
         Einddatum: Einddatum ? new Date(Einddatum) : null,
-        BorgBedrag: BorgBedrag ? parseFloat(BorgBedrag) : null,
+        BorgBedrag: BorgBedrag && BorgBedrag !== '' ? parseFloat(BorgBedrag) : null,
         Afbeelding: Afbeelding
       }
     });
