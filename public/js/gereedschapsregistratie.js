@@ -30,24 +30,6 @@ document.getElementById('upload-btn').addEventListener('click', async () => {
     }
 });
 
-// Categorieën ophalen en dropdown vullen
-async function laadCategorieen() {
-  try {
-    const res = await fetch('/categorieen');
-    const categorieen = await res.json();
-
-    const select = document.getElementById('categorieSelect');
-    categorieen.forEach(cat => {
-      const option = document.createElement('option');
-      option.value = cat.Categorie_id; // Prisma geeft veld zo terug
-      option.textContent = cat.Naam;
-      select.appendChild(option);
-    });
-  } catch (err) {
-    console.error('Categorieën ophalen mislukt', err);
-  }
-}
-
 // Form submit
 document.getElementById("toolForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -55,11 +37,13 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
 
-    if (!data.Afbeelding) {
+  if (!data.Afbeelding) {
     return alert('Upload eerst een afbeelding');
-    }
-  const select = document.getElementById("categorieSelect");
-  const categorieen = Array.from(select.selectedOptions).map(o => parseInt(o.value));
+  }
+
+  const categorieen = Array.from(
+    document.querySelectorAll('input[name="Categorieen"]:checked')
+  ).map(cb => parseInt(cb.value));
 
   data.categorieen = categorieen;
 
@@ -74,6 +58,3 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
   const result = await res.json();
   alert(result.message);
 });
-
-// Categorieën direct bij laden pagina ophalen
-laadCategorieen();
