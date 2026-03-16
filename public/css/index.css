@@ -80,6 +80,37 @@ nav a:hover {
     color: #374151;
 }
 
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.search-container input {
+    padding: 12px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 6px 0 0 6px;
+    font-size: 16px;
+}
+
+.search-container button {
+    padding: 12px 20px;
+    border: none;
+    background-color: #1e3a8a;
+    color: white;
+    border-radius: 0 6px 6px 0;
+    cursor: pointer;
+}
+
+.search-container button:hover {
+    background-color: #172554;
+}
+
+.hero-buttons {
+    margin: 0 10px;
+}
+
 .btn-primary {
     background-color: #1e3a8a;
     color: white;
