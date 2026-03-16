@@ -10,13 +10,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         const data = await response.json();
         if (data.Afbeelding) {
-        document.getElementById('profielfoto').src = data.Afbeelding;
+            document.getElementById('profielfoto').src = data.Afbeelding;
         }
         document.getElementById('Name').value = data.Name || '';
         document.getElementById('E_mail').value = data.E_mail || '';
         document.getElementById('Postcode').value = data.Postcode || '';
         document.getElementById('BSN').value = data.BSN || '';
-        
+
     } catch (error) {
         console.error(error);
     }
@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        // Alleen gevulde velden meesturen
         const body = {};
         if (Name) body.Name = Name;
         if (E_mail) body.E_mail = E_mail;
@@ -67,6 +66,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
+// Preview direct bij selecteren
+document.getElementById('afbeelding-input').addEventListener('change', () => {
+    const file = document.getElementById('afbeelding-input').files[0];
+    if (!file) return;
+
+    const preview = document.getElementById('profielfoto');
+    preview.src = URL.createObjectURL(file);
+});
+
+// Upload naar server
 document.getElementById('upload-btn').addEventListener('click', async () => {
     const file = document.getElementById('afbeelding-input').files[0];
     if (!file) return alert('Selecteer eerst een afbeelding');
