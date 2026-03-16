@@ -14,10 +14,9 @@
 <label>Naam</label><br>
 <input type="text" name="Naam" required><br><br>
 
-<label>Categorie</label><br>
-<select name="Categorie_id" id="categorieSelect">
-  <option value="">-- Kies een categorie --</option>
-</select><br><br>
+<label>Categorieën</label><br>
+<select name="Categorieen" id="categorieSelect" multiple size="6">
+</select>
 
 <label>Beschrijving</label><br>
 <textarea name="Beschrijving"></textarea><br><br>
@@ -29,11 +28,11 @@
 <option value="Versleten">Versleten</option>
 </select><br><br>
 
-<label>Beschikbaar</label><br>
-<select name="Beschikbaar">
-<option value="true">Ja</option>
-<option value="false">Nee</option>
-</select><br><br>
+<label>Beschikbaar van</label><br>
+<input type="date" name="BeschikbaarVanaf"><br><br>
+
+<label>Beschikbaar tot</label><br>
+<input type="date" name="BeschikbaarTot"><br><br>
 
 <label>Borg bedrag</label><br>
 <input type="number" step="0.01" name="BorgBedrag"><br><br>

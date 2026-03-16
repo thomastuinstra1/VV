@@ -51,12 +51,17 @@ async function laadCategorieen() {
 // Form submit
 document.getElementById("toolForm").addEventListener("submit", async (e) => {
   e.preventDefault();
+
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
 
     if (!data.Afbeelding) {
     return alert('Upload eerst een afbeelding');
     }
+  const select = document.getElementById("categorieSelect");
+  const categorieen = Array.from(select.selectedOptions).map(o => parseInt(o.value));
+
+  data.categorieen = categorieen;
 
   const res = await fetch("/gereedschap", {
     method: "POST",
@@ -68,7 +73,6 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
 
   const result = await res.json();
   alert(result.message);
-  console.log(result);
 });
 
 // Categorieën direct bij laden pagina ophalen

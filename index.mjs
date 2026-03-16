@@ -231,34 +231,49 @@ app.put('/account', isLoggedIn, async (req, res) => {
 
 // Gereedschap toevoegen
 app.post('/gereedschap', isLoggedIn, async (req, res) => {
-  const { Categorie_id, Naam, Beschrijving, Staat, Beschikbaar, BorgBedrag, Afbeelding } = req.body;
+
+  const { Naam, Beschrijving, Begindatum, Einddatum, BorgBedrag, Afbeelding, categorieen } = req.body;
 
   try {
+
     const tool = await prisma.gereedschap.create({
       data: {
-        Categorie_id: Categorie_id ? parseInt(Categorie_id) : null,
         Naam: Naam,
         Beschrijving: Beschrijving,
-        Staat: Staat,
-        Beschikbaar: Beschikbaar === "true",
+        Begindatum: Begindatum ? new Date(Begindatum) : null,
+        Einddatum: Einddatum ? new Date(Einddatum) : null,
         BorgBedrag: BorgBedrag ? parseFloat(BorgBedrag) : null,
         Afbeelding: Afbeelding
       }
     });
 
-    console.log(`Nieuw gereedschap toegevoegd: ${tool.Naam}`);
+    // categorie koppelingen maken
+    if (categorieen && categorieen.length > 0) {
+      await prisma.gereedschap_Categorie.createMany({
+        data: categorieen.map(cat => ({
+          Gereedschap_id: tool.Gereedschap_id,
+          Categorie_id: cat
+        }))
+      });
+    }
 
-    res.json({ message: "Gereedschap opgeslagen!", tool });
+    res.json({ message: "Gereedschap opgeslagen!" });
 
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Opslaan mislukt" });
   }
+
 });
 
 app.get('/categorieen', async (req,res)=>{
-  const cat = await prisma.categorie.findMany();
-  res.json(cat);
+  try {
+    const categorieen = await prisma.categorie.findMany();
+    res.json(categorieen);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({error: "Categorieën ophalen mislukt"});
+  }
 });
 
 // listen altijd als laatste
