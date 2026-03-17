@@ -41,9 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function displayResults(tools) {
-
     const resultsDiv = document.getElementById("results");
-
     resultsDiv.innerHTML = "";
 
     if (tools.length === 0) {
@@ -52,13 +50,12 @@ function displayResults(tools) {
     }
 
     tools.forEach(tool => {
-
         const div = document.createElement("div");
 
         div.innerHTML = `
-            <h3>${tool.name}</h3>
-            <p>${tool.description}</p>
-            <small>${tool.location}</small>
+            <h3>${tool.Naam}</h3>
+            <p>${tool.Beschrijving || "Geen beschrijving beschikbaar"}</p>
+            ${tool.Afbeelding ? `<img src="${tool.Afbeelding}" alt="${tool.Naam}" style="max-width:150px; display:block;">` : ""}
         `;
 
         resultsDiv.appendChild(div);
