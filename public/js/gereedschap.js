@@ -37,11 +37,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("startDate").textContent = start;
         document.getElementById("endDate").textContent = end;
 
-        // Reserveer knop
-        document.getElementById("reserveBtn").addEventListener("click", () => {
-            alert(`Je hebt ${tool.Naam} gereserveerd! (Demo)`); // later koppelen aan backend
-        });
-
     } catch (err) {
         console.error(err);
         alert("Fout bij ophalen gereedschap");
