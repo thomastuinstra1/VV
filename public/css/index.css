@@ -35,7 +35,6 @@ header {
     background-color: white;
     padding: 15px 0;
     border-bottom: 1px solid #e5e7eb;
-
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -63,7 +62,6 @@ nav ul {
 nav a {
     text-decoration: none;
     color: #374151;
-    font-weight: 500;
 }
 
 nav a:hover {
@@ -86,13 +84,10 @@ nav a:hover {
 .hero h1 {
     font-size: 2.5rem;
     margin-bottom: 20px;
-    letter-spacing: -0.5px;
 }
 
 .hero-subtitle {
-    font-size: 1.2rem;
     margin-bottom: 30px;
-    color: #374151;
 }
 
 .search-container {
@@ -106,7 +101,6 @@ nav a:hover {
     width: 380px;
     border: 1px solid #ccc;
     border-radius: 6px 0 0 6px;
-    font-size: 16px;
 }
 
 .search-container input:focus {
@@ -115,15 +109,10 @@ nav a:hover {
 
 .search-container button {
     padding: 14px 22px;
-    border: none;
     background-color: #1e3a8a;
     color: white;
+    border: none;
     border-radius: 0 6px 6px 0;
-    cursor: pointer;
-}
-
-.search-container button:hover {
-    background-color: #172554;
 }
 
 .btn-primary {
@@ -132,29 +121,20 @@ nav a:hover {
     padding: 12px 20px;
     border-radius: 8px;
     text-decoration: none;
-    margin-right: 10px;
 }
 
 .btn-secondary {
-    background-color: white;
-    color: #1e3a8a;
-    padding: 12px 20px;
     border: 2px solid #1e3a8a;
+    padding: 12px 20px;
     border-radius: 8px;
     text-decoration: none;
-}
-
-.voordelen {
-    padding: 60px 0;
-    background-color: white;
-    text-align: center;
+    color: #1e3a8a;
 }
 
 .voordeel-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
-    margin-top: 40px;
 }
 
 .voordeel {
@@ -162,31 +142,24 @@ nav a:hover {
     padding: 25px;
     border-radius: 10px;
     border: 1px solid #e5e7eb;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.voordeel:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-}
-
-.voordeel h3 {
-    margin-bottom: 10px;
-    color: #1e3a8a;
-}
-
-.hoe-werkt-het {
-    padding: 60px 0;
-    background-color: #f9fafb;
-}
-
-.hoe-werkt-het h2 {
-    text-align: center;
 }
 
 .hoe-werkt-het ol {
     width: fit-content;
     margin: 20px auto;
+}
+
+#results {
+    max-width: 800px;
+    margin: 40px auto;
+}
+
+#results div {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
 }
 
 footer {
@@ -196,40 +169,30 @@ footer {
     text-align: center;
 }
 
-footer ul {
-    list-style: none;
-    margin-top: 15px;
+.visually-hidden {
+    position: absolute;
+    left: -9999px;
 }
 
-footer li {
-    display: inline;
-    margin: 0 10px;
-}
-
-footer a {
-    color: #d1d5db;
-    text-decoration: none;
+a:focus, button:focus, input:focus {
+    outline: 2px solid #f97316;
 }
 
 @media (max-width: 768px) {
-
     .voordeel-grid {
         grid-template-columns: 1fr;
     }
 
     nav ul {
         flex-direction: column;
-        gap: 10px;
     }
 
     .search-container {
         flex-direction: column;
-        align-items: center;
     }
 
     .search-container input {
         width: 100%;
-        max-width: 300px;
         border-radius: 6px;
         margin-bottom: 10px;
     }
