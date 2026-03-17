@@ -278,25 +278,26 @@ app.get('/categorieen', async (req,res)=>{
 
 // Alle gereedschappen ophalen
 app.get('/gereedschap', async (req, res) => {
-  try {
-    const { search } = req.query; 
+    try {
+        const { search, id } = req.query;
 
-    const tools = await prisma.gereedschap.findMany({
-      where: {
-        Naam: {
-          contains: search || '',
+        let where = {};
+        if (search) {
+            where.Naam = { contains: search };
+        } else if (id) {
+            where.Gereedschap_id = parseInt(id);
         }
-      },
-      orderBy: {
-        Gereedschap_id: 'desc'
-      }
-    });
 
-    res.json(tools);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Ophalen gereedschap mislukt' });
-  }
+        const tools = await prisma.gereedschap.findMany({
+            where,
+            orderBy: { Gereedschap_id: 'desc' }
+        });
+
+        res.json(tools);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Ophalen gereedschap mislukt' });
+    }
 });
 
 // listen altijd als laatste
