@@ -101,3 +101,4 @@ function displayResults(tools) {
         resultsDiv.appendChild(div);
     });
 }
+}}    
