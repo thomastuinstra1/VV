@@ -1,45 +1,38 @@
 document.addEventListener("DOMContentLoaded", function () {
-
-    function searchTools() {
-
-        const input = document
-            .getElementById("searchInput")
-            .value
-            .trim()
-            .toLowerCase();
+    async function searchTools() {
+        const input = document.getElementById("searchInput").value.trim();
 
         if (input === "") {
             alert("Vul een zoekterm in!");
             return;
         }
 
-        console.log("Zoekterm:", input);
-
-        alert("Je zocht naar: " + input);
+        try {
+            const response = await fetch(`/gereedschap?search=${encodeURIComponent(input)}`);
+            const results = await response.json();
+            displayResults(results);
+        } catch (err) {
+            console.error(err);
+            document.getElementById("results").innerHTML = "<p>Er ging iets mis met zoeken.</p>";
+        }
     }
 
     window.searchTools = searchTools;
 
-    const searchInput = document.getElementById("searchInput");
-
-    searchInput.addEventListener("keyup", function (event) {
-        if (event.key === "Enter") {
-            searchTools();
-        }
+    document.getElementById("searchInput").addEventListener("keyup", function (e) {
+        if (e.key === "Enter") searchTools();
     });
 
+    loadTools();
 });
-
-document.addEventListener("DOMContentLoaded", loadTools);
 
 async function loadTools() {
     try {
         const response = await fetch("/gereedschap");
         const tools = await response.json();
-
         displayTools(tools);
-    } catch (error) {
-        console.error("Fout bij laden tools:", error);
+    } catch (err) {
+        console.error("Fout bij laden tools:", err);
     }
 }
 
@@ -47,8 +40,8 @@ function displayTools(tools) {
     const container = document.getElementById("toolsContainer");
     container.innerHTML = "";
 
-    if (tools.length === 0) {
-        container.innerHTML = "<p>Geen gereedschap gevonden.</p>";
+    if (!tools.length) {
+        container.innerHTML = "<p>Geen gereedschap beschikbaar.</p>";
         return;
     }
 
@@ -56,14 +49,12 @@ function displayTools(tools) {
         const card = document.createElement("div");
         card.classList.add("tool-card");
 
-        const imageUrl = tool.Afbeelding 
-            ? tool.Afbeelding 
-            : '/images/default.jpg';
+        const imageUrl = tool.Afbeelding || '/images/default.jpg';
 
         card.innerHTML = `
             <img src="${imageUrl}" alt="${tool.Naam}">
             <div class="tool-card-content">
-                <h3>${tool.Naam || 'Onbekend gereedschap'}</h3>
+                <h3>${tool.Naam}</h3>
                 <p>${tool.Beschrijving || ''}</p>
                 <div class="tool-price">€${tool.BorgBedrag || 0} borg</div>
             </div>
@@ -74,5 +65,24 @@ function displayTools(tools) {
         });
 
         container.appendChild(card);
+    });
+}
+
+function displayResults(results) {
+    const container = document.getElementById("results");
+    container.innerHTML = "";
+
+    if (!results.length) {
+        container.innerHTML = "<p>Geen resultaten gevonden.</p>";
+        return;
+    }
+
+    results.forEach(tool => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <h3>${tool.Naam}</h3>
+            <p>${tool.Beschrijving || ''}</p>
+        `;
+        container.appendChild(div);
     });
 }
