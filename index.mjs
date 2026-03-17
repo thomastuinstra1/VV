@@ -276,6 +276,29 @@ app.get('/categorieen', async (req,res)=>{
   }
 });
 
+// Alle gereedschappen ophalen
+app.get('/gereedschap', async (req, res) => {
+  try {
+    const { search } = req.query; 
+
+    const tools = await prisma.gereedschap.findMany({
+      where: {
+        Naam: {
+          contains: search || '',
+        }
+      },
+      orderBy: {
+        Gereedschap_id: 'desc'
+      }
+    });
+
+    res.json(tools);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ophalen gereedschap mislukt' });
+  }
+});
+
 // listen altijd als laatste
 app.listen(PORT, HOST, () => {
   console.log(`Server draait op http://${HOST}:${PORT}`);
