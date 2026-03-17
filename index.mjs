@@ -34,6 +34,8 @@ function isLoggedIn(req, res, next) {
   res.status(401).json({ message: 'Niet ingelogd' });
 }
 
+
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'public/uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
@@ -294,25 +296,6 @@ app.get('/gereedschap', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ophalen gereedschap mislukt' });
-// Zoekfunctie
-app.get('/api/search', async (req, res) => {
-  const query = req.query.q;
-
-  if (!query) return res.json([]);
-
-  try {
-    const results = await prisma.gereedschap.findMany({
-      where: {
-        Naam: { contains: query, mode: 'insensitive' }
-      },
-      select: { Gereedschap_id: true, Naam: true, Beschrijving: true, Afbeelding: true }
-    });
-
-    res.json(results);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Zoeken mislukt" });
   }
 });
 
@@ -320,3 +303,4 @@ app.get('/api/search', async (req, res) => {
 app.listen(PORT, HOST, () => {
   console.log(`Server draait op http://${HOST}:${PORT}`);
 });
+
