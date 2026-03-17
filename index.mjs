@@ -34,8 +34,6 @@ function isLoggedIn(req, res, next) {
   res.status(401).json({ message: 'Niet ingelogd' });
 }
 
-
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, 'public/uploads/'),
   filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
@@ -280,4 +278,3 @@ app.get('/categorieen', async (req,res)=>{
 app.listen(PORT, HOST, () => {
   console.log(`Server draait op http://${HOST}:${PORT}`);
 });
-

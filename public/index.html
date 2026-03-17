@@ -10,115 +10,123 @@
 
 <body>
 
-    <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
+<a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
 
-    <header>
-        <div class="container nav-container">
+<header>
+    <div class="container nav-container">
 
-            <div class="logo">
-                <a href="#">Gereedschapspunt</a>
-            </div>
-
-            <nav>
-                <ul>
-                    <li><a href="#">Aanbod</a></li>
-                    <li><a href="#">Hoe werkt het?</a></li>
-                    <li><a href="inlog.html">Inloggen</a></li>
-                    <li><a href="accountinstellingen.html">Account</a></li>
-                    <li><a href="#" class="cta-small">Plaats gereedschap</a></li>
-                </ul>
-            </nav>
-
+        <div class="logo">
+            <a href="#">Gereedschapspunt</a>
         </div>
-    </header>
 
-    <main id="main-content">
+        <nav>
+            <ul>
+                <li><a href="#">Aanbod</a></li>
+                <li><a href="#">Hoe werkt het?</a></li>
+                <li><a href="inlog.html">Inloggen</a></li>
+                <li><a href="accountinstellingen.html">Account</a></li>
+                <li><a href="#" class="cta-small">Plaats gereedschap</a></li>
+            </ul>
+        </nav>
 
-        <section class="hero">
-            <div class="container">
+    </div>
+</header>
 
-                <h1>Leen gereedschap in jouw buurt</h1>
+<main id="main-content">
 
-                <p class="hero-subtitle">
-                    Vind snel het juiste gereedschap, reserveer eenvoudig en help mee aan een duurzamere buurt.
-                </p>
-
-                <div class="search-container">
-                    <input 
-                        type="text" 
-                        id="searchInput" 
-                        placeholder="Zoek gereedschap..." 
-                        aria-label="Zoek gereedschap">
-                    <button onclick="searchTools()">Zoeken</button>
-                </div>
-
-                <div class="hero-buttons">
-                    <a href="#" class="btn-primary">Bekijk aanbod</a>
-                    <a href="#" class="btn-secondary">Plaats gereedschap</a>
-                </div>
-
-            </div>
-        </section>
-
-        <section class="voordelen">
-            <div class="container">
-
-                <h2>Waarom Gereedschapspunt?</h2>
-
-                <div class="voordeel-grid">
-
-                    <div class="voordeel">
-                        <h3>Snel en eenvoudig</h3>
-                        <p>Zoek het gereedschap dat je nodig hebt en reserveer het in een paar klikken.</p>
-                    </div>
-
-                    <div class="voordeel">
-                        <h3>Lokaal en betrouwbaar</h3>
-                        <p>Leen van mensen uit jouw buurt en maak duidelijke afspraken.</p>
-                    </div>
-
-                    <div class="voordeel">
-                        <h3>Duurzaam en betaalbaar</h3>
-                        <p>Bespaar geld en verminder verspilling door te lenen in plaats van te kopen.</p>
-                    </div>
-
-                </div>
-
-            </div>
-        </section>
-
-        <section class="hoe-werkt-het">
-            <div class="container">
-
-                <h2>Hoe werkt het?</h2>
-
-                <ol>
-                    <li>Zoek gereedschap in jouw buurt.</li>
-                    <li>Reserveer eenvoudig via het platform.</li>
-                    <li>Haal het op en breng het weer terug.</li>
-                </ol>
-
-            </div>
-        </section>
-
-    </main>
-
-    <footer>
+    <section class="hero">
         <div class="container">
 
-            <p>&copy; 2026 Gereedschapspunt</p>
+            <h1>Leen gereedschap in jouw buurt</h1>
 
-            <ul>
-                <li><a href="#">Over ons</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="#">Privacy</a></li>
-            </ul>
+            <p class="hero-subtitle">
+                Vind snel het juiste gereedschap, reserveer eenvoudig en help mee aan een duurzamere buurt.
+            </p>
+
+            <div class="search-container">
+
+                <label for="searchInput" class="visually-hidden">
+                    Zoek gereedschap
+                </label>
+
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Zoek gereedschap...">
+
+                <button onclick="searchTools()">Zoeken</button>
+
+            </div>
+
+            <div class="hero-buttons">
+                <a href="#" class="btn-primary">Bekijk aanbod</a>
+                <a href="#" class="btn-secondary">Plaats gereedschap</a>
+            </div>
 
         </div>
-    </footer>
+    </section>
+    <div id="results"></div>
+
+    <section class="voordelen">
+
+    <section class="voordelen">
+        <div class="container">
+
+            <h2>Waarom Gereedschapspunt?</h2>
+
+            <div class="voordeel-grid">
+
+                <div class="voordeel">
+                    <h3>Snel en eenvoudig</h3>
+                    <p>Zoek het gereedschap dat je nodig hebt en reserveer het in een paar klikken.</p>
+                </div>
+
+                <div class="voordeel">
+                    <h3>Lokaal en betrouwbaar</h3>
+                    <p>Leen van mensen uit jouw buurt en maak duidelijke afspraken.</p>
+                </div>
+
+                <div class="voordeel">
+                    <h3>Duurzaam en betaalbaar</h3>
+                    <p>Bespaar geld en verminder verspilling door te lenen in plaats van te kopen.</p>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+    <section class="hoe-werkt-het">
+        <div class="container">
+
+            <h2>Hoe werkt het?</h2>
+
+            <ol>
+                <li>Zoek gereedschap in jouw buurt.</li>
+                <li>Reserveer eenvoudig via het platform.</li>
+                <li>Haal het op en breng het weer terug.</li>
+            </ol>
+
+        </div>
+    </section>
+
+</main>
+
+<footer>
+    <div class="container">
+
+        <p>&copy; 2026 Gereedschapspunt</p>
+
+        <ul>
+            <li><a href="#">Over ons</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">Privacy</a></li>
+        </ul>
+
+    </div>
+</footer>
 
 <script src="js/index.js"></script>
 
 </body>
-
 </html>
