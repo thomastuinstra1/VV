@@ -240,6 +240,9 @@ footer a {
 
 }
 
+/* Bestaande CSS blijft hetzelfde ... */
+
+/* Tools grid en cards */
 .tools-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -289,4 +292,18 @@ footer a {
     font-weight: bold;
     font-size: 16px;
     color: #2e7d32;
+}
+
+/* Zoekresultaten */
+#results {
+    margin: 40px auto;
+    max-width: 900px;
+}
+
+#results div {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
 }
