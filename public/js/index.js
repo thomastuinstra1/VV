@@ -61,7 +61,7 @@ function displayTools(tools) {
         `;
 
         card.addEventListener("click", () => {
-            window.location.href = `/tool.html?id=${tool.Gereedschap_id}`;
+            window.location.href = `/gereedschap.html?id=${tool.Gereedschap_id}`;
         });
 
         container.appendChild(card);
