@@ -358,6 +358,30 @@ io.on("connection", (socket) => {
   });
 });
 
+app.get('/messages/:userId', isLoggedIn, async (req, res) => {
+  const currentUserId = req.session.userId;
+  const otherUserId = parseInt(req.params.userId);
+
+  if (!otherUserId) return res.status(400).json({ error: 'Ongeldige partner ID' });
+
+  try {
+    const messages = await prisma.berichten.findMany({
+      where: {
+        OR: [
+          { senderId: currentUserId, receiverId: otherUserId },
+          { senderId: otherUserId, receiverId: currentUserId }
+        ]
+      },
+      orderBy: { id: 'asc' }
+    });
+
+    res.json(messages);
+  } catch (err) {
+    console.error('Fout bij ophalen berichten:', err);
+    res.status(500).json({ error: 'Kon berichten niet ophalen' });
+  }
+});
+
 server.listen(PORT, HOST, () => {
   console.log(`Server draait op https://${HOST}:${PORT}`);
 });
