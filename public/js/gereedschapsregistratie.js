@@ -57,7 +57,7 @@ document.getElementById("toolForm").addEventListener("submit", async (e)=>{
     if(selected) categorieen.push(parseInt(selected.value));
   });
 
-  // ===== VALIDATIE =====
+  // VALIDATIE
   if(!data.Naam || !data.Beschrijving || !data.Begindatum || !data.Einddatum || !data.BorgBedrag || !data.Afbeelding){
     alert("Vul alle verplichte velden in"); return;
   }
@@ -73,8 +73,13 @@ document.getElementById("toolForm").addEventListener("submit", async (e)=>{
       body:JSON.stringify(data)
     });
     const result = await res.json();
-    if(res.ok){ alert("Gereedschap succesvol toegevoegd!"); form.reset(); document.getElementById('gereedschap-preview').style.display='none'; }
-    else{ alert(result.message||"Er ging iets mis"); }
+    if(res.ok){
+      alert("Gereedschap succesvol toegevoegd!");
+      form.reset();
+      document.getElementById('gereedschap-preview').style.display='none';
+    }else{
+      alert(result.message||"Er ging iets mis");
+    }
   }catch(err){
     alert("Server fout bij opslaan");
   }

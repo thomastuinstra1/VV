@@ -22,62 +22,62 @@
     </div>
 </header>
 
-<div class="container">
-<h1>Nieuw gereedschap toevoegen</h1>
-<p id="melding"></p>
+<main class="container">
+    <h1>Nieuw gereedschap toevoegen</h1>
+    <p id="melding"></p>
 
-<form id="toolForm">
-<label>Naam *</label>
-<input type="text" name="Naam" required>
+    <form id="toolForm">
+        <label>Naam *</label>
+        <input type="text" name="Naam" required>
 
-<label>Categorieën *</label>
+        <label>Categorieën *</label>
 
-<strong>Type</strong>
-<label class="option"><input type="checkbox" name="Type" value="5" data-group="Type"> Bescherming</label>
-<label class="option"><input type="checkbox" name="Type" value="6" data-group="Type"> Meetapparatuur</label>
-<label class="option"><input type="checkbox" name="Type" value="7" data-group="Type"> Tuingereedschap</label>
+        <strong>Type</strong>
+        <label class="option"><input type="checkbox" name="Type" value="5" data-group="Type"> Bescherming</label>
+        <label class="option"><input type="checkbox" name="Type" value="6" data-group="Type"> Meetapparatuur</label>
+        <label class="option"><input type="checkbox" name="Type" value="7" data-group="Type"> Tuingereedschap</label>
 
-<strong>Materiaal</strong>
-<label class="option"><input type="checkbox" name="Materiaal" value="11" data-group="Materiaal"> IJzer</label>
-<label class="option"><input type="checkbox" name="Materiaal" value="12" data-group="Materiaal"> Hout</label>
-<label class="option"><input type="checkbox" name="Materiaal" value="13" data-group="Materiaal"> Steen</label>
+        <strong>Materiaal</strong>
+        <label class="option"><input type="checkbox" name="Materiaal" value="11" data-group="Materiaal"> IJzer</label>
+        <label class="option"><input type="checkbox" name="Materiaal" value="12" data-group="Materiaal"> Hout</label>
+        <label class="option"><input type="checkbox" name="Materiaal" value="13" data-group="Materiaal"> Steen</label>
 
-<strong>Werkwijze</strong>
-<label class="option"><input type="checkbox" name="Werkwijze" value="14" data-group="Werkwijze"> Bekabeld</label>
-<label class="option"><input type="checkbox" name="Werkwijze" value="15" data-group="Werkwijze"> Brandstof</label>
-<label class="option"><input type="checkbox" name="Werkwijze" value="16" data-group="Werkwijze"> Accu</label>
+        <strong>Werkwijze</strong>
+        <label class="option"><input type="checkbox" name="Werkwijze" value="14" data-group="Werkwijze"> Bekabeld</label>
+        <label class="option"><input type="checkbox" name="Werkwijze" value="15" data-group="Werkwijze"> Brandstof</label>
+        <label class="option"><input type="checkbox" name="Werkwijze" value="16" data-group="Werkwijze"> Accu</label>
 
-<strong>Gewicht</strong>
-<label class="option"><input type="checkbox" name="Gewicht" value="17" data-group="Gewicht"> 0-5kg</label>
-<label class="option"><input type="checkbox" name="Gewicht" value="18" data-group="Gewicht"> 5-10kg</label>
-<label class="option"><input type="checkbox" name="Gewicht" value="19" data-group="Gewicht"> 10+kg</label>
+        <strong>Gewicht</strong>
+        <label class="option"><input type="checkbox" name="Gewicht" value="17" data-group="Gewicht"> 0-5kg</label>
+        <label class="option"><input type="checkbox" name="Gewicht" value="18" data-group="Gewicht"> 5-10kg</label>
+        <label class="option"><input type="checkbox" name="Gewicht" value="19" data-group="Gewicht"> 10+kg</label>
 
-<strong>Staat</strong>
-<label class="option"><input type="checkbox" name="Staat" value="21" data-group="Staat"> Nieuw</label>
-<label class="option"><input type="checkbox" name="Staat" value="22" data-group="Staat"> Gebruikt</label>
-<label class="option"><input type="checkbox" name="Staat" value="23" data-group="Staat"> Versleten</label>
+        <strong>Staat</strong>
+        <label class="option"><input type="checkbox" name="Staat" value="21" data-group="Staat"> Nieuw</label>
+        <label class="option"><input type="checkbox" name="Staat" value="22" data-group="Staat"> Gebruikt</label>
+        <label class="option"><input type="checkbox" name="Staat" value="23" data-group="Staat"> Versleten</label>
 
-<label>Beschrijving *</label>
-<textarea name="Beschrijving" required></textarea>
+        <label>Beschrijving *</label>
+        <textarea name="Beschrijving" required></textarea>
 
-<label>Beschikbaar van *</label>
-<input type="date" name="Begindatum" required>
+        <label>Beschikbaar van *</label>
+        <input type="date" name="Begindatum" required>
 
-<label>Beschikbaar tot *</label>
-<input type="date" name="Einddatum" required>
+        <label>Beschikbaar tot *</label>
+        <input type="date" name="Einddatum" required>
 
-<label>Borg bedrag *</label>
-<input type="number" step="0.01" name="BorgBedrag" required>
+        <label>Borg bedrag *</label>
+        <input type="number" step="0.01" name="BorgBedrag" required>
 
-<label>Afbeelding *</label>
-<img id="gereedschap-preview" alt="Afbeelding preview">
-<input type="file" id="afbeelding-input" accept="image/*"><br>
-<button type="button" id="upload-btn">Upload afbeelding</button>
-<input type="hidden" id="afbeelding-url" name="Afbeelding"><br><br>
+        <label>Afbeelding *</label>
+        <img id="gereedschap-preview" alt="Afbeelding preview">
+        <input type="file" id="afbeelding-input" accept="image/*"><br>
+        <button type="button" id="upload-btn">Upload afbeelding</button>
+        <input type="hidden" id="afbeelding-url" name="Afbeelding"><br><br>
 
-<button type="submit">Opslaan</button>
-</form>
-</div>
+        <button type="submit">Opslaan</button>
+    </form>
+</main>
 
 <footer>
     <div class="container">
