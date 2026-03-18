@@ -78,11 +78,24 @@ function displayResults(results) {
     }
 
     results.forEach(tool => {
-        const div = document.createElement("div");
-        div.innerHTML = `
-            <h3>${tool.Naam}</h3>
-            <p>${tool.Beschrijving || ''}</p>
+        const card = document.createElement("div");
+        card.classList.add("tool-card");
+
+        const imageUrl = tool.Afbeelding || '/images/default.jpg';
+
+        card.innerHTML = `
+            <img src="${imageUrl}" alt="${tool.Naam}">
+            <div class="tool-card-content">
+                <h3>${tool.Naam}</h3>
+                <p>${tool.Beschrijving || ''}</p>
+                <div class="tool-price">€${tool.BorgBedrag || 0} borg</div>
+            </div>
         `;
-        container.appendChild(div);
+
+        card.addEventListener("click", () => {
+            window.location.href = `/tool.html?id=${tool.Gereedschap_id}`;
+        });
+
+        container.appendChild(card);
     });
 }
