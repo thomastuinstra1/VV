@@ -1,0 +1,39 @@
+/* ===== BASIS ===== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background: #f5f7fa; color: #1f2937; line-height: 1.6; }
+.container { width: 90%; max-width: 1200px; margin: 0 auto; }
+
+/* ===== HEADER ===== */
+header { background: #fff; padding: 15px 0; border-bottom: 1px solid #e5e7eb; position: sticky; top: 0; z-index: 1000; }
+.nav-container { display: flex; justify-content: space-between; align-items: center; }
+.logo a { font-size: 1.5rem; font-weight: bold; text-decoration: none; color: #1e3a8a; }
+nav ul { list-style: none; display: flex; gap: 20px; }
+nav a { text-decoration: none; color: #374151; font-weight: 500; }
+nav a:hover { color: #1e3a8a; }
+.cta-small { background-color: #f97316; color: white; padding: 6px 12px; border-radius: 6px; }
+
+/* ===== FORMULIER ===== */
+form { background: #fff; padding: 20px; border-radius: 10px; border: 1px solid #e5e7eb; margin: 40px 0; }
+h1 { text-align: center; margin-bottom: 20px; color: #1e3a8a; }
+label { font-weight: bold; }
+input[type="text"], input[type="date"], input[type="number"], textarea { width: 100%; padding: 8px; margin: 5px 0 15px 0; border: 1px solid #ccc; border-radius: 6px; }
+textarea { resize: vertical; min-height: 80px; }
+.option { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+button { background-color: #1e3a8a; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; }
+button:hover { background-color: #172554; }
+.error { border: 2px solid red; }
+#melding { margin-bottom: 15px; font-weight: bold; color: red; }
+#gereedschap-preview { width: 100px; height: 100px; object-fit: cover; display: none; margin-bottom: 10px; }
+
+/* ===== FOOTER ===== */
+footer { background-color: #1f2937; color: white; padding: 30px 0; text-align: center; }
+footer ul { list-style: none; margin-top: 15px; }
+footer li { display: inline; margin: 0 10px; }
+footer a { color: #d1d5db; text-decoration: none; }
+footer a:hover { color: #f97316; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    nav ul { flex-direction: column; gap: 10px; }
+    form { padding: 15px; }
+}
