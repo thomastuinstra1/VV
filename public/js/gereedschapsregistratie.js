@@ -17,6 +17,21 @@ function clearErrors() {
 }
 
 // ==============================
+// 🖱️ MAX 1 CHECKBOX PER GROEP
+// ==============================
+document.querySelectorAll('input[type="checkbox"][data-group]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    if (cb.checked) {
+      const group = cb.dataset.group;
+      document.querySelectorAll(`input[type="checkbox"][data-group="${group}"]`)
+        .forEach(other => {
+          if (other !== cb) other.checked = false;
+        });
+    }
+  });
+});
+
+// ==============================
 // 🖼️ AFBEELDING PREVIEW
 // ==============================
 document.getElementById('afbeelding-input').addEventListener('change', () => {
@@ -37,9 +52,7 @@ document.getElementById('upload-btn').addEventListener('click', async () => {
   const fileInput = document.getElementById('afbeelding-input');
   const file = fileInput.files[0];
 
-  if (!file) {
-    return showMelding('Selecteer eerst een afbeelding');
-  }
+  if (!file) return showMelding('Selecteer eerst een afbeelding');
 
   const formData = new FormData();
   formData.append('afbeelding', file);
@@ -58,7 +71,6 @@ document.getElementById('upload-btn').addEventListener('click', async () => {
     } else {
       showMelding(data.error || 'Upload mislukt');
     }
-
   } catch (error) {
     showMelding('Server fout bij upload');
   }
@@ -69,20 +81,25 @@ document.getElementById('upload-btn').addEventListener('click', async () => {
 // ==============================
 document.getElementById("toolForm").addEventListener("submit", async (e) => {
   e.preventDefault(); // voorkomt refresh
-
-  clearErrors(); // reset rode randjes
+  clearErrors();
 
   const form = e.target;
   const data = Object.fromEntries(new FormData(form));
 
-  // geselecteerde categorieën ophalen
-  const categorieCheckboxes = document.querySelectorAll('input[name="Categorieen"]:checked');
-  const categorieen = Array.from(categorieCheckboxes).map(cb => parseInt(cb.value));
+  // ==============================
+  // ✅ CATEGORIEËN PER GROEP OPHALEN
+  // ==============================
+  const groups = ["Type","Materiaal","Werkwijze","Gewicht","Staat"];
+  let categorieen = [];
+
+  groups.forEach(group => {
+    const selected = document.querySelector(`input[name="${group}"]:checked`);
+    if(selected) categorieen.push(parseInt(selected.value));
+  });
 
   // ==============================
   // 🔴 VALIDATIE
   // ==============================
-
   if (!data.Naam) {
     showMelding("Naam is verplicht");
     form.Naam.classList.add("error");
@@ -111,8 +128,8 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
     return;
   }
 
-  if (categorieen.length === 0) {
-    showMelding("Selecteer minimaal één categorie");
+  if (categorieen.length !== groups.length) {
+    showMelding("Selecteer één optie per groep (Type, Materiaal, Werkwijze, Gewicht, Staat)");
     return;
   }
 
@@ -121,18 +138,15 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
     return;
   }
 
-  // categorieën toevoegen aan data
   data.categorieen = categorieen;
 
   // ==============================
-  // 📡 DATA VERSTUREN NAAR SERVER
+  // 📡 VERZEND NAAR SERVER
   // ==============================
   try {
     const res = await fetch("/gereedschap", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
 
@@ -140,14 +154,11 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
 
     if (res.ok) {
       showMelding("Gereedschap succesvol toegevoegd!", "green");
-
       form.reset();
       document.getElementById("gereedschap-preview").style.display = "none";
-
     } else {
       showMelding(result.message || "Er ging iets mis");
     }
-
   } catch (error) {
     showMelding("Server fout bij opslaan");
   }

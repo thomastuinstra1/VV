@@ -17,6 +17,13 @@ input, textarea {
   margin-top: 4px;
 }
 
+.option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
 .error {
   border: 2px solid red;
 }
@@ -28,7 +35,6 @@ input, textarea {
 </style>
 
 </head>
-
 <body>
 
 <h1>Nieuw gereedschap toevoegen</h1>
@@ -43,32 +49,29 @@ input, textarea {
 <label>Categorieën *</label><br>
 
 <strong>Type</strong><br>
-<input type="checkbox" name="Categorieen" value="5"> Bescherming<br>
-<input type="checkbox" name="Categorieen" value="6"> Meetapparatuur<br>
-<input type="checkbox" name="Categorieen" value="7"> Tuingereedschap<br>
-<input type="checkbox" name="Categorieen" value="8"> Boormachines<br>
-<input type="checkbox" name="Categorieen" value="9"> Verfgereedschap<br>
-<input type="checkbox" name="Categorieen" value="10"> Handgereedschap<br><br>
+<label class="option"><input type="checkbox" name="Type" value="5" data-group="Type"> Bescherming</label>
+<label class="option"><input type="checkbox" name="Type" value="6" data-group="Type"> Meetapparatuur</label>
+<label class="option"><input type="checkbox" name="Type" value="7" data-group="Type"> Tuingereedschap</label><br>
 
 <strong>Materiaal</strong><br>
-<input type="checkbox" name="Categorieen" value="11"> IJzer<br>
-<input type="checkbox" name="Categorieen" value="12"> Hout<br>
-<input type="checkbox" name="Categorieen" value="13"> Steen<br><br>
+<label class="option"><input type="checkbox" name="Materiaal" value="11" data-group="Materiaal"> IJzer</label>
+<label class="option"><input type="checkbox" name="Materiaal" value="12" data-group="Materiaal"> Hout</label>
+<label class="option"><input type="checkbox" name="Materiaal" value="13" data-group="Materiaal"> Steen</label><br>
 
 <strong>Werkwijze</strong><br>
-<input type="checkbox" name="Categorieen" value="14"> Bekabeld<br>
-<input type="checkbox" name="Categorieen" value="15"> Brandstof<br>
-<input type="checkbox" name="Categorieen" value="16"> Accu<br><br>
+<label class="option"><input type="checkbox" name="Werkwijze" value="14" data-group="Werkwijze"> Bekabeld</label>
+<label class="option"><input type="checkbox" name="Werkwijze" value="15" data-group="Werkwijze"> Brandstof</label>
+<label class="option"><input type="checkbox" name="Werkwijze" value="16" data-group="Werkwijze"> Accu</label><br>
 
 <strong>Gewicht</strong><br>
-<input type="checkbox" name="Categorieen" value="17"> 0-5kg<br>
-<input type="checkbox" name="Categorieen" value="18"> 5-10kg<br>
-<input type="checkbox" name="Categorieen" value="19"> 10+kg<br><br>
+<label class="option"><input type="checkbox" name="Gewicht" value="17" data-group="Gewicht"> 0-5kg</label>
+<label class="option"><input type="checkbox" name="Gewicht" value="18" data-group="Gewicht"> 5-10kg</label>
+<label class="option"><input type="checkbox" name="Gewicht" value="19" data-group="Gewicht"> 10+kg</label><br>
 
 <strong>Staat</strong><br>
-<input type="checkbox" name="Categorieen" value="21"> Nieuw<br>
-<input type="checkbox" name="Categorieen" value="22"> Gebruikt<br>
-<input type="checkbox" name="Categorieen" value="23"> Versleten<br><br>
+<label class="option"><input type="checkbox" name="Staat" value="21" data-group="Staat"> Nieuw</label>
+<label class="option"><input type="checkbox" name="Staat" value="22" data-group="Staat"> Gebruikt</label>
+<label class="option"><input type="checkbox" name="Staat" value="23" data-group="Staat"> Versleten</label><br><br>
 
 <label>Beschrijving *</label><br>
 <textarea name="Beschrijving" required></textarea><br><br>
