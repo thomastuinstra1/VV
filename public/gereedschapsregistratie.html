@@ -3,18 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <title>Gereedschap toevoegen</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+input, textarea {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+}
+
+.error {
+  border: 2px solid red;
+}
+
+#melding {
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+</style>
+
 </head>
 
 <body>
 
 <h1>Nieuw gereedschap toevoegen</h1>
 
+<p id="melding"></p>
+
 <form id="toolForm">
 
-<label>Naam</label><br>
+<label>Naam *</label><br>
 <input type="text" name="Naam" required><br><br>
 
-<label>Categorieën</label><br>
+<label>Categorieën *</label><br>
 
 <strong>Type</strong><br>
 <input type="checkbox" name="Categorieen" value="5"> Bescherming<br>
@@ -44,19 +70,19 @@
 <input type="checkbox" name="Categorieen" value="22"> Gebruikt<br>
 <input type="checkbox" name="Categorieen" value="23"> Versleten<br><br>
 
-<label>Beschrijving</label><br>
-<textarea name="Beschrijving"></textarea><br><br>
+<label>Beschrijving *</label><br>
+<textarea name="Beschrijving" required></textarea><br><br>
 
-<label>Beschikbaar van</label><br>
-<input type="date" name="Begindatum"><br><br>
+<label>Beschikbaar van *</label><br>
+<input type="date" name="Begindatum" required><br><br>
 
-<label>Beschikbaar tot</label><br>
-<input type="date" name="Einddatum"><br><br>
+<label>Beschikbaar tot *</label><br>
+<input type="date" name="Einddatum" required><br><br>
 
-<label>Borg bedrag</label><br>
-<input type="number" step="0.01" name="BorgBedrag"><br><br>
+<label>Borg bedrag *</label><br>
+<input type="number" step="0.01" name="BorgBedrag" required><br><br>
 
-<label>Afbeelding</label><br>
+<label>Afbeelding *</label><br>
 <img id="gereedschap-preview" src="" alt="Afbeelding preview"
   style="width:100px; height:100px; object-fit:cover; display:none;"><br>
 <input type="file" id="afbeelding-input" accept="image/*"><br>
