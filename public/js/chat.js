@@ -66,6 +66,11 @@ function initSocket() {
     }
   });
 
+  if (!CURRENT_USER_ID) {
+  console.error('CURRENT_USER_ID is niet gezet, socket kan niet verbinden');
+  return;
+}
+
   socket.on("disconnect", () => console.log("Socket.IO verbinding verbroken"));
 }
 
@@ -101,3 +106,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
+console.log('CURRENT_USER_ID:', CURRENT_USER_ID);
+console.log('CHAT_PARTNER_ID:', CHAT_PARTNER_ID);
