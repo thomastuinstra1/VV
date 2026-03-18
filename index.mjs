@@ -244,7 +244,8 @@ app.post('/gereedschap', isLoggedIn, async (req, res) => {
         Begindatum: Begindatum ? new Date(Begindatum) : null,
         Einddatum: Einddatum ? new Date(Einddatum) : null,
         BorgBedrag: BorgBedrag && BorgBedrag !== '' ? parseFloat(BorgBedrag) : null,
-        Afbeelding: Afbeelding
+        Afbeelding: Afbeelding,
+        Account_id: req.session.userId
       }
     });
 
