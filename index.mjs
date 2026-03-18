@@ -5,7 +5,8 @@ import bcrypt from 'bcryptjs';
 import prisma from './prismaClient.mjs';
 import multer from 'multer';
 import path from 'path';
-
+import { Server } from "socket.io";
+import http from "http";
 
 const app = express();
 app.use(express.json());
@@ -313,7 +314,51 @@ app.get('/gereedschap', async (req, res) => {
 });
 
 // listen altijd als laatste
-app.listen(PORT, HOST, () => {
-  console.log(`Server draait op http://${HOST}:${PORT}`);
+const server = http.createServer(app);
+
+// Socket.IO setup
+const io = new Server(server, {
+  cors: {
+    origin: "https://gereedschapspunt.student.open-ict.hu/index.html",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on("connection", (socket) => {
+  const userId = socket.handshake.auth.userId;
+
+  if (!userId) {
+    console.log("Geen userId, verbinding verbroken");
+    socket.disconnect();
+    return;
+  }
+
+  console.log(`User ${userId} verbonden via Socket.IO`);
+  socket.join(userId); // iedere gebruiker in eigen “room”
+
+  // Berichten versturen
+  socket.on("send_message", async (data) => {
+    const { content, toUserId } = data;
+    const fromUserId = userId;
+
+    try {
+      const message = await prisma.berichten.create({
+        data: { content, senderId: fromUserId, receiverId: toUserId }
+      });
+
+      io.to(toUserId).emit("receive_message", message); // naar ontvanger
+      socket.emit("receive_message", message); // terug naar verzender
+    } catch (err) {
+      console.error("Fout bij versturen bericht:", err);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User ${userId} heeft verbinding verbroken`);
+  });
+});
+
+server.listen(PORT, HOST, () => {
+  console.log(`Server draait op https://${HOST}:${PORT}`);
 });
 
