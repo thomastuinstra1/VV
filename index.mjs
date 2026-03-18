@@ -314,6 +314,88 @@ app.get('/gereedschap', async (req, res) => {
   }
 });
 
+// ============================================================
+// Voeg deze 3 routes toe aan server.js
+// (voor de app.listen regel onderaan)
+// ============================================================
+
+// Mijn eigen gereedschap ophalen
+app.get('/mijn-gereedschap', isLoggedIn, async (req, res) => {
+  try {
+    const tools = await prisma.gereedschap.findMany({
+      where: { Account_id: req.session.userId },
+      orderBy: { Gereedschap_id: 'desc' }
+    });
+    res.json(tools);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ophalen mislukt' });
+  }
+});
+
+// Categorieën van één gereedschap ophalen
+app.get('/gereedschap/:id/categorieen', async (req, res) => {
+  try {
+    const koppelingen = await prisma.gereedschap_Categorie.findMany({
+      where: { Gereedschap_id: parseInt(req.params.id) }
+    });
+    res.json(koppelingen);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ophalen categorieën mislukt' });
+  }
+});
+
+// Gereedschap bewerken
+app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
+  const id = parseInt(req.params.id);
+  const { Naam, Beschrijving, BorgBedrag, Begindatum, Einddatum, categorieen } = req.body;
+
+  try {
+    // Controleer of dit gereedschap van de ingelogde gebruiker is
+    const tool = await prisma.gereedschap.findUnique({
+      where: { Gereedschap_id: id }
+    });
+
+    if (!tool || tool.Account_id !== req.session.userId) {
+      return res.status(403).json({ error: 'Geen toegang' });
+    }
+
+    // Update de velden
+    await prisma.gereedschap.update({
+      where: { Gereedschap_id: id },
+      data: {
+        Naam,
+        Beschrijving,
+        BorgBedrag: BorgBedrag ? parseFloat(BorgBedrag) : null,
+        Begindatum: Begindatum ? new Date(Begindatum) : null,
+        Einddatum: Einddatum ? new Date(Einddatum) : null
+      }
+    });
+
+    // Categorieën bijwerken: verwijder oude, voeg nieuwe toe
+    if (categorieen !== undefined) {
+      await prisma.gereedschap_Categorie.deleteMany({
+        where: { Gereedschap_id: id }
+      });
+
+      if (categorieen.length > 0) {
+        await prisma.gereedschap_Categorie.createMany({
+          data: categorieen.map(catId => ({
+            Gereedschap_id: id,
+            Categorie_id: catId
+          }))
+        });
+      }
+    }
+
+    res.json({ message: 'Gereedschap bijgewerkt!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Bijwerken mislukt' });
+  }
+});
+
 // listen altijd als laatste
 const server = http.createServer(app);
 

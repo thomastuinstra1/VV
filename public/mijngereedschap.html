@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mijn Gereedschap - Gereedschapspunt</title>
+    <link rel="stylesheet" href="css/index.css">
+    <link rel="stylesheet" href="css/mijngereedschap.css">
+</head>
+
+<body>
+    <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
+
+    <header>
+        <div class="container nav-container">
+            <div class="logo">
+                <a href="index.html">Gereedschapspunt</a>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Aanbod</a></li>
+                    <li><a href="#">Hoe werkt het?</a></li>
+                    <li><a href="inlog.html">Inloggen</a></li>
+                    <li><a href="accountinstellingen.html">Account</a></li>
+                    <li><a href="gereedschapsregistratie.html" class="cta-small">Plaats gereedschap</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main id="main-content">
+        <section class="mijn-header">
+            <div class="container">
+                <h1>Mijn gereedschap</h1>
+                <p>Beheer en bewerk je geplaatste gereedschap.</p>
+            </div>
+        </section>
+
+        <section class="mijn-content">
+            <div class="container">
+                <div id="geenGereedschap" class="geen-items" hidden>
+                    <p>Je hebt nog geen gereedschap geplaatst.</p>
+                    <a href="gereedschapsregistratie.html" class="btn-primary">Plaats gereedschap</a>
+                </div>
+                <div id="gereedschapLijst" class="mijn-grid"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bewerkmodal -->
+    <div class="modal-overlay" id="modalOverlay" hidden>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitel">
+            <div class="modal-header">
+                <h2 id="modalTitel">Gereedschap bewerken</h2>
+                <button class="modal-sluit" onclick="sluitModal()" aria-label="Sluiten">×</button>
+            </div>
+
+            <form id="bewerkForm" class="bewerk-form">
+                <input type="hidden" id="bewerkId">
+
+                <div class="form-group">
+                    <label for="bewerkNaam">Naam</label>
+                    <input type="text" id="bewerkNaam" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="bewerkBeschrijving">Beschrijving</label>
+                    <textarea id="bewerkBeschrijving" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="bewerkBorg">Borgbedrag (€)</label>
+                    <input type="number" id="bewerkBorg" min="0" step="0.01">
+                </div>
+
+                <div class="form-group">
+                    <label for="bewerkBegindatum">Beschikbaar vanaf</label>
+                    <input type="date" id="bewerkBegindatum">
+                </div>
+
+                <div class="form-group">
+                    <label for="bewerkEinddatum">Beschikbaar tot</label>
+                    <input type="date" id="bewerkEinddatum">
+                </div>
+
+                <div class="form-group">
+                    <label>Afbeelding</label>
+                    <div class="afbeelding-preview" id="afbeeldingPreview"></div>
+                    <input type="file" id="bewerkAfbeelding" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>Categorieën</label>
+                    <div id="bewerkCategorieen" class="categorie-checkboxes"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-secundair" onclick="sluitModal()">Annuleren</button>
+                    <button type="submit" class="btn-primair">Opslaan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Gereedschapspunt</p>
+            <ul>
+                <li><a href="#">Over ons</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">Privacy</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="js/mijngereedschap.js"></script>
+</body>
+
+</html>
