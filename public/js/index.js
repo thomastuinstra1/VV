@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    loadFilters();
     async function searchTools() {
         const input = document.getElementById("searchInput").value.trim();
 
