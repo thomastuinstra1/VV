@@ -1,58 +1,56 @@
 let CURRENT_USER_ID;
 let CHAT_PARTNER_ID;
+let socket;
 
-//Haal CURRENT_USER_ID op vanuit de backend
+// Huidige gebruiker ophalen vanuit backend
 async function getCurrentUserId() {
   try {
     const res = await fetch('/me');
     if (!res.ok) throw new Error('Kon gebruiker niet ophalen');
     const user = await res.json();
-    CURRENT_USER_ID = user.Account_id; // pas aan als jouw backend een andere property gebruikt
+    CURRENT_USER_ID = user.Account_id;
   } catch (err) {
-    console.error('Fout bij ophalen huidige gebruiker:', err);
+    console.error(err);
   }
 }
 
-//Haal CHAT_PARTNER_ID op uit URL query parameter
+// CHAT_PARTNER_ID ophalen uit URL
 function getChatPartnerId() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const partnerId = parseInt(urlParams.get('partner'));
-  if (!partnerId) {
-    console.error('Geen partner ID opgegeven in URL (bijv. ?partner=2)');
-  }
-  CHAT_PARTNER_ID = partnerId;
+  const params = new URLSearchParams(window.location.search);
+  CHAT_PARTNER_ID = parseInt(params.get('partner'));
+  if (!CHAT_PARTNER_ID) console.error('Geen partner ID opgegeven in URL (bijv. ?partner=2)');
 }
 
-//Voeg bericht toe aan UI
+// Voeg bericht toe aan UI
 function addMessageToUI(message) {
   const box = document.getElementById("chat-box");
   const div = document.createElement("div");
   div.textContent = `${message.senderId === CURRENT_USER_ID ? 'Jij' : 'Partner'}: ${message.content}`;
   div.className = message.senderId === CURRENT_USER_ID ? 'my-message' : 'their-message';
   box.appendChild(div);
-  box.scrollTop = box.scrollHeight; // scroll automatisch naar beneden
+  box.scrollTop = box.scrollHeight;
 }
 
-//Bericht verzenden
+// Verstuur bericht via Socket.IO
 function sendMessage(toUserId, content) {
+  if (!socket || !toUserId || !content) return;
   socket.emit("send_message", { content, toUserId });
 }
 
-//Huidige chat ophalen
-async function loadMessages(otherUserId) {
+// Oude berichten ophalen
+async function loadMessages() {
   try {
-    const res = await fetch(`/messages/${otherUserId}`);
+    const res = await fetch(`/messages/${CHAT_PARTNER_ID}`);
     if (!res.ok) throw new Error('Kon berichten niet ophalen');
     const messages = await res.json();
     messages.forEach(msg => addMessageToUI(msg));
   } catch (err) {
-    console.error('Fout bij laden berichten:', err);
+    console.error(err);
   }
 }
 
-//Socket.IO connectie opzetten (pas URL aan naar je frontend/server)
-let socket;
-async function initSocket() {
+// Socket.IO initialiseren
+function initSocket() {
   socket = io("https://gereedschapspunt.student.open-ict.hu", {
     auth: { userId: CURRENT_USER_ID }
   });
@@ -62,27 +60,29 @@ async function initSocket() {
   });
 
   socket.on("receive_message", (message) => {
-    addMessageToUI(message);
+    // Alleen berichten van/naar huidige partner tonen
+    if (message.senderId === CHAT_PARTNER_ID || message.receiverId === CHAT_PARTNER_ID) {
+      addMessageToUI(message);
+    }
   });
 
-  socket.on("disconnect", () => {
-    console.log("Socket.IO verbinding verbroken");
-  });
+  socket.on("disconnect", () => console.log("Socket.IO verbinding verbroken"));
 }
 
-//Alles initialiseren bij laden pagina
+// DOMContentLoaded – alles initialiseren
 document.addEventListener("DOMContentLoaded", async () => {
   await getCurrentUserId();
   getChatPartnerId();
 
   if (!CURRENT_USER_ID || !CHAT_PARTNER_ID) return;
 
-  await initSocket();
-  await loadMessages(CHAT_PARTNER_ID);
+  initSocket();
+  await loadMessages();
 
-  // Verstuur bericht via input/button
-  const sendBtn = document.querySelector("#send-btn");
-  const input = document.querySelector("#chat-input");
+  // Versturen via button
+  const sendBtn = document.getElementById("send-btn");
+  const input = document.getElementById("chat-input");
+
   sendBtn.addEventListener("click", () => {
     const content = input.value.trim();
     if (!content) return;
