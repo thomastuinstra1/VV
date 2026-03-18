@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    loadFilters();
     async function searchTools() {
         const input = document.getElementById("searchInput").value.trim();
 
@@ -26,15 +27,22 @@ document.addEventListener("DOMContentLoaded", function () {
     loadTools();
 });
 
-async function loadTools() {
-    try {
-        const response = await fetch("/gereedschap");
-        const tools = await response.json();
-        displayTools(tools);
-    } catch (err) {
-        console.error("Fout bij laden tools:", err);
-    }
+async function fetchAndDisplay(url) {
+  try {
+    const response = await fetch(url);
+    const tools = await response.json();
+    displayTools(tools);
+  } catch (err) {
+    console.error("Fout bij laden tools:", err);
+    document.getElementById("toolsContainer").innerHTML = "<p>Er ging iets mis.</p>";
+  }
 }
+
+async function loadTools() {
+  await fetchAndDisplay('/gereedschap');
+}
+
+
 
 function displayTools(tools) {
     const container = document.getElementById("toolsContainer");
@@ -99,3 +107,115 @@ function displayResults(results) {
         container.appendChild(card);
     });
 }
+
+async function loadFilters() {
+  try {
+    const res = await fetch('/categorieen');
+    const cats = await res.json();
+    renderFilters(cats);
+  } catch (err) {
+    document.getElementById('filterGroups').innerHTML = '<p style="color:#9ca3af;font-size:.85rem">Filters niet beschikbaar.</p>';
+  }
+}
+
+function renderFilters(categorieen) {
+  const parents = categorieen.filter(c => c.Parent_id === null);
+  const children = categorieen.filter(c => c.Parent_id !== null);
+
+  const container = document.getElementById('filterGroups');
+  container.innerHTML = '';
+
+  for (const parent of parents) {
+    const groepEl = document.createElement('div');
+    groepEl.classList.add('filter-group');
+
+    const title = document.createElement('div');
+    title.classList.add('filter-group-title');
+    title.textContent = parent.Naam;
+    groepEl.appendChild(title);
+
+    const opties = children.filter(c => c.Parent_id === parent.Categorie_id);
+    for (const cat of opties) {
+      const label = document.createElement('label');
+      label.classList.add('filter-option');
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = cat.Categorie_id;
+      checkbox.dataset.naam = cat.Naam;
+      checkbox.id = `cat-${cat.Categorie_id}`;
+      checkbox.addEventListener('change', applyFilters);
+
+      label.setAttribute('for', `cat-${cat.Categorie_id}`);
+      label.appendChild(checkbox);
+      const span = document.createElement('span');
+      span.textContent = cat.Naam;
+      label.appendChild(span);
+      groepEl.appendChild(label);
+    }
+    container.appendChild(groepEl);
+  }
+}
+
+function buildFilterParams() {
+  const checkboxes = document.querySelectorAll('#filterGroups input[type="checkbox"]:checked');
+  const ids = Array.from(checkboxes).map(cb => cb.value);
+  const params = new URLSearchParams();
+  if (ids.length > 0) params.set('categorieen', ids.join(','));
+  return params;
+}
+
+async function applyFilters() {
+  const params = buildFilterParams();
+  const searchVal = document.getElementById("searchInput").value.trim();
+  if (searchVal) params.set('search', searchVal);
+  updateActiveFilterChips();
+  updateFilterBadge();
+  await fetchAndDisplay(`/gereedschap?${params.toString()}`);
+}
+
+function updateActiveFilterChips() {
+  const container = document.getElementById('activeFilters');
+  const checked = document.querySelectorAll('#filterGroups input[type="checkbox"]:checked');
+  if (checked.length === 0) {
+    container.hidden = true;
+    container.innerHTML = '';
+    document.getElementById('resetBtn').hidden = true;
+    return;
+  }
+  container.hidden = false;
+  container.innerHTML = '';
+  document.getElementById('resetBtn').hidden = false;
+  checked.forEach(cb => {
+    const chip = document.createElement('button');
+    chip.classList.add('filter-chip');
+    chip.innerHTML = `${cb.dataset.naam} <span>×</span>`;
+    chip.addEventListener('click', () => { cb.checked = false; applyFilters(); });
+    container.appendChild(chip);
+  });
+}
+
+function updateFilterBadge() {
+  const count = document.querySelectorAll('#filterGroups input[type="checkbox"]:checked').length;
+  const badge = document.getElementById('filterBadge');
+  badge.textContent = count;
+  badge.hidden = count === 0;
+}
+
+window.resetFilters = function () {
+  document.querySelectorAll('#filterGroups input[type="checkbox"]').forEach(cb => cb.checked = false);
+  document.getElementById("searchInput").value = '';
+  updateActiveFilterChips();
+  updateFilterBadge();
+  loadTools();
+};
+
+window.toggleFilterPanel = function () {
+  const panel = document.getElementById('filterPanel');
+  const overlay = document.getElementById('filterOverlay');
+  const btn = document.getElementById('filterToggle');
+  const isOpen = panel.classList.toggle('open');
+  overlay.classList.toggle('active', isOpen);
+  btn.setAttribute('aria-expanded', isOpen);
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+};

@@ -278,26 +278,38 @@ app.get('/categorieen', async (req,res)=>{
 
 // Alle gereedschappen ophalen
 app.get('/gereedschap', async (req, res) => {
-    try {
-        const { search, id } = req.query;
+  try {
+    const { search, id, categorieen } = req.query;
 
-        let where = {};
-        if (search) {
-            where.Naam = { contains: search };
-        } else if (id) {
-            where.Gereedschap_id = parseInt(id);
-        }
+    let where = {};
 
-        const tools = await prisma.gereedschap.findMany({
-            where,
-            orderBy: { Gereedschap_id: 'desc' }
-        });
-
-        res.json(tools);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Ophalen gereedschap mislukt' });
+    if (search) {
+      where.Naam = { contains: search };
+    } else if (id) {
+      where.Gereedschap_id = parseInt(id);
     }
+
+    if (categorieen) {
+      const catIds = categorieen.split(',').map(Number).filter(Boolean);
+      if (catIds.length > 0) {
+        where.Gereedschap_Categorie = {
+          some: {
+            Categorie_id: { in: catIds }
+          }
+        };
+      }
+    }
+
+    const tools = await prisma.gereedschap.findMany({
+      where,
+      orderBy: { Gereedschap_id: 'desc' }
+    });
+
+    res.json(tools);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ophalen gereedschap mislukt' });
+  }
 });
 
 // listen altijd als laatste

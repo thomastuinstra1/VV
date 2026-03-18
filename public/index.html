@@ -52,12 +52,37 @@
             <div id="results"></div>
         </section>
 
-        <section class="tool-list">
-            <div class="container">
-                <h2>Beschikbaar gereedschap</h2>
-                <div id="toolsContainer" class="tools-grid"></div>
-            </div>
-        </section>
+        <section class="browse-section" id="browse">
+  <div class="container browse-layout">
+
+    <button class="filter-toggle-btn" id="filterToggle" onclick="toggleFilterPanel()" aria-expanded="false">
+      ⚙ Filters
+      <span class="filter-badge" id="filterBadge" hidden>0</span>
+    </button>
+
+    <div class="filter-overlay" id="filterOverlay" onclick="toggleFilterPanel()"></div>
+
+    <aside class="filter-panel" id="filterPanel">
+      <div class="filter-header">
+        <span class="filter-title">Filteren</span>
+        <button class="filter-reset" id="resetBtn" onclick="resetFilters()" hidden>Wis alles</button>
+      </div>
+      <div id="filterGroups">
+        <p style="color:#9ca3af;font-size:.85rem">Filters laden...</p>
+      </div>
+    </aside>
+
+    <div class="tools-section">
+      <div class="tools-header">
+        <h2>Beschikbaar gereedschap</h2>
+        <span id="toolCount" class="tool-count"></span>
+      </div>
+      <div id="activeFilters" class="active-filters" hidden></div>
+      <div id="toolsContainer" class="tools-grid"></div>
+    </div>
+
+  </div>
+</section>
 
         <section class="voordelen">
             <div class="container">
