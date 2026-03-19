@@ -1,5 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
+document.getElementById('logout-btn').addEventListener('click', async () => {
+    const response = await fetch('/logout', { method: 'POST' });
+    if (response.ok) {
+        window.location.href = 'inlog.html';
+    } else {
+        alert('Er is iets misgegaan bij het uitloggen');
+    }
+});
+    
     // Huidige gegevens ophalen en invullen
     try {
         const response = await fetch('/me');
@@ -65,6 +74,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
+
+
 
 // Preview direct bij selecteren
 document.getElementById('afbeelding-input').addEventListener('change', () => {
