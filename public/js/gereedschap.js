@@ -37,6 +37,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("startDate").textContent = start;
         document.getElementById("endDate").textContent = end;
 
+        // Chat knop
+        const chatKnop = document.createElement('a');
+        chatKnop.href = `chat.html?partner=${tool.Account_id}`;
+        chatKnop.textContent = '💬 Chat met eigenaar';
+        chatKnop.classList.add('btn-chat');
+        document.querySelector('.tool-info').appendChild(chatKnop);
+
     } catch (err) {
         console.error(err);
         alert("Fout bij ophalen gereedschap");

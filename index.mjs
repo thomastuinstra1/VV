@@ -211,6 +211,39 @@ app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
   }
 });
 
+// Alle unieke gesprekspartners ophalen
+app.get('/mijn-chats', isLoggedIn, async (req, res) => {
+    const userId = req.session.userId;
+
+    try {
+        const berichten = await prisma.berichten.findMany({
+            where: {
+                OR: [
+                    { senderId: userId },
+                    { receiverId: userId }
+                ]
+            },
+            orderBy: { id: 'desc' }
+        });
+
+        // Unieke partner IDs verzamelen
+        const partnerIds = [...new Set(
+            berichten.map(b => b.senderId === userId ? b.receiverId : b.senderId)
+        )];
+
+        // Accountgegevens van partners ophalen
+        const partners = await prisma.account.findMany({
+            where: { Account_id: { in: partnerIds } },
+            select: { Account_id: true, Name: true, Afbeelding: true }
+        });
+
+        res.json(partners);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Ophalen mislukt' });
+    }
+});
+
 // Uitloggen
 app.post('/logout', (req, res) => {
   req.session.destroy(err => {
