@@ -8,6 +8,21 @@ import path from 'path';
 import { Server } from "socket.io";
 import http from "http";
 
+// ── Automatische e-mails via Apps Script ──
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxo_EldpTHSCZIw2Nq8B64RjtlaWjCoSlUGS-LLGt-hCfRFhfDdYFSr_EazJe6u--qeYQ/exec';
+
+async function sendEmail(type, userEmail, userName, toolName = null) {
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, userEmail, userName, toolName })
+    });
+  } catch (err) {
+    console.error('E-mail versturen mislukt:', err);
+  }
+}
+
 const app = express();
 app.use(express.json());
 app.use(express.static("public"));
@@ -203,6 +218,12 @@ app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
     await prisma.gereedschap.delete({
       where: { Gereedschap_id: id }
     });
+
+    const account = await prisma.account.findUnique({
+      where: { Account_id: req.session.userId },
+      select: { E_mail: true, Name: true }
+    });
+    await sendEmail('tool_deleted', account.E_mail, account.Name, tool.Naam);
 
     res.json({ message: 'Gereedschap verwijderd!' });
   } catch (error) {
@@ -451,6 +472,15 @@ app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
       }
     }
 
+    // Haal e-mail op van ingelogde gebruiker
+    const account = await prisma.account.findUnique({
+      where: { Account_id: req.session.userId },
+      select: { E_mail: true, Name: true }
+    });
+    await sendEmail('tool_updated', account.E_mail, account.Name, tool.Naam);
+
+
+
     res.json({ message: 'Gereedschap bijgewerkt!' });
   } catch (error) {
     console.error(error);
@@ -491,8 +521,26 @@ io.on("connection", (socket) => {
         data: { content, senderId: fromUserId, receiverId: toUserId }
       });
 
-      io.to(toUserId).emit("receive_message", message); // naar ontvanger
-      socket.emit("receive_message", message); // terug naar verzender
+      // Check of dit het eerste bericht in dit gesprek is
+      const aantalBerichten = await prisma.berichten.count({
+        where: {
+          OR: [
+            { senderId: fromUserId, receiverId: toUserId },
+            { senderId: toUserId, receiverId: fromUserId }
+          ]
+        }
+      });
+
+      if (aantalBerichten === 1) {
+        const account = await prisma.account.findUnique({
+          where: { Account_id: fromUserId },
+          select: { E_mail: true, Name: true }
+        });
+        await sendEmail('new_chat', account.E_mail, account.Name);
+      }
+
+      io.to(toUserId).emit("receive_message", message);
+      socket.emit("receive_message", message);
     } catch (err) {
       console.error("Fout bij versturen bericht:", err);
     }
