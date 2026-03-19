@@ -182,6 +182,35 @@ app.get('/me', isLoggedIn, async (req, res) => {
   }
 });
 
+// Gereedschap verwijderen
+app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
+  const id = parseInt(req.params.id);
+
+  try {
+    const tool = await prisma.gereedschap.findUnique({
+      where: { Gereedschap_id: id }
+    });
+
+    if (!tool || tool.Account_id !== req.session.userId) {
+      return res.status(403).json({ error: 'Geen toegang' });
+    }
+
+    // Eerst categoriekoppelingen verwijderen (foreign key)
+    await prisma.gereedschap_Categorie.deleteMany({
+      where: { Gereedschap_id: id }
+    });
+
+    await prisma.gereedschap.delete({
+      where: { Gereedschap_id: id }
+    });
+
+    res.json({ message: 'Gereedschap verwijderd!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Verwijderen mislukt' });
+  }
+});
+
 // Uitloggen
 app.post('/logout', (req, res) => {
   req.session.destroy(err => {

@@ -45,6 +45,7 @@ function toonGereedschap(tools) {
             </div>
             <div class="mijn-kaart-acties">
                 <button class="btn-bewerk" onclick="openModal(${tool.Gereedschap_id})">✏ Bewerken</button>
+                <button class="btn-verwijder" onclick="verwijderGereedschap(${tool.Gereedschap_id})">🗑 Verwijderen</button>
             </div>
         `;
 
@@ -189,5 +190,20 @@ document.getElementById('bewerkForm').addEventListener('submit', async function 
         alert('Er ging iets mis bij het opslaan.');
     }
 });
+
+window.verwijderGereedschap = async function(id) {
+    if (!confirm('Weet je zeker dat je dit gereedschap wilt verwijderen?')) return;
+
+    try {
+        const res = await fetch(`/gereedschap/${id}`, { method: 'DELETE' });
+
+        if (!res.ok) throw new Error('Verwijderen mislukt');
+
+        laadMijnGereedschap(); // lijst herladen
+    } catch (err) {
+        console.error('Fout bij verwijderen:', err);
+        alert('Er ging iets mis bij het verwijderen.');
+    }
+};
 
 window.openModal = openModal;
