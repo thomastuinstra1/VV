@@ -1,134 +1,151 @@
-.register-page {
-    min-height: calc(100vh - 120px);
-    padding: 130px 0 70px;
-    background: linear-gradient(180deg, #fffaf5 0%, #eef4ff 100%);
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-.register-shell {
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #4f8cff, #6fd6ff);
+    height: 100vh;
     display: flex;
     justify-content: center;
-    margin-top: 30px;
+    align-items: center;
 }
 
-.register-box {
-    position: relative;
-    width: 100%;
-    max-width: 620px;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid #e5e7eb;
-    border-radius: 28px;
-    padding: 70px 40px 40px;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.07);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+/* Container voor login & register */
+.login-container {
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    width: 380px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
 }
 
-.register-mascot {
-    position: absolute;
-    top: -100px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 300px;
-    z-index: 3;
-    pointer-events: none;
-}
-
-.register-box h1 {
-    font-size: 2.2rem;
-    line-height: 1.1;
-    color: #1f2937;
-    margin-bottom: 12px;
+/* Titel */
+.login-container h1 {
     text-align: center;
+    margin-bottom: 25px;
+    color: #333;
 }
 
-.register-sub {
-    color: #6b7280;
-    font-size: 1rem;
-    margin-bottom: 28px;
-    text-align: center;
-}
-
+/* Form groups */
 .form-group {
     margin-bottom: 18px;
 }
 
-.form-group label {
+/* Labels */
+label {
     display: block;
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 8px;
+    font-size: 14px;
+    margin-bottom: 6px;
+    color: #555;
 }
 
-.form-group input {
+/* Inputs */
+input {
     width: 100%;
-    padding: 14px 16px;
-    border: 1px solid #dbe1ea;
-    border-radius: 10px;
-    font-size: 1rem;
-    background: #ffffff;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.2s;
 }
 
-.form-group input:focus {
-    outline: none;
-    border-color: #1e3a8a;
-    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.08);
-}
-
-.register-box button {
+button {
     width: 100%;
-    padding: 14px 20px;
-    border: none;
-    border-radius: 10px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    padding: 12px;
+    background: #4f8cff;
     color: white;
-    font-size: 1rem;
-    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 10px 22px rgba(249, 115, 22, 0.22);
-    margin-top: 8px;
+    transition: 0.2s;
 }
 
-.register-box button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 24px rgba(249, 115, 22, 0.28);
+button:hover {
+    background: #3b6fd8;
 }
 
-.register-link {
+/* Link onderaan */
+.form-group a {
     display: block;
     text-align: center;
-    margin-top: 18px;
-    color: #1e3a8a;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #4f8cff;
     text-decoration: none;
-    font-weight: 600;
 }
 
-.register-link:hover {
+.form-group a:hover {
     text-decoration: underline;
 }
 
-@media (max-width: 700px) {
-    .register-page {
-        padding: 70px 0 50px;
-    }
-
-    .register-box {
-        padding: 100px 22px 26px;
-        border-radius: 22px;
-    }
-
-    .register-mascot {
-        width: 160px;
-        top: -48px;
-    }
-
-    .register-box h1 {
-        font-size: 1.8rem;
-    }
+footer {
+    background-color: #1f2937;
+    color: white;
+    padding: 30px 0;
+    text-align: center;
 }
 
-.site-footer {
-    display: none !important;
+footer ul {
+    list-style: none;
+    margin-top: 15px;
+}
+
+footer li {
+    display: inline;
+    margin: 0 10px;
+}
+
+footer a {
+    color: #d1d5db;
+    text-decoration: none;
+}
+
+header {
+    background-color: white;
+    padding: 15px 0;
+    border-bottom: 1px solid #e5e7eb;
+
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo a {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: #1e3a8a;
+}
+
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #374151;
+    font-weight: 500;
+}
+
+nav a:hover {
+    color: #1e3a8a;
+}
+
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
