@@ -66,32 +66,41 @@ document.getElementById('afbeelding-input').addEventListener('change', () => {
 });
 
 // ==============================
-// ⬆️ AFBEELDING UPLOAD
+// 🖼️ AFBEELDING SELECT + AUTO UPLOAD
 // ==============================
-document.getElementById('upload-btn').addEventListener('click', async () => {
-    const file = document.getElementById('afbeelding-input').files[0];
-    if(!file){
-        showMelding("Selecteer eerst een afbeelding");
-        return;
-    }
+document.getElementById('afbeelding-input').addEventListener('change', async () => {
+    const fileInput = document.getElementById('afbeelding-input');
+    const file = fileInput.files[0];
+    if (!file) return;
 
+    // Preview tonen
+    const preview = document.getElementById('gereedschap-preview');
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+
+    // Upload starten
     const formData = new FormData();
     formData.append('afbeelding', file);
+
+    showMelding("Afbeelding uploaden...", "black");
 
     try {
         const res = await fetch('/account/afbeelding', {
             method: 'POST',
             body: formData,
-            credentials: 'include' // indien login-cookie nodig
+            credentials: 'include'
         });
+
         const data = await res.json();
-        if(res.ok){
+
+        if (res.ok) {
             document.getElementById('afbeelding-url').value = data.url;
-            showMelding("Afbeelding geüpload!", "green");
+            showMelding("Afbeelding succesvol geüpload!", "green");
         } else {
             showMelding(data.error || "Upload mislukt");
         }
-    } catch(err) {
+
+    } catch (err) {
         showMelding("Server fout bij upload");
     }
 });
@@ -106,49 +115,58 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
     const form = e.target;
     const data = Object.fromEntries(new FormData(form));
 
+    // ✅ Afbeelding expliciet ophalen (BELANGRIJK)
+    const afbeeldingUrl = document.getElementById('afbeelding-url').value;
+
+    if (!afbeeldingUrl) {
+        showMelding("Upload eerst een afbeelding");
+        return;
+    }
+
+    data.Afbeelding = afbeeldingUrl;
+
     // ✅ Haal geselecteerde categorieën
     const groepen = ["Type", "Materiaal", "Werkwijze", "Gewicht", "Staat"];
     let categorieen = [];
+
     groepen.forEach(group => {
         const selected = document.querySelector(`input[name="${group}"]:checked`);
-        if(selected) categorieen.push(parseInt(selected.value));
+        if (selected) categorieen.push(parseInt(selected.value));
     });
 
     // ==============================
     // 🔴 VALIDATIE
     // ==============================
-    if(!data.Naam){
+    if (!data.Naam) {
         showMelding("Naam is verplicht");
         form.Naam.classList.add("error");
         return;
     }
-    if(!data.Beschrijving){
+
+    if (!data.Beschrijving) {
         showMelding("Beschrijving is verplicht");
         form.Beschrijving.classList.add("error");
         return;
     }
-    if(!data.Begindatum || !data.Einddatum){
+
+    if (!data.Begindatum || !data.Einddatum) {
         showMelding("Vul beide datums in");
         return;
     }
 
-    // Einddatum moet minimaal 1 dag na begindatum zijn
-    if(new Date(data.Einddatum) <= new Date(data.Begindatum)){
+    if (new Date(data.Einddatum) <= new Date(data.Begindatum)) {
         showMelding("Einddatum moet minimaal 1 dag na begindatum liggen");
         form.Einddatum.classList.add("error");
         return;
     }
 
-    if(!data.BorgBedrag){
+    if (!data.BorgBedrag) {
         showMelding("Borg bedrag is verplicht");
         form.BorgBedrag.classList.add("error");
         return;
     }
-    if(!data.Afbeelding){
-        showMelding("Upload eerst een afbeelding");
-        return;
-    }
-    if(categorieen.length !== groepen.length){
+
+    if (categorieen.length !== groepen.length) {
         showMelding("Selecteer één optie per groep");
         return;
     }
@@ -161,19 +179,24 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
     try {
         const res = await fetch("/gereedschap", {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
         });
+
         const result = await res.json();
-        if(res.ok){
+
+        if (res.ok) {
             showMelding("Gereedschap succesvol toegevoegd!", "green");
             form.reset();
+
             document.getElementById('gereedschap-preview').style.display = 'none';
-            einddatumInput.setAttribute('min', today); // reset min van einddatum
+            document.getElementById('afbeelding-url').value = ""; // reset afbeelding
+
         } else {
             showMelding(result.message || "Er ging iets mis");
         }
-    } catch(err) {
+
+    } catch (err) {
         showMelding("Server fout bij opslaan");
     }
 });
