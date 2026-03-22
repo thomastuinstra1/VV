@@ -1,3 +1,4 @@
+/*
 document.addEventListener("DOMContentLoaded", function () {
     loadFilters();
     async function searchTools() {
@@ -41,7 +42,7 @@ async function fetchAndDisplay(url) {
 async function loadTools() {
   await fetchAndDisplay('/gereedschap');
 }
-
+*/
 
 
 function displayTools(tools) {
@@ -108,6 +109,7 @@ function displayResults(results) {
     });
 }
 
+/*
 async function loadFilters() {
   try {
     const res = await fetch('/categorieen');
@@ -219,3 +221,4 @@ window.toggleFilterPanel = function () {
   btn.setAttribute('aria-expanded', isOpen);
   document.body.style.overflow = isOpen ? 'hidden' : '';
 };
+*/
