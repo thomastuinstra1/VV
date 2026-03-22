@@ -54,6 +54,12 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         if (Password) body.Password = Password;
         if (BSN !== '') body.BSN = BSN;
 
+        // ✅ afbeelding toevoegen
+        const afbeeldingUrl = document.getElementById('afbeelding-url').value;
+        if (afbeeldingUrl) {
+          body.Afbeelding = afbeeldingUrl;
+        }
+
         try {
             const response = await fetch('/account', {
                 method: 'PUT',
@@ -73,37 +79,42 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
             alert('Er is iets misgegaan');
         }
     });
-});
 
+    // ==============================
+    // 🖼️ AFBEELDING SELECT + AUTO UPLOAD
+    // ==============================
+    document.getElementById('afbeelding-input').addEventListener('change', async () => {
+        const file = document.getElementById('afbeelding-input').files[0];
+        if (!file) return;
 
+        // Preview
+        const preview = document.getElementById('profielfoto');
+        preview.src = URL.createObjectURL(file);
 
-// Preview direct bij selecteren
-document.getElementById('afbeelding-input').addEventListener('change', () => {
-    const file = document.getElementById('afbeelding-input').files[0];
-    if (!file) return;
+        const formData = new FormData();
+        formData.append('afbeelding', file);
 
-    const preview = document.getElementById('profielfoto');
-    preview.src = URL.createObjectURL(file);
-});
+        try {
+            const response = await fetch('/account/afbeelding', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            });
 
-// Upload naar server
-document.getElementById('upload-btn').addEventListener('click', async () => {
-    const file = document.getElementById('afbeelding-input').files[0];
-    if (!file) return alert('Selecteer eerst een afbeelding');
+            const data = await response.json();
 
-    const formData = new FormData();
-    formData.append('afbeelding', file);
+            if (response.ok) {
+                // 🔥 BELANGRIJK
+                document.getElementById('afbeelding-url').value = data.url;
 
-    const response = await fetch('/account/afbeelding', {
-        method: 'POST',
-        body: formData
+                preview.src = data.url;
+                alert('Profielfoto opgeslagen!');
+            } else {
+                alert(data.error || 'Upload mislukt');
+            }
+
+        } catch (err) {
+            alert('Server fout bij upload');
+        }
     });
-
-    const data = await response.json();
-    if (response.ok) {
-        document.getElementById('profielfoto').src = data.url;
-        alert('Profielfoto opgeslagen!');
-    } else {
-        alert(data.error || 'Er is iets misgegaan');
-    }
 });
