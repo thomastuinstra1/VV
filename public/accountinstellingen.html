@@ -1,52 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Instellingen</title>
+    <title>Account instellingen</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/accountinstellingen.css">
 </head>
-<body>
-    <h1>Account Instellingen</h1>
+<body class="account-page-body">
 
-    <form id="settings-form">
-        <div>
-    <label>Profielfoto</label>
-            <img id="profielfoto" src="" alt="Profielfoto" style="width:100px; height:100px; border-radius:50%; object-fit:cover;">
-            <input type="file" id="afbeelding-input" accept="image/*">
-            <button type="button" id="upload-btn">Upload foto</button>
+   <header class="site-header">
+        <div class="container nav-container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="./images/logo.png" alt="Gereedschapspunt" class="logo-img">
+                </a>
+            </div>
+
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="mijngereedschap.html">Mijn Gereedschap</a></li>
+                    <li><a href="mijnchats.html">Berichten</a></li>
+                    <li><a href="#">Meldingen</a></li>
+                    <li><a href="inlog.html">Inloggen</a></li>
+                    <li><a href="accountinstellingen.html">Account</a></li>
+                    <li><a href="gereedschapsregistratie.html" class="cta-small">Plaats gereedschap</a></li>
+                </ul>
+            </nav>
         </div>
-        <div>
-            <label for="Name">Username</label>
-            <input type="text" id="Name" name="Name">
+    </header>
+
+    <main class="account-page">
+        <div class="container">
+            <div class="account-shell">
+                <div class="account-box">
+                    <img src="./images/gear.png" alt="" class="account-mascot">
+                    <h1>Account instellingen</h1>
+                    <p class="account-sub">Beheer hier je profiel, contactgegevens en wachtwoord.</p>
+
+                    <form id="settings-form">
+                        <div class="profile-photo-section">
+                            <label>Profielfoto</label>
+
+                            <div class="profile-photo-row">
+                                <img id="profielfoto" src="" alt="Profielfoto" class="profile-photo">
+
+                                <div class="profile-photo-actions">
+                                    <input type="file" id="afbeelding-input" accept="image/*">
+                                    <button type="button" id="upload-btn" class="secondary-btn">Upload foto</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="Name">Gebruikersnaam</label>
+                                <input type="text" id="Name" name="Name">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="E_mail">Email</label>
+                                <input type="email" id="E_mail" name="E_mail">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="Postcode">Postcode</label>
+                                <input type="text" id="Postcode" name="Postcode">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="BSN">BSN</label>
+                                <input type="text" id="BSN" name="BSN">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="Password">Nieuw wachtwoord</label>
+                                <input type="password" id="Password" name="Password">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirm-password">Bevestig wachtwoord</label>
+                                <input type="password" id="confirm-password" name="confirm-password">
+                            </div>
+                        </div>
+
+                        <div class="account-actions">
+                            <button type="submit" class="primary-btn">Opslaan</button>
+                            <button type="button" id="logout-btn" class="secondary-btn logout-btn">Uitloggen</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div>
-            <label for="E_mail">Email</label>
-            <input type="email" id="E_mail" name="E_mail">
-        </div>
-        <div>
-            <label for="Postcode">Postcode</label>
-            <input type="text" id="Postcode" name="Postcode">
-        </div>
-        <div>
-            <label for="Password">Nieuw wachtwoord</label>
-            <input type="password" id="Password" name="Password">
-        </div>
-        <div>
-            <label for="confirm-password">Bevestig wachtwoord</label>
-            <input type="password" id="confirm-password" name="confirm-password">
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <h3>Gereedschapspunt</h3>
+                <p>Leen slim, lokaal en duurzaam.</p>
+            </div>
+
+            <ul class="footer-links">
+                <li><a href="#">Over ons</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">Privacy</a></li>
+            </ul>
         </div>
 
-        <div>
-            <label for="BSN">BSN</label>
-            <input type="text" id="BSN" name="BSN">
+        <div class="footer-bottom">
+            <p>&copy; 2026 Gereedschapspunt</p>
         </div>
-        
-        <button type="submit">Opslaan</button>
-    </form>
+    </footer>
 
-    <button type="button" id="logout-btn">Uitloggen</button>
-
-    <script src="js/accountinstellingen.js" defer></script>
-    
+    <script src="accountinstellingen.js" defer></script>
 </body>
 </html>
