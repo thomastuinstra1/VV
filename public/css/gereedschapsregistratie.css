@@ -362,3 +362,7 @@ textarea {
         justify-content: flex-start;
     }
 }
+
+.site-footer {
+    display: none !important;
+}
