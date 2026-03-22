@@ -1,35 +1,38 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Gereedschap Detail</title>
-    <link rel="stylesheet" href="css/index.css">
-    <link rel="stylesheet" href="css/gereedschap.css">
-</head>
+    <link rel="stylesheet" href="css/index.css" />
+    <link rel="stylesheet" href="css/gereedschap.css" />
+  </head>
 
-<body>  
+  <body>
     <div class="tool-detail-container">
-        <div class="tool-images">
-            <img id="toolImage" src="/images/default.jpg" alt="gereedschap afbeelding">
+      <div class="tool-images">
+        <img
+          id="toolImage"
+          src="/images/default.jpg"
+          alt="gereedschap afbeelding"
+        />
+      </div>
+
+      <div class="tool-info">
+        <h1 id="toolName">Gereedschap Naam</h1>
+        <p id="toolDescription">Beschrijving gereedschap</p>
+
+        <div class="tool-price" id="toolBorg">Borg: €0</div>
+
+        <div class="availability" id="toolAvailability">
+          Beschikbaar van <span id="startDate">--</span> tot
+          <span id="endDate">--</span>
         </div>
 
-        <div class="tool-info">
-            <h1 id="toolName">Gereedschap Naam</h1>
-            <p id="toolDescription">Beschrijving gereedschap</p>
-
-            <div class="tool-price" id="toolBorg">Borg: €0</div>
-
-            <div class="availability" id="toolAvailability">
-                Beschikbaar van <span id="startDate">--</span> tot <span id="endDate">--</span>
-            </div>
-
-            <a href="#" class="btn-reserve" id="reserveBtn">Reserveer nu</a>
-        </div>
+        <a href="#" class="btn-reserve" id="reserveBtn">Reserveer nu</a>
+      </div>
     </div>
 
     <script src="js/gereedschap.js"></script>
-</body>
-
+  </body>
 </html>
