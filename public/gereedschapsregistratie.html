@@ -4,92 +4,317 @@
 <meta charset="UTF-8">
 <title>Gereedschap toevoegen</title>
 <link rel="stylesheet" href="css/gereedschapsregistratie.css">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<header>
-    <div class="container nav-container">
-        <div class="logo"><a href="index.html">Gereedschapspunt</a></div>
-        <nav>
-            <ul>
-                <li><a href="#">Aanbod</a></li>
-                <li><a href="#">Hoe werkt het?</a></li>
-                <li><a href="inlog.html">Inloggen</a></li>
-                <li><a href="accountinstellingen.html">Account</a></li>
-                <li><a href="gereedschapsregistratie.html" class="cta-small">Plaats gereedschap</a></li>
-            </ul>
-        </nav>
+<header class="site-header">
+        <div class="container nav-container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="./images/logo.png" alt="Gereedschapspunt" class="logo-img">
+                </a>
+            </div>
+
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="mijngereedschap.html">Mijn Gereedschap</a></li>
+                    <li><a href="mijnchats.html">Berichten</a></li>
+                    <li><a href="#">Meldingen</a></li>
+                    <li><a href="inlog.html">Inloggen</a></li>
+                    <li><a href="accountinstellingen.html">Account</a></li>
+                    <li><a href="gereedschapsregistratie.html" class="cta-small">Plaats gereedschap</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+<main class="tool-page">
+    <div class="container">
+        <section class="tool-shell">
+            <div class="tool-box">
+                <img src="./images/register.png" class="tool-mascot" alt="Tool helper">
+                <h1>Nieuw gereedschap toevoegen</h1>
+                <p class="tool-sub">Plaats je gereedschap stap voor stap.</p>
+
+                <div class="wizard-progress">
+                    <div class="wizard-step active" data-step="1">1</div>
+                    <div class="wizard-line"></div>
+                    <div class="wizard-step" data-step="2">2</div>
+                    <div class="wizard-line"></div>
+                    <div class="wizard-step" data-step="3">3</div>
+                    <div class="wizard-line"></div>
+                    <div class="wizard-step" data-step="4">4</div>
+                </div>
+
+                <p id="melding"></p>
+
+                <form id="toolForm">
+                    <!-- STEP 1 -->
+                    <div class="form-slide active" data-step="1">
+                        <h2>Basisinformatie</h2>
+                        <p class="slide-sub">Geef je gereedschap een duidelijke naam en beschrijving.</p>
+
+                        <div class="form-group">
+                            <label for="Naam">Naam *</label>
+                            <input type="text" id="Naam" name="Naam" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="Beschrijving">Beschrijving *</label>
+                            <textarea id="Beschrijving" name="Beschrijving" required></textarea>
+                        </div>
+                    </div>      
+
+                   <!-- STEP 2 -->
+<div class="form-slide" data-step="2">
+    <h2>Categorieën</h2>
+    <p class="slide-sub">Kies per onderdeel wat het beste past bij jouw gereedschap.</p>
+
+    <div class="category-stack">
+
+        <div class="category-row">
+            <div class="category-row-head">
+                <h3>Type</h3>
+                <p>Wat voor soort gereedschap is het?</p>
+            </div>
+            <div class="category-row-options">
+                <label class="choice-card">
+                    <input type="radio" name="Type" value="5" data-group="Type">
+                    <span>Bescherming</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Type" value="6" data-group="Type">
+                    <span>Meetapparatuur</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Type" value="7" data-group="Type">
+                    <span>Tuingereedschap</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="category-row">
+            <div class="category-row-head">
+                <h3>Werkwijze</h3>
+                <p>Hoe werkt het gereedschap?</p>
+            </div>
+            <div class="category-row-options">
+                <label class="choice-card">
+                    <input type="radio" name="Werkwijze" value="14" data-group="Werkwijze">
+                    <span>Bekabeld</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Werkwijze" value="15" data-group="Werkwijze">
+                    <span>Brandstof</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Werkwijze" value="16" data-group="Werkwijze">
+                    <span>Accu</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="category-row">
+            <div class="category-row-head">
+                <h3>Materiaal</h3>
+                <p>Voor welk materiaal is het geschikt?</p>
+            </div>
+            <div class="category-row-options">
+                <label class="choice-card">
+                    <input type="radio" name="Materiaal" value="11" data-group="Materiaal">
+                    <span>IJzer</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Materiaal" value="12" data-group="Materiaal">
+                    <span>Hout</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Materiaal" value="13" data-group="Materiaal">
+                    <span>Steen</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="category-row">
+            <div class="category-row-head">
+                <h3>Gewicht</h3>
+                <p>Hoe zwaar is het ongeveer?</p>
+            </div>
+            <div class="category-row-options">
+                <label class="choice-card">
+                    <input type="radio" name="Gewicht" value="17" data-group="Gewicht">
+                    <span>0-5kg</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Gewicht" value="18" data-group="Gewicht">
+                    <span>5-10kg</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Gewicht" value="19" data-group="Gewicht">
+                    <span>10+kg</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="category-row">
+            <div class="category-row-head">
+                <h3>Staat</h3>
+                <p>Wat is de staat van het gereedschap?</p>
+            </div>
+            <div class="category-row-options">
+                <label class="choice-card">
+                    <input type="radio" name="Staat" value="21" data-group="Staat">
+                    <span>Nieuw</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Staat" value="22" data-group="Staat">
+                    <span>Gebruikt</span>
+                </label>
+                <label class="choice-card">
+                    <input type="radio" name="Staat" value="23" data-group="Staat">
+                    <span>Versleten</span>
+                </label>
+            </div>
+        </div>
+
     </div>
-</header>
+</div>
 
-<main class="container">
-    <h1>Nieuw gereedschap toevoegen</h1>
-    <p id="melding"></p>
+                    <!-- STEP 3 -->
+                    <div class="form-slide" data-step="3">
+                        <h2>Beschikbaarheid en borg</h2>
+                        <p class="slide-sub">Laat zien wanneer het beschikbaar is en welke borg je vraagt.</p>
 
-    <form id="toolForm">
-        <label>Naam *</label>
-        <input type="text" name="Naam" required>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="Begindatum">Beschikbaar van *</label>
+                                <input type="date" id="Begindatum" name="Begindatum" required>
+                            </div>
 
-        <label>Categorieën *</label>
+                            <div class="form-group">
+                                <label for="Einddatum">Beschikbaar tot *</label>
+                                <input type="date" id="Einddatum" name="Einddatum" required>
+                            </div>
 
-        <strong>Type</strong>
-        <label class="option"><input type="checkbox" name="Type" value="5" data-group="Type"> Bescherming</label>
-        <label class="option"><input type="checkbox" name="Type" value="6" data-group="Type"> Meetapparatuur</label>
-        <label class="option"><input type="checkbox" name="Type" value="7" data-group="Type"> Tuingereedschap</label>
+                            <div class="form-group full-width">
+                                <label for="BorgBedrag">Borg bedrag *</label>
+                                <input type="number" step="0.01" id="BorgBedrag" name="BorgBedrag" required>
+                            </div>
+                        </div>
+                    </div>
 
-        <strong>Materiaal</strong>
-        <label class="option"><input type="checkbox" name="Materiaal" value="11" data-group="Materiaal"> IJzer</label>
-        <label class="option"><input type="checkbox" name="Materiaal" value="12" data-group="Materiaal"> Hout</label>
-        <label class="option"><input type="checkbox" name="Materiaal" value="13" data-group="Materiaal"> Steen</label>
+                    <!-- STEP 4 -->
+                    <div class="form-slide" data-step="4">
+                        <h2>Afbeelding</h2>
+                        <p class="slide-sub">Upload een duidelijke foto en maak je advertentie aan.</p>
 
-        <strong>Werkwijze</strong>
-        <label class="option"><input type="checkbox" name="Werkwijze" value="14" data-group="Werkwijze"> Bekabeld</label>
-        <label class="option"><input type="checkbox" name="Werkwijze" value="15" data-group="Werkwijze"> Brandstof</label>
-        <label class="option"><input type="checkbox" name="Werkwijze" value="16" data-group="Werkwijze"> Accu</label>
+                        <div class="upload-area">
+                            <img id="gereedschap-preview" alt="Afbeelding preview">
 
-        <strong>Gewicht</strong>
-        <label class="option"><input type="checkbox" name="Gewicht" value="17" data-group="Gewicht"> 0-5kg</label>
-        <label class="option"><input type="checkbox" name="Gewicht" value="18" data-group="Gewicht"> 5-10kg</label>
-        <label class="option"><input type="checkbox" name="Gewicht" value="19" data-group="Gewicht"> 10+kg</label>
+                            <div class="upload-actions">
+                                <label for="afbeelding-input" class="upload-btn">Kies afbeelding</label>
+                                <input type="file" id="afbeelding-input" accept="image/*" hidden>
+                                <button type="button" id="upload-btn" class="secondary-btn">Upload afbeelding</button>
+                            </div>
+                        </div>
 
-        <strong>Staat</strong>
-        <label class="option"><input type="checkbox" name="Staat" value="21" data-group="Staat"> Nieuw</label>
-        <label class="option"><input type="checkbox" name="Staat" value="22" data-group="Staat"> Gebruikt</label>
-        <label class="option"><input type="checkbox" name="Staat" value="23" data-group="Staat"> Versleten</label>
+                        <input type="hidden" id="afbeelding-url" name="Afbeelding">
+                    </div>
 
-        <label>Beschrijving *</label>
-        <textarea name="Beschrijving" required></textarea>
-
-        <label>Beschikbaar van *</label>
-        <input type="date" name="Begindatum" required>
-
-        <label>Beschikbaar tot *</label>
-        <input type="date" name="Einddatum" required>
-
-        <label>Borg bedrag *</label>
-        <input type="number" step="0.01" name="BorgBedrag" required>
-
-        <label>Afbeelding *</label>
-        <img id="gereedschap-preview" alt="Afbeelding preview">
-        <input type="file" id="afbeelding-input" accept="image/*"><br>
-        <button type="button" id="upload-btn">Upload afbeelding</button>
-        <input type="hidden" id="afbeelding-url" name="Afbeelding"><br><br>
-
-        <button type="submit">Opslaan</button>
-    </form>
+                    <div class="wizard-actions">
+                        <button type="button" class="secondary-btn" id="prevBtn">Vorige</button>
+                        <button type="button" class="primary-btn" id="nextBtn">Volgende</button>
+                        <button type="submit" class="primary-btn" id="submitBtn">Aanmaken</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </div>
 </main>
 
-<footer>
-    <div class="container">
-        <p>&copy; 2026 Gereedschapspunt</p>
-        <ul>
-            <li><a href="#">Over ons</a></li>
-            <li><a href="#">Contact</a></li>
-            <li><a href="#">Privacy</a></li>
-        </ul>
-    </div>
-</footer>
+  <footer class="site-footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <h3>Gereedschapspunt</h3>
+                <p>Leen slim, lokaal en duurzaam.</p>
+            </div>
+
+            <ul class="footer-links">
+                <li><a href="#">Over ons</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">Privacy</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Gereedschapspunt</p>
+        </div>
+    </footer>
 
 <script src="js/gereedschapsregistratie.js"></script>
 </body>
 </html>
+
+<script>
+
+const slides = document.querySelectorAll(".form-slide");
+const stepDots = document.querySelectorAll(".wizard-step");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const submitBtn = document.getElementById("submitBtn");
+
+let currentStep = 1;
+
+function showStep(step) {
+    slides.forEach(slide => {
+        slide.classList.toggle("active", Number(slide.dataset.step) === step);
+    });
+
+    stepDots.forEach(dot => {
+        const dotStep = Number(dot.dataset.step);
+        dot.classList.toggle("active", dotStep === step);
+        dot.classList.toggle("done", dotStep < step);
+    });
+
+    prevBtn.style.visibility = step === 1 ? "hidden" : "visible";
+    nextBtn.style.display = step === slides.length ? "none" : "inline-flex";
+    submitBtn.style.display = step === slides.length ? "inline-flex" : "none";
+}
+
+function validateStep(step) {
+    const currentSlide = document.querySelector(`.form-slide[data-step="${step}"]`);
+    const requiredFields = currentSlide.querySelectorAll("[required]");
+    let valid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            field.classList.add("error");
+            valid = false;
+        } else {
+            field.classList.remove("error");
+        }
+    });
+
+    return valid;
+}
+
+nextBtn.addEventListener("click", () => {
+    if (!validateStep(currentStep)) return;
+
+    if (currentStep < slides.length) {
+        currentStep++;
+        showStep(currentStep);
+    }
+});
+
+prevBtn.addEventListener("click", () => {
+    if (currentStep > 1) {
+        currentStep--;
+        showStep(currentStep);
+    }
+});
+
+showStep(currentStep);
+
+</script>
