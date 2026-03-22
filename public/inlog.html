@@ -1,30 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Log In</title>
+
+    <!-- shared css -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- page css -->
     <link rel="stylesheet" href="css/inlog.css">
 </head>
 <body>
-    <div class="login-container">
-        <h1>Log In</h1>
-        <form>
-            <div class="form-group">
-                <label for="login">Email or Username</label>
-                <input type="text" id="login" name="login" required>
-            </div>
-            <div class="form-group">
-                <label for="Password">Password</label>
-                <input type="password" id="Password" name="Password" required>
-            </div>
-            <button type="submit">Log In</button>
-            <div class="form-group">
-                <a href="register.html">Don't have an account? Register here.</a>
-            </div>
-        </form>
-    </div>
 
-     <script src="js/inlog.js" defer></script>
+<header class="site-header">
+        <div class="container nav-container">
+            <div class="logo">
+                <a href="index.html">
+                    <img src="../images/logo.png" alt="Gereedschapspunt" class="logo-img">
+                </a>
+            </div>
+
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="mijngereedschap.html">Mijn Gereedschap</a></li>
+                    <li><a href="mijnchats.html">Berichten</a></li>
+                    <li><a href="#">Meldingen</a></li>
+                    <li><a href="inlog.html">Inloggen</a></li>
+                    <li><a href="accountinstellingen.html">Account</a></li>
+                    <li><a href="gereedschapsregistratie.html" class="cta-small">Plaats gereedschap</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+<main class="login-page">
+    <div class="container login-layout">
+
+        <!-- LEFT: IMAGE -->
+        <div class="login-visual">
+            <img src="images/illustration_2.png" alt="Samen gereedschap delen">
+        </div>
+
+        <!-- RIGHT: FORM -->
+        <div class="login-box">
+            <h1>Welkom terug</h1>
+            <p class="login-sub">Log in om gereedschap te lenen of aan te bieden.</p>
+
+            <form>
+                <div class="form-group">
+                    <label for="login">Email of gebruikersnaam</label>
+                    <input type="text" id="login" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="Password">Wachtwoord</label>
+                    <input type="password" id="Password" required>
+                </div>
+
+                <button type="submit">Log In</button>
+
+                <a href="register.html" class="login-link">
+                    Nog geen account? Registreer
+                </a>
+            </form>
+        </div>
+
+    </div>
+</main>
+
+ <footer class="site-footer">
+        <div class="container footer-container">
+            <div class="footer-brand">
+                <h3>Gereedschapspunt</h3>
+                <p>Leen slim, lokaal en duurzaam.</p>
+            </div>
+
+            <ul class="footer-links">
+                <li><a href="#">Over ons</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">Privacy</a></li>
+            </ul>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 Gereedschapspunt</p>
+        </div>
+    </footer>
+
+<script src="js/inlog.js" defer></script>
 </body>
 </html>
