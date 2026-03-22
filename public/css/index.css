@@ -279,7 +279,7 @@
     display: flex;
     gap: 22px;
     width: max-content;
-    /*animation: adScroll 40s linear infinite;*/
+    animation: adScroll 40s linear infinite;
 }
 
 .ad-card {
