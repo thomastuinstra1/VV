@@ -278,18 +278,22 @@
 .ad-slider-track {
     display: flex;
     gap: 22px;
-    width: max-content;
+    width: max-content;       /* breed genoeg voor duplicatie */
     animation: adScroll 40s linear infinite;
 }
 
+.ad-slider-track:hover {
+    animation-play-state: paused; /* pauzeert scroll bij hover */
+}
+
 .ad-card {
+    flex-shrink: 0;           /* voorkomt dat kaarten kleiner worden */
     width: 280px;
     background-color: #f9fafb;
     border: 1px solid #e5e7eb;
     border-radius: 18px;
     overflow: hidden;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
-    flex-shrink: 0;
     transition: transform 0.3s ease;
 }
 
@@ -331,6 +335,7 @@
     line-height: 1.5;
 }
 
+/* animatie van slider */
 @keyframes adScroll {
     0% {
         transform: translateX(0);
@@ -340,6 +345,7 @@
     }
 }
 
+/* responsive */
 @media (max-width: 980px) {
     .hero-layout,
     .waarom-top,
