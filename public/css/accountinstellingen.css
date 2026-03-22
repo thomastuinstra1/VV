@@ -1,6 +1,6 @@
 .account-page {
     min-height: calc(100vh - 120px);
-    padding: 180px 0 70px;
+    padding: 130px 0 70px;
     background: linear-gradient(180deg, #fffaf5 0%, #eef4ff 100%);
 }
 
@@ -105,6 +105,30 @@
     height: auto;
     z-index: 3;
     pointer-events: none;
+}
+
+.upload-btn {
+    display: inline-block;
+    padding: 10px 16px;
+    background: #eef4ff;
+    color: #1e3a8a;
+    border: 1px solid #c7d7f7;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.upload-btn:hover {
+    background: #1e3a8a;
+    color: white;
+}
+
+.file-name {
+    display: block;
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-top: 6px;
 }
 
 .form-group label {
