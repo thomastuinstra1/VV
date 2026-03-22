@@ -235,3 +235,7 @@
         width: 100%;
     }
 }
+
+.site-footer {
+    display: none !important;
+}

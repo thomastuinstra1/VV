@@ -131,6 +131,10 @@
     text-decoration: underline;
 }
 
+.login-page-body .site-footer {
+    display: none;
+}
+
 
 @media (max-width: 980px) {
     .login-shell {
@@ -171,4 +175,8 @@
     .login-visual img {
         max-width: 100%;
     }
+}
+
+.site-footer {
+    display: none !important;
 }
