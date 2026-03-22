@@ -17,7 +17,7 @@
         <div class="container nav-container">
             <div class="logo">
                 <a href="index.html">
-                    <img src="../images/logo.png" alt="Gereedschapspunt" class="logo-img">
+                    <img src="./images/logo.png" alt="Gereedschapspunt" class="logo-img">
                 </a>
             </div>
 
@@ -34,40 +34,41 @@
         </div>
     </header>
 
-<main class="login-page">
-    <div class="container login-layout">
+<body>
+   <main class="login-page">
+    <div class="container">
+        <div class="login-shell">
 
-        <!-- LEFT: IMAGE -->
-        <div class="login-visual">
-            <img src="images/illustration_2.png" alt="Samen gereedschap delen">
+            <div class="login-visual">
+                <img src="./images/login.png" alt="Samen gereedschap delen en inloggen">
+            </div>
+
+            <div class="login-box">
+                <h1>Welkom terug</h1>
+                <p class="login-sub">Log in om gereedschap te lenen of aan te bieden.</p>
+
+                <form>
+                    <div class="form-group">
+                        <label for="login">Email of gebruikersnaam</label>
+                        <input type="text" id="login" name="login" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Password">Wachtwoord</label>
+                        <input type="password" id="Password" name="Password" required>
+                    </div>
+
+                    <a href="#" class="forgot-password">Wachtwoord vergeten?</a>
+
+                    <button type="submit">Log In</button>
+
+                    <a href="register.html" class="login-link">Nog geen account? Registreer</a>
+                </form>
+            </div>
+
         </div>
-
-        <!-- RIGHT: FORM -->
-        <div class="login-box">
-            <h1>Welkom terug</h1>
-            <p class="login-sub">Log in om gereedschap te lenen of aan te bieden.</p>
-
-            <form>
-                <div class="form-group">
-                    <label for="login">Email of gebruikersnaam</label>
-                    <input type="text" id="login" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="Password">Wachtwoord</label>
-                    <input type="password" id="Password" required>
-                </div>
-
-                <button type="submit">Log In</button>
-
-                <a href="register.html" class="login-link">
-                    Nog geen account? Registreer
-                </a>
-            </form>
-        </div>
-
     </div>
-</main>
+    </main>
 
  <footer class="site-footer">
         <div class="container footer-container">
