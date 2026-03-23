@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gereedschapspunt - Leen gereedschap in jouw buurt</title>
+    <link rel="stylesheet" href="css/lijst.css" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
+
+    <header class="site-header">
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="./images/Logo.png"
+              alt="Gereedschapspunt"
+              class="logo-img"
+            />
+          </a>
+        </div>
+
+        <nav class="main-nav">
+          <ul>
+            <li><a href="mijngereedschap.html">Mijn Gereedschap</a></li>
+            <li><a href="mijnchats.html">Berichten</a></li>
+            <li><a href="#">Meldingen</a></li>
+            <li><a href="inlog.html">Inloggen</a></li>
+            <li><a href="accountinstellingen.html">Account</a></li>
+            <li>
+              <a href="gereedschapsregistratie.html" class="cta-small"
+                >Plaats gereedschap</a
+              >
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="search-results container">
+            <div id="results"></div>
+        </section>
+
+        <section class="browse-section" id="browse">
+            <div class="container">
+                <div class="section-heading">
+                    <h2>Beschikbaar gereedschap</h2>
+                    <p>Bekijk wat er beschikbaar is en filter makkelijk op jouw klus.</p>
+                </div>
+
+                <div class="browse-layout">
+                    <button class="filter-toggle-btn" id="filterToggle" onclick="toggleFilterPanel()" aria-expanded="false">
+                        Filters
+                        <span class="filter-badge" id="filterBadge" hidden>0</span>
+                    </button>
+
+                    <div class="filter-overlay" id="filterOverlay" onclick="toggleFilterPanel()"></div>
+
+                    <aside class="filter-panel" id="filterPanel">
+                        <div class="filter-header">
+                            <span class="filter-title">Filteren</span>
+                            <button class="filter-reset" id="resetBtn" onclick="resetFilters()" hidden>Wis alles</button>
+                        </div>
+
+                        <div id="filterGroups">
+                            <p style="color:#6b7280;font-size:.95rem;">Filters laden...</p>
+                        </div>
+                    </aside>
+
+                    <div class="tools-section">
+                        <div class="tools-header">
+                            <div>
+                                <h2>Voor jouw volgende klus</h2>
+                                <p class="tools-subtitle">Kies gereedschap dat past bij wat jij wilt maken of repareren.</p>
+                            </div>
+                            <span id="toolCount" class="tool-count"></span>
+                        </div>
+
+                        <div id="activeFilters" class="active-filters" hidden></div>
+                        <div id="toolsContainer" class="tools-grid"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+      <section class="ad-slider-section">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Nieuw op Gereedschapspunt</h2>
+            <p>Ontdek gereedschap dat beschikbaar is in jouw buurt.</p>
+          </div>
+
+          <div class="ad-slider-wrapper">
+            <div class="ad-slider-track" id="newAdsTrack"></div>
+          </div>
+          <div id="toolsContainer"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-container">
+        <div class="footer-brand">
+          <h3>Gereedschapspunt</h3>
+          <p>Leen slim, lokaal en duurzaam.</p>
+        </div>
+
+        <ul class="footer-links">
+          <li><a href="#">Over ons</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 Gereedschapspunt</p>
+      </div>
+    </footer>
+
+    <script src="js/index.js"></script>
+  </body>
+</html>
+<script>
+  async function loadNewAds() {
+    const track = document.getElementById("newAdsTrack");
+    if (!track) return;
+
+    try {
+      const res = await fetch("/gereedschap");
+      const tools = await res.json();
+
+      if (!tools || tools.length === 0) {
+        track.innerHTML = "<p>Geen gereedschap gevonden.</p>";
+        return;
+      }
+
+      // selecteer de nieuwste 6 tools
+      const nieuwsteTools = tools.slice(0, 6);
+
+      // duplicate voor oneindige scroll
+      const sliderTools = [...nieuwsteTools, ...nieuwsteTools];
+
+      // voeg items toe aan de slider-track
+      track.innerHTML = sliderTools
+        .map((tool) => {
+          const afbeelding =
+            tool.Afbeelding && tool.Afbeelding.trim() !== ""
+              ? tool.Afbeelding
+              : "../images/placeholder.jpg";
+
+          const titel = tool.Naam || "Gereedschap";
+          const beschrijving =
+            tool.Beschrijving || "Nieuw geplaatst op Gereedschapspunt.";
+
+          return `
+                    <article class="ad-card">
+                        <img src="${afbeelding}" alt="${titel}" class="ad-image">
+                        <div class="ad-content">
+                            <span class="ad-label">Nieuw</span>
+                            <h3>${titel}</h3>
+                            <p>${beschrijving}</p>
+                        </div>
+                    </article>
+                `;
+        })
+        .join("");
+    } catch (error) {
+      console.error("Fout bij laden slider:", error);
+      track.innerHTML = "<p>Advertenties laden mislukt.</p>";
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadNewAds);
+</script>
