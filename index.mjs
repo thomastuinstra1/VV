@@ -106,6 +106,10 @@ app.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), async (
   }
 });
 
+app.get('/auth-status', (req, res) => {
+  res.json({ ingelogd: !!req.session.userId });
+});
+
 // Registreren
 app.post('/register', async (req, res) => {
   const { Name, E_mail, Password, Postcode } = req.body;
