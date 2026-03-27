@@ -110,6 +110,7 @@
     res.json({ ingelogd: !!req.session.userId });
   });
 
+<<<<<<< Updated upstream
   // Registreren
   app.post('/register', async (req, res) => {
     const { Name, E_mail, Password, Postcode } = req.body;
@@ -117,14 +118,60 @@
     try {
       // Controleer of Name of E_mail al bestaat
       const bestaand = await prisma.account.findFirst({
+=======
+
+
+    res.json({ message: 'Gereedschap bijgewerkt!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Bijwerken mislukt' });
+  }
+});
+
+// listen altijd als laatste
+const server = http.createServer(app);
+
+// Socket.IO setup
+const io = new Server(server, {
+  cors: {
+    origin: "https://gereedschapspunt.student.open-ict.hu/index.html",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on("connection", (socket) => {
+  const userId = socket.handshake.auth.userId;
+
+  if (!userId) {
+    console.log("Geen userId, verbinding verbroken");
+    socket.disconnect();
+    return;
+  }
+
+  console.log(`User ${userId} verbonden via Socket.IO`);
+  socket.join(userId); // iedere gebruiker in eigen “room”
+
+  // ── 1️⃣ Chat starten of ophalen
+  socket.on("start_chat", async ({ partnerId, toolId }) => {
+    try {
+      // Check of er al een chat bestaat voor deze partner en tool
+      let chat = await prisma.chats.findFirst({
+>>>>>>> Stashed changes
         where: {
+          Gereedschap_id: toolId,
           OR: [
+<<<<<<< Updated upstream
             { Name: Name },
             { E_mail: E_mail }
+=======
+            { SenderId: userId, ReceiverId: partnerId },
+            { SenderId: partnerId, ReceiverId: userId }
+>>>>>>> Stashed changes
           ]
         }
       });
 
+<<<<<<< Updated upstream
       if (bestaand) {
         return res.status(400).json({ message: 'Naam of e-mail is al in gebruik' });
       }
@@ -182,8 +229,117 @@
       console.error(error);
       res.status(500).json({ error: 'Er is iets misgegaan' });
     }
+=======
+      if (!chat) {
+        chat = await prisma.chats.create({
+          data: {
+            SenderId: userId,
+            ReceiverId: partnerId,
+            Gereedschap_id: toolId
+          }
+        });
+      }
+
+      socket.join(`chat_${chat.Chat_id}`);
+      io.to(`chat_${chat.Chat_id}`).emit("chat_started", chat);
+
+    } catch (err) {
+      console.error("Fout bij starten chat:", err);
+    }
   });
 
+  // ── 2️⃣ Normaal bericht versturen
+  socket.on("send_message", async ({ chatId, content }) => {
+    try {
+      // chat ophalen
+      const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
+      if (!chat) return;
+
+      const toUserId = chat.SenderId === userId ? chat.ReceiverId : chat.SenderId;
+
+      const message = await prisma.berichten.create({
+        data: {
+          senderId: userId,
+          receiverId: toUserId,
+          content,
+          chatId,
+          type: "text"
+        }
+      });
+
+      io.to(`chat_${chatId}`).emit("receive_message", message);
+
+    } catch (err) {
+      console.error("Fout bij versturen bericht:", err);
+    }
+  });
+
+  // ── 3️⃣ Afspraak versturen
+  socket.on("send_appointment", async ({ chatId, borg, startDate, endDate }) => {
+    try {
+      const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
+      if (!chat) return;
+
+      const toUserId = chat.SenderId === userId ? chat.ReceiverId : chat.SenderId;
+
+      const tool = await prisma.gereedschap.findUnique({
+        where: { Gereedschap_id: chat.Gereedschap_id }
+      });
+
+      const uitleen = await prisma.uitleen.create({
+        data: {
+          Account_id: tool.Account_id, // eigenaar
+          Lener_id: userId,
+          Gereedschap_id: tool.Gereedschap_id,
+          StartDatum: new Date(startDate),
+          Einddatum: new Date(endDate),
+          BorgBedrag: parseFloat(borg),
+          Status: "pending"
+        }
+      });
+
+      const message = await prisma.berichten.create({
+        data: {
+          senderId: userId,
+          receiverId: toUserId,
+          content: "Afspraak verzoek",
+          type: "appointment",
+          chatId,
+          uitleenId: uitleen.Uitleen_id
+        }
+      });
+
+      io.to(`chat_${chatId}`).emit("receive_message", message);
+
+    } catch (err) {
+      console.error("Fout bij afspraak:", err);
+    }
+  });
+
+  // ── 4️⃣ Accepteren / weigeren afspraak
+  socket.on("respond_appointment", async ({ uitleenId, action }) => {
+    try {
+      const status = action === "accept" ? "accepted" : "rejected";
+      const updated = await prisma.uitleen.update({
+        where: { Uitleen_id: uitleenId },
+        data: { Status: status }
+      });
+
+      // Emit alleen naar juiste chatroom
+      if (updated.Chat_id) {
+        io.to(`chat_${updated.Chat_id}`).emit("appointment_updated", updated);
+      }
+    } catch (err) {
+      console.error("Fout bij reageren op afspraak:", err);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log(`User ${userId} heeft verbinding verbroken`);
+>>>>>>> Stashed changes
+  });
+
+<<<<<<< Updated upstream
   // Huidige ingelogde gebruiker ophalen
   app.get('/me', isLoggedIn, async (req, res) => {
     try {
@@ -191,6 +347,22 @@
         where: { Account_id: req.session.userId },
         select: { Account_id: true, Name: true, E_mail: true, Postcode: true, BSN: true, Afbeelding: true }
       });
+=======
+const chat = await prisma.chats.findFirst({
+  where: {
+    Chat_id: chatId,
+    OR: [
+      { SenderId: req.session.userId },
+      { ReceiverId: req.session.userId }
+    ]
+  }
+});
+if (!chat) return res.status(403).json({ error: 'Geen toegang tot deze chat' });
+
+app.get('/messages/:userId', isLoggedIn, async (req, res) => {
+  const currentUserId = req.session.userId;
+  const otherUserId = parseInt(req.params.userId);
+>>>>>>> Stashed changes
 
       if (!account) return res.status(404).json({ message: 'User not found' });
 
@@ -612,6 +784,7 @@ app.get('/dashboard/uitleningen', async (req, res) => {
   res.json(mapped);
 });
 
+<<<<<<< Updated upstream
   // Gereedschap met berekende status ophalen
   // GET /dashboard/gereedschap
  app.get('/dashboard/gereedschap', async (req, res) => {
@@ -638,6 +811,108 @@ app.get('/dashboard/uitleningen', async (req, res) => {
   }));
 
   res.json(mapped);
+=======
+app.get('/uitleen/:id', isLoggedIn, async (req, res) => {
+  try {
+    const uitleen = await prisma.uitleen.findUnique({
+      where: { Uitleen_id: parseInt(req.params.id) }
+    });
+
+    res.json(uitleen);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ophalen uitleen mislukt' });
+  }
+});
+
+// ── ROUTES CHAT & BERICHTEN ──
+
+// 1️⃣ Nieuwe chat starten of bestaande ophalen
+// POST /chat/start
+app.post('/chat/start', isLoggedIn, async (req, res) => {
+  const { partnerId, toolId } = req.body;
+  const userId = req.session.userId;
+
+  try {
+    // Zoek bestaande chat tussen deze twee personen voor dit gereedschap
+    let chat = await prisma.chats.findFirst({
+      where: {
+        Gereedschap_id: toolId,
+        OR: [
+          { SenderId: userId, ReceiverId: partnerId },
+          { SenderId: partnerId, ReceiverId: userId }
+        ]
+      }
+    });
+
+    // Anders nieuwe chat aanmaken
+    if (!chat) {
+      chat = await prisma.chats.create({
+        data: {
+          SenderId: userId,
+          ReceiverId: partnerId,
+          Gereedschap_id: toolId
+        }
+      });
+    }
+
+    res.json(chat);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Chat starten mislukt' });
+  }
+});
+
+// 2️⃣ Berichten ophalen per chat
+// GET /messages/chat/:chatId
+app.get('/messages/chat/:chatId', isLoggedIn, async (req, res) => {
+  const chatId = parseInt(req.params.chatId);
+
+  if (!chatId) return res.status(400).json({ error: 'Ongeldige chat ID' });
+
+  try {
+    const messages = await prisma.berichten.findMany({
+      where: { Chat_id: chatId },
+      orderBy: { id: 'asc' }
+    });
+    res.json(messages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Berichten ophalen mislukt' });
+  }
+});
+
+// 3️⃣ Specifieke chat ophalen
+// GET /chat/:chatId
+app.get('/chat/:chatId', isLoggedIn, async (req, res) => {
+  const chatId = parseInt(req.params.chatId);
+  try {
+    const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
+    if (!chat) return res.status(404).json({ error: 'Chat niet gevonden' });
+    res.json(chat);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Chat ophalen mislukt' });
+  }
+});
+
+// 4️⃣ Afspraak (Uitleen) ophalen
+// GET /uitleen/:uitleenId
+app.get('/uitleen/:uitleenId', isLoggedIn, async (req, res) => {
+  const id = parseInt(req.params.uitleenId);
+  try {
+    const uitleen = await prisma.uitleen.findUnique({ where: { Uitleen_id: id } });
+    if (!uitleen) return res.status(404).json({ error: 'Afspraak niet gevonden' });
+    res.json(uitleen);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Afspraak ophalen mislukt' });
+  }
+});
+
+server.listen(PORT, HOST, () => {
+  console.log(`Server draait op https://${HOST}:${PORT}`);
+>>>>>>> Stashed changes
 });
 
   server.listen(PORT, HOST, () => {
