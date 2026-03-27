@@ -24,16 +24,13 @@
 
         <nav class="main-nav">
           <ul>
-            <li><a href="mijngereedschap.html">Mijn Gereedschap</a></li>
-            <li><a href="mijnchats.html">Berichten</a></li>
+            <ul>
+            <li data-auth="true"><a href="mijngereedschap.html">Mijn Gereedschap</a></li>
+            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
             <li><a href="#">Meldingen</a></li>
             <li><a href="inlog.html">Inloggen</a></li>
-            <li><a href="accountinstellingen.html">Account</a></li>
-            <li>
-              <a href="gereedschapsregistratie.html" class="cta-small"
-                >Plaats gereedschap</a
-              >
-            </li>
+            <li data-auth="true"><a href="accountinstellingen.html">Account</a></li>
+            <li><a href="gereedschapsregistratie.html" class="cta-small">Plaats gereedschap</a></li>
           </ul>
         </nav>
       </div>
@@ -121,6 +118,7 @@
     </footer>
 
     <script src="js/index.js"></script>
+    <script src="js/logincheck.js"></script>
   </body>
 </html>
 <script>
