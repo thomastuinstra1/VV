@@ -5,4 +5,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.querySelectorAll("[data-auth='true']").forEach((el) => {
     el.style.display = ingelogd ? "" : "none";
   });
+
+  document.querySelectorAll("[data-guest='true']").forEach((el) => {
+    el.style.display = ingelogd ? "none" : "";
+  });
 });
