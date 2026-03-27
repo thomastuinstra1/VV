@@ -159,3 +159,87 @@
     font-size: 1rem;
     color: #2e7d32;
 }
+
+/* AD SLIDER */
+.ad-slider-section {
+    background-color: #ffffff;
+    padding: 55px 0 70px;
+    overflow: hidden;
+}
+
+.ad-slider-wrapper {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    padding: 10px 0;
+}
+
+.ad-slider-track {
+    display: flex;
+    gap: 22px;
+    width: max-content;       /* breed genoeg voor duplicatie */
+    animation: adScroll 40s linear infinite;
+}
+
+.ad-slider-track:hover {
+    animation-play-state: paused; /* pauzeert scroll bij hover */
+}
+
+.ad-card {
+    flex-shrink: 0;           /* voorkomt dat kaarten kleiner worden */
+    width: 280px;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.ad-card:hover {
+    transform: translateY(-6px);
+}
+
+.ad-image {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+}
+
+.ad-content {
+    padding: 18px;
+}
+
+.ad-label {
+    display: inline-block;
+    margin-bottom: 12px;
+    background-color: #e0ecff;
+    color: #1e3a8a;
+    font-size: 0.85rem;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 999px;
+}
+
+.ad-card h3 {
+    margin-bottom: 8px;
+    color: #1e3a8a;
+    font-size: 1.15rem;
+}
+
+.ad-card p {
+    color: #374151;
+    font-size: 0.96rem;
+    line-height: 1.5;
+}
+
+/* animatie van slider */
+@keyframes adScroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
