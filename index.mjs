@@ -29,7 +29,7 @@ app.use(express.static("public"));
 app.set('trust proxy', 1);
 
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || '0.0.0.0';
+const HOST = process.env.HOST || '127.0.0.1';
 
 // Sessie configuratie
 app.use(session({
@@ -576,6 +576,94 @@ app.get('/messages/:userId', isLoggedIn, async (req, res) => {
   } catch (err) {
     console.error('Fout bij ophalen berichten:', err);
     res.status(500).json({ error: 'Kon berichten niet ophalen' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════════════════
+// DASHBOARD ROUTES — plak dit in server.js vóór de server.listen() regel
+// ════════════════════════════════════════════════════════════════════════════
+
+// Alle uitleningen ophalen met naam van lener en gereedschap erbij
+// GET /dashboard/uitleningen
+app.get('/dashboard/uitleningen', isLoggedIn, async (req, res) => {
+  try {
+    const uitleningen = await prisma.uitleen.findMany({
+      orderBy: { Uitleen_id: 'desc' },
+      include: {
+        // Prisma-relatie naar account (lener)
+        account: {
+          select: { Name: true }
+        },
+        // Prisma-relatie naar gereedschap
+        gereedschap: {
+          select: { Naam: true }
+        }
+      }
+    });
+
+    // Bereken Status automatisch als die nog niet in de DB staat
+    const today = new Date();
+    const result = uitleningen.map(u => {
+      let status = u.Status;
+
+      // Als RetourDatum gevuld is → altijd Teruggegeven
+      if (u.RetourDatum) {
+        status = 'Teruggegeven';
+      } else if (u.EindDatum && new Date(u.EindDatum) < today) {
+        status = 'Te laat';
+      } else if (!status) {
+        status = 'Uitgeleend';
+      }
+
+      return {
+        ...u,
+        Status:          status,
+        lenerNaam:       u.account?.Name   ?? null,
+        gereedschapNaam: u.gereedschap?.Naam ?? null,
+      };
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error('Dashboard uitleningen ophalen mislukt:', err);
+    res.status(500).json({ error: 'Ophalen mislukt' });
+  }
+});
+
+// Gereedschap met berekende status ophalen
+// GET /dashboard/gereedschap
+app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
+  try {
+    const today = new Date();
+
+    // Haal alle gereedschappen op
+    const gereedschappen = await prisma.gereedschap.findMany({
+      orderBy: { Gereedschap_id: 'asc' }
+    });
+
+    // Haal actieve uitleningen op (niet teruggegeven)
+    const actieveUitleningen = await prisma.uitleen.findMany({
+      where: { RetourDatum: null }
+    });
+
+    // Koppel status aan elk gereedschap
+    const result = gereedschappen.map(g => {
+      const actief = actieveUitleningen.find(u => u.Gereedschap_id === g.Gereedschap_id);
+
+      let status = 'Beschikbaar';
+      if (actief) {
+        status = actief.EindDatum && new Date(actief.EindDatum) < today
+          ? 'Te laat'
+          : 'Uitgeleend';
+      }
+
+      return { ...g, status };
+    });
+
+    res.json(result);
+  } catch (err) {
+    console.error('Dashboard gereedschap ophalen mislukt:', err);
+    res.status(500).json({ error: 'Ophalen mislukt' });
   }
 });
 
