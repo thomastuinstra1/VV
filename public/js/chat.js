@@ -1,10 +1,7 @@
 let CURRENT_USER_ID;
-let CHAT_ID;          // Nieuw: chatId ipv alleen partnerId
-let CHAT_PARTNER_ID;
-let TOOL_ID;          // Gereedschap dat bij deze chat hoort
+let CHAT_ID;
 let socket;
 
-// Huidige gebruiker ophalen vanuit backend
 async function getCurrentUserId() {
   try {
     const res = await fetch('/me');
@@ -16,26 +13,36 @@ async function getCurrentUserId() {
   }
 }
 
-// Chat en tool ophalen uit URL: ?chat=12
-function getChatInfo() {
+async function getChatInfo() {
   const params = new URLSearchParams(window.location.search);
-  CHAT_ID = parseInt(params.get('chat'));
-  if (!CHAT_ID) return console.error('Geen chat ID opgegeven in URL (bijv. ?chat=12)');
+  const partnerId = parseInt(params.get('partner'));
+  const toolId = parseInt(params.get('tool')) || null;
+
+  if (!partnerId) return console.error('Geen partner ID in URL (bijv. ?partner=2)');
+
+  try {
+    const res = await fetch('/chat/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ partnerId, toolId })
+    });
+    const chat = await res.json();
+    CHAT_ID = chat.Chat_id;
+  } catch (err) {
+    console.error('Chat starten mislukt:', err);
+  }
 }
 
-// Voeg bericht toe aan UI
 async function addMessageToUI(message) {
   const box = document.getElementById("chat-box");
   const div = document.createElement("div");
   const isMe = message.senderId === CURRENT_USER_ID;
   div.className = isMe ? 'my-message' : 'their-message';
 
-  // 🔹 Normaal bericht
   if (!message.type || message.type === "text") {
     div.textContent = `${isMe ? 'Jij' : 'Partner'}: ${message.content}`;
   }
 
-  // 🔹 Afspraak bericht
   if (message.type === "appointment") {
     const res = await fetch(`/uitleen/${message.uitleenId}`);
     const uitleen = await res.json();
@@ -46,7 +53,6 @@ async function addMessageToUI(message) {
         <p>Borg: €${uitleen.BorgBedrag}</p>
         <p>Van: ${uitleen.StartDatum.split('T')[0]}</p>
         <p>Tot: ${uitleen.EindDatum.split('T')[0]}</p>
-
         ${
           uitleen.Status === "pending" && !isMe
             ? `
@@ -63,13 +69,11 @@ async function addMessageToUI(message) {
   box.scrollTop = box.scrollHeight;
 }
 
-// Verstuur bericht via Socket.IO
 function sendMessage(content) {
   if (!socket || !CHAT_ID || !content) return;
   socket.emit("send_message", { chatId: CHAT_ID, content });
 }
 
-// Oude berichten ophalen
 async function loadMessages() {
   try {
     const res = await fetch(`/messages/chat/${CHAT_ID}`);
@@ -81,7 +85,6 @@ async function loadMessages() {
   }
 }
 
-// Socket.IO initialiseren
 function initSocket() {
   socket = io("https://gereedschapspunt.student.open-ict.hu", {
     auth: { userId: CURRENT_USER_ID }
@@ -89,33 +92,39 @@ function initSocket() {
 
   socket.on("connect", () => {
     console.log(`Verbonden met Socket.IO als user ${CURRENT_USER_ID}`);
+    socket.emit("join_chat", { chatId: CHAT_ID });
   });
 
-  // Nieuwe berichten ontvangen
   socket.on("receive_message", (message) => {
-    if (message.Chat_id === CHAT_ID) addMessageToUI(message);
+    if (message.chatId === CHAT_ID) addMessageToUI(message);
   });
 
-  // Afspraak geüpdatet
-  socket.on("appointment_created", (uitleen) => {
-    addMessageToUI({ type: "appointment", uitleenId: uitleen.Uitleen_id, senderId: uitleen.LenerId });
+  socket.on("appointment_updated", (uitleen) => {
+    console.log("Afspraak geüpdatet:", uitleen);
+    loadMessages();
   });
 
   socket.on("disconnect", () => console.log("Socket.IO verbinding verbroken"));
 }
 
-// DOMContentLoaded – alles initialiseren
 document.addEventListener("DOMContentLoaded", async () => {
   await getCurrentUserId();
-  getChatInfo();
-  if (!CURRENT_USER_ID || !CHAT_ID) return;
+  await getChatInfo();
+
+  console.log('CURRENT_USER_ID:', CURRENT_USER_ID);
+  console.log('CHAT_ID:', CHAT_ID);
+
+  if (!CURRENT_USER_ID || !CHAT_ID) {
+    console.error('Initialisatie mislukt: gebruiker of chat ontbreekt');
+    return;
+  }
 
   initSocket();
   await loadMessages();
 
-  // Versturen via button
   const sendBtn = document.getElementById("send-btn");
   const input = document.getElementById("chat-input");
+
   sendBtn.addEventListener("click", () => {
     const content = input.value.trim();
     if (!content) return;
@@ -123,7 +132,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     input.value = '';
   });
 
-  // Versturen met Enter
   input.addEventListener("keydown", (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -135,20 +143,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
-// Afspraak accept/ reject
 window.respond = function(uitleenId, action) {
   socket.emit("respond_appointment", { uitleenId, action });
 };
 
-// Modal popup open/close
 window.openModal = function() {
   document.getElementById("modal").style.display = "block";
 };
+
 window.closeModal = function() {
   document.getElementById("modal").style.display = "none";
 };
 
-// Verstuur afspraak via Socket.IO
 window.sendAppointment = function() {
   const borg = document.getElementById("borg").value;
   const startDate = document.getElementById("startDate").value;
@@ -165,6 +171,3 @@ window.sendAppointment = function() {
 
   closeModal();
 };
-
-console.log('CURRENT_USER_ID:', CURRENT_USER_ID);
-console.log('CHAT_ID:', CHAT_ID);

@@ -541,7 +541,7 @@ app.get('/messages/chat/:chatId', isLoggedIn, async (req, res) => {
 
   try {
     const messages = await prisma.berichten.findMany({
-      where: { chatId },
+      where: { chat_Id: chatId },
       orderBy: { id: 'asc' }
     });
     res.json(messages);
@@ -593,7 +593,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://gereedschapspunt.student.open-ict.hu/index.html",
+    origin: "https://gereedschapspunt.student.open-ict.hu",
     methods: ["GET", "POST"]
   }
 });
@@ -609,6 +609,11 @@ io.on("connection", (socket) => {
 
   console.log(`User ${userId} verbonden via Socket.IO`);
   socket.join(userId);
+
+  socket.on("join_chat", ({ chatId }) => {
+    socket.join(`chat_${chatId}`);
+    console.log(`User ${userId} joined chat_${chatId}`);
+  });
 
   // Chat starten of ophalen
   socket.on("start_chat", async ({ partnerId, toolId }) => {
@@ -645,7 +650,7 @@ io.on("connection", (socket) => {
       const toUserId = chat.SenderId === userId ? chat.ReceiverId : chat.SenderId;
 
       const message = await prisma.berichten.create({
-        data: { senderId: userId, receiverId: toUserId, content, chatId, type: "text" }
+        data: { senderId: userId, receiverId: toUserId, content, chat_Id: chatId, type: "text" }
       });
 
       io.to(`chat_${chatId}`).emit("receive_message", message);
@@ -672,7 +677,7 @@ io.on("connection", (socket) => {
           Lener_id: userId,
           Gereedschap_id: tool.Gereedschap_id,
           StartDatum: new Date(startDate),
-          Einddatum: new Date(endDate),
+          EindDatum: new Date(endDate),
           BorgBedrag: parseFloat(borg),
           Status: "pending"
         }
@@ -684,7 +689,7 @@ io.on("connection", (socket) => {
           receiverId: toUserId,
           content: "Afspraak verzoek",
           type: "appointment",
-          chatId,
+          chat_Id: chatId,
           uitleenId: uitleen.Uitleen_id
         }
       });
