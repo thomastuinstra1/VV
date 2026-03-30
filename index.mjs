@@ -683,7 +683,7 @@ io.on("connection", (socket) => {
         }
       });
 
-      const message = await prisma.berichten.create({
+      const message = await prisma.Berichten.create({
         data: {
           senderId: userId,
           receiverId: toUserId,
