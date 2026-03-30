@@ -706,6 +706,7 @@ io.on("connection", (socket) => {
   });
 });
 
+//hallo
 server.listen(PORT, HOST, () => {
   console.log(`Server draait op https://${HOST}:${PORT}`);
 });
