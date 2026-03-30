@@ -20,7 +20,7 @@
   "homepage": "https://github.com/thomastuinstra1/VV#readme",
   "dependencies": {
     "@prisma/client": "^6.18.0",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.6.1",
     "express": "^5.2.1",
     "prisma": "^6.18.0"
   }

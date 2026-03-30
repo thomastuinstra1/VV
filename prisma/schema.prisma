@@ -69,20 +69,36 @@ model Schade {
 }
 
 model Uitleen {
-  Uitleen_id     Int          @id @default(autoincrement())
-  Account_id     Int?
-  Gereedschap_id Int?
-  StartDatum     DateTime?    @db.Date
-  EindDatum      DateTime?    @db.Date
-  RetourDatum    DateTime?    @db.Date
-  BorgBedrag     Decimal?     @db.Decimal(10, 2)
-  Kosten         Decimal?     @db.Decimal(10, 2)
-  Status         String?      @db.VarChar(100)
+  Uitleen_id     Int       @id @default(autoincrement())
+  Account_id     Int
+  Gereedschap_id Int
+  StartDatum     DateTime  @db.Date
+  EindDatum      DateTime  @db.Date
+  RetourDatum    DateTime? @db.Date
+
+  BorgBedrag     Decimal   @db.Decimal(10, 2)
+  Kosten         Decimal?  @db.Decimal(10, 2)
+
+  Status         String    @default("actief") // actief | afgerond
+
   Review         Review[]
   Schade         Schade[]
-  Account        Account?     @relation(fields: [Account_id], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Uitleen_ibfk_1")
-  Gereedschap    Gereedschap? @relation(fields: [Gereedschap_id], references: [Gereedschap_id], onDelete: NoAction, onUpdate: NoAction, map: "Uitleen_ibfk_2")
 
-  @@index([Account_id], map: "Account_id")
-  @@index([Gereedschap_id], map: "Gereedschap_id")
+  Account        Account     @relation(fields: [Account_id], references: [Account_id])
+  Gereedschap    Gereedschap @relation(fields: [Gereedschap_id], references: [Gereedschap_id])
+
+  @@index([Account_id])
+  @@index([Gereedschap_id])
+}
+
+model Aanvraag {
+  Aanvraag_id     Int      @id @default(autoincrement())
+  Gereedschap_id  Int
+  Aanvrager_id    Int
+  StartDatum      DateTime @db.Date
+  EindDatum       DateTime @db.Date
+  Status          String   @default("pending") // pending | accepted | rejected
+
+  Gereedschap Gereedschap @relation(fields: [Gereedschap_id], references: [Gereedschap_id])
+  Aanvrager  Account     @relation(fields: [Aanvrager_id], references: [Account_id])
 }

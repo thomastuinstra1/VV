@@ -717,6 +717,101 @@ io.on("connection", (socket) => {
   });
 });
 
+app.get('/messages/:userId', isLoggedIn, async (req, res) => {
+  const currentUserId = req.session.userId;
+  const otherUserId = parseInt(req.params.userId);
+
+  if (!otherUserId) return res.status(400).json({ error: 'Ongeldige partner ID' });
+
+  try {
+    const messages = await prisma.berichten.findMany({
+      where: {
+        OR: [
+          { senderId: currentUserId, receiverId: otherUserId },
+          { senderId: otherUserId, receiverId: currentUserId }
+        ]
+      },
+      orderBy: { id: 'asc' }
+    });
+
+    res.json(messages);
+  } catch (err) {
+    console.error('Fout bij ophalen berichten:', err);
+    res.status(500).json({ error: 'Kon berichten niet ophalen' });
+  }
+});
+
+app.get('/aanvragen', async (req, res) => {
+  try {
+    const userId = req.session.userId; // of hoe jij login doet
+
+    const aanvragen = await prisma.aanvraag.findMany({
+      where: {
+        Gereedschap: {
+          Account_id: userId // alleen jouw tools
+        },
+        Status: "pending"
+      },
+      include: {
+        Aanvrager: true,
+        Gereedschap: true
+      }
+    });
+
+    res.json(aanvragen);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server fout" });
+  }
+});
+
+app.post('/aanvragen/:id/accepteer', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    // 1. aanvraag ophalen
+    const aanvraag = await prisma.aanvraag.update({
+      where: { Aanvraag_id: id },
+      data: { Status: "accepted" }
+    });
+
+    // 2. maak uitleen aan
+    await prisma.uitleen.create({
+      data: {
+        Account_id: aanvraag.Aanvrager_id,
+        Gereedschap_id: aanvraag.Gereedschap_id,
+        StartDatum: aanvraag.StartDatum,
+        EindDatum: aanvraag.EindDatum,
+        BorgBedrag: 0,
+        Status: "actief"
+      }
+    });
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fout bij accepteren" });
+  }
+});
+
+app.post('/aanvragen/:id/weiger', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+
+    await prisma.aanvraag.update({
+      where: { Aanvraag_id: id },
+      data: { Status: "rejected" }
+    });
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fout bij weigeren" });
+  }
+});
+
 server.listen(PORT, HOST, () => {
   console.log(`Server draait op https://${HOST}:${PORT}`);
 });
