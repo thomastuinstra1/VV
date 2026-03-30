@@ -373,9 +373,12 @@ app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
 
 // ── DASHBOARD ROUTES ──
 
-app.get('/dashboard/uitleningen', async (req, res) => {
+app.get('/dashboard/uitleningen', isLoggedIn, async (req, res) => {
   try {
     const data = await prisma.uitleen.findMany({
+      where: {
+        Gereedschap: { Account_id: req.session.userId }  // ← alleen jouw gereedschap
+      },
       include: { Account: true, Gereedschap: true }
     });
 
@@ -398,9 +401,11 @@ app.get('/dashboard/uitleningen', async (req, res) => {
   }
 });
 
-app.get('/dashboard/gereedschap', async (req, res) => {
+// ✅ Moet — filter op account + login check
+app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
   try {
     const tools = await prisma.gereedschap.findMany({
+      where: { Account_id: req.session.userId },   // ← toegevoegd
       include: {
         Uitleen: {
           where: { Status: { in: ['Uitgeleend', 'Te laat'] } }
