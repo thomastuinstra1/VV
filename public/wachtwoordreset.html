@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Nieuw wachtwoord</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/inlog.css">
+</head>
+<body>
+  <main class="login-page">
+    <div class="container">
+      <div class="login-shell">
+        <div class="login-box">
+          <h1>Nieuw wachtwoord instellen</h1>
+          <p class="login-sub">Kies een nieuw wachtwoord voor je account.</p>
+          <div class="form-group">
+            <label for="newPassword">Nieuw wachtwoord</label>
+            <input type="password" id="newPassword" minlength="8" required>
+          </div>
+          <div class="form-group">
+            <label for="confirmPassword">Herhaal wachtwoord</label>
+            <input type="password" id="confirmPassword" required>
+          </div>
+          <button id="resetBtn">Wachtwoord opslaan</button>
+          <p id="resetMsg" style="margin-top:1rem;"></p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const token = new URLSearchParams(window.location.search).get('token');
+    if (!token) {
+      document.querySelector('.login-box').innerHTML =
+        '<p style="color:red;">Ongeldige of verlopen link.</p>';
+    }
+
+    document.getElementById('resetBtn').addEventListener('click', async () => {
+      const password = document.getElementById('newPassword').value;
+      const confirm  = document.getElementById('confirmPassword').value;
+      const msg      = document.getElementById('resetMsg');
+
+      if (password.length < 8) { msg.style.color='red'; msg.textContent='Wachtwoord moet minimaal 8 tekens zijn.'; return; }
+      if (password !== confirm) { msg.style.color='red'; msg.textContent='Wachtwoorden komen niet overeen.'; return; }
+
+      const res  = await fetch('/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        msg.style.color = 'green';
+        msg.textContent = data.message + ' Je wordt doorgestuurd...';
+        setTimeout(() => window.location.href = 'inlog.html', 2500);
+      } else {
+        msg.style.color = 'red';
+        msg.textContent = data.error;
+      }
+    });
+  </script>
+</body>
+</html>
