@@ -6,19 +6,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
 
-        const partners = await res.json();
+        const chats = await res.json();
         const lijst = document.getElementById('chats-lijst');
 
-        if (!partners.length) {
+        if (!chats.length) {
             lijst.innerHTML = '<p>Je hebt nog geen chats.</p>';
             return;
         }
 
-        partners.forEach(partner => {
+        chats.forEach(chat => {
             const li = document.createElement('li');
             li.innerHTML = `
-                <img src="${partner.Afbeelding || '/images/default.jpg'}" alt="${partner.Name}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-                <a href="chat.html?partner=${partner.Account_id}">${partner.Name}</a>
+                <img src="${chat.Afbeelding || '/images/default.jpg'}" alt="${chat.Name}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                <a href="chat.html?partner=${chat.Account_id}&tool=${chat.Gereedschap_id}">${chat.Name}</a>
             `;
             lijst.appendChild(li);
         });

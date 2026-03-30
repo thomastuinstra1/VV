@@ -16,30 +16,21 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        const tool = tools[0]; // omdat we 1 item verwachten
+        const tool = tools[0];
 
-        // Afbeelding
         document.getElementById("toolImage").src = tool.Afbeelding || '/images/default.jpg';
         document.getElementById("toolImage").alt = tool.Naam;
-
-        // Naam
         document.getElementById("toolName").textContent = tool.Naam || "Onbekend gereedschap";
-
-        // Beschrijving
         document.getElementById("toolDescription").textContent = tool.Beschrijving || "";
-
-        // Borg
         document.getElementById("toolBorg").textContent = `Borg: €${tool.BorgBedrag || 0}`;
 
-        // Beschikbaarheid
         const start = tool.Begindatum ? new Date(tool.Begindatum).toLocaleDateString() : "--";
         const end = tool.Einddatum ? new Date(tool.Einddatum).toLocaleDateString() : "--";
         document.getElementById("startDate").textContent = start;
         document.getElementById("endDate").textContent = end;
 
-        // Chat knop
         const chatKnop = document.createElement('a');
-        chatKnop.href = `chat.html?partner=${tool.Account_id}`;
+        chatKnop.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
         chatKnop.textContent = '💬 Chat met eigenaar';
         chatKnop.classList.add('btn-chat');
         document.querySelector('.tool-info').appendChild(chatKnop);
