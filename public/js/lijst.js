@@ -1,3 +1,8 @@
+function getSearchFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get("search") || "";
+}
+
 // -----------------------
 // HULPFUNCTIES VOOR TOOLS
 // -----------------------
@@ -236,6 +241,21 @@ async function loadNewAds() {
 // -----------------------
 document.addEventListener("DOMContentLoaded", () => {
   loadFilters();
-  fetchAndDisplay('/gereedschap');
   loadNewAds();
+
+  const search = getSearchFromURL();
+
+  let url = "/gereedschap";
+
+  if (search) {
+    url += `?search=${encodeURIComponent(search)}`;
+  }
+
+  fetchAndDisplay(url);
+
+  // zet zoekterm terug in input
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput && search) {
+    searchInput.value = search;
+  }
 });

@@ -15,9 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // ZOEKFUNCTIE
 async function searchTools() {
     const inputEl = document.getElementById("searchInput");
-    const container = document.getElementById("toolsContainer");
-
-    if (!inputEl || !container) return;
+    if (!inputEl) return;
 
     const input = inputEl.value.trim();
 
@@ -26,15 +24,7 @@ async function searchTools() {
         return;
     }
 
-    try {
-        const response = await fetch(`/gereedschap?search=${encodeURIComponent(input)}`);
-        const results = await response.json();
-
-        displayResults(results);
-    } catch (err) {
-        console.error(err);
-        container.innerHTML = "<p>Er ging iets mis met zoeken.</p>";
-    }
+    window.location.href = `/lijst.html?search=${encodeURIComponent(input)}`;
 }
 
 
