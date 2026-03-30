@@ -30,9 +30,9 @@ async function loadData() {
 
 // ── Dashboard opbouwen ─────────────────────────────────────────────────────
 function buildDashboard() {
-  const actief      = allUitleningen.filter(u => u.Status === 'Uitgeleend' || u.Status === 'Te laat');
+  const actief      = allUitleningen.filter(u => u.Status === 'accepted');
+  const verlaat     = 0; // niet meer apart bijgehouden
   const beschikbaar = allGereedschap.filter(g => g.status === 'Beschikbaar').length;
-  const verlaat     = allUitleningen.filter(u => u.Status === 'Te laat').length;
 
   document.getElementById('stat-actief').textContent      = actief.length;
   document.getElementById('stat-beschikbaar').textContent = beschikbaar;
@@ -139,14 +139,11 @@ function renderActief(rows) {
 // ── Filter: actief ─────────────────────────────────────────────────────────
 function filterActief() {
   const q = document.getElementById('search-actief').value.toLowerCase();
-  const s = document.getElementById('filter-actief-status').value;
   const rows = allUitleningen.filter(u => {
-    const isActive = u.Status === 'Uitgeleend' || u.Status === 'Te laat';
-    const name     = (u.lenerNaam || '').toLowerCase();
-    const tool     = (u.gereedschapNaam || '').toLowerCase();
-    return isActive
-      && (!q || name.includes(q) || tool.includes(q))
-      && (!s || u.Status === s);
+    const name = (u.lenerNaam || '').toLowerCase();
+    const tool = (u.gereedschapNaam || '').toLowerCase();
+    return u.Status === 'accepted'
+      && (!q || name.includes(q) || tool.includes(q));
   });
   renderActief(rows);
 }
@@ -294,13 +291,17 @@ function statusClass(s) {
 
 function badge(status) {
   const map = {
-    'Beschikbaar':  'beschikbaar',
-    'Uitgeleend':   'uitgeleend',
-    'Te laat':      'te-laat',
-    'Teruggegeven': 'teruggegeven',
+    'pending':      { cls: 'uitgeleend',   label: 'In afwachting' },
+    'accepted':     { cls: 'teruggegeven', label: 'Geaccepteerd'  },
+    'rejected':     { cls: 'te-laat',      label: 'Geweigerd'     },
+    // Houd deze voor gereedschap status (beschikbaar etc.)
+    'Beschikbaar':  { cls: 'beschikbaar',  label: 'Beschikbaar'   },
+    'Uitgeleend':   { cls: 'uitgeleend',   label: 'Uitgeleend'    },
+    'Te laat':      { cls: 'te-laat',      label: 'Te laat'       },
+    'Teruggegeven': { cls: 'teruggegeven', label: 'Teruggegeven'  },
   };
-  const cls = map[status] || 'teruggegeven';
-  return `<span class="badge ${cls}"><span class="badge-dot"></span>${status || '—'}</span>`;
+  const s = map[status] || { cls: 'teruggegeven', label: status || '—' };
+  return `<span class="badge ${s.cls}"><span class="badge-dot"></span>${s.label}</span>`;
 }
 
 function emptyRow(cols, msg) {
