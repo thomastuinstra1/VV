@@ -448,21 +448,35 @@ app.get('/uitleen/:id', isLoggedIn, async (req, res) => {
 app.get('/mijn-chats', isLoggedIn, async (req, res) => {
   const userId = req.session.userId;
   try {
-    const berichten = await prisma.berichten.findMany({
-      where: { OR: [{ senderId: userId }, { receiverId: userId }] },
-      orderBy: { id: 'desc' }
+    const chats = await prisma.chats.findMany({
+      where: {
+        OR: [
+          { SenderId: userId },
+          { ReceiverId: userId }
+        ]
+      },
+      include: {
+        Account_Chats_SenderIdToAccount: true,
+        Account_Chats_ReceiverIdToAccount: true
+      },
+      orderBy: { CreatedAt: 'desc' }
     });
 
-    const partnerIds = [...new Set(
-      berichten.map(b => b.senderId === userId ? b.receiverId : b.senderId)
-    )];
+    const mapped = chats.map(chat => {
+      const partner = chat.SenderId === userId
+        ? chat.Account_Chats_ReceiverIdToAccount
+        : chat.Account_Chats_SenderIdToAccount;
 
-    const partners = await prisma.account.findMany({
-      where: { Account_id: { in: partnerIds } },
-      select: { Account_id: true, Name: true, Afbeelding: true }
+      return {
+        Chat_id:       chat.Chat_id,
+        Account_id:    partner.Account_id,
+        Name:          partner.Name,
+        Afbeelding:    partner.Afbeelding,
+        Gereedschap_id: chat.Gereedschap_id
+      };
     });
 
-    res.json(partners);
+    res.json(mapped);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Ophalen mislukt' });
