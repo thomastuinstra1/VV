@@ -35,3 +35,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// ── Wachtwoord vergeten modal ──
+const openBtn   = document.getElementById('openForgotModal');
+const modal     = document.getElementById('forgotModal');
+const closeBtn  = document.getElementById('closeModal');
+const sendBtn   = document.getElementById('sendResetBtn');
+const feedback  = document.getElementById('resetFeedback');
+
+openBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  modal.style.display = 'flex';
+});
+
+closeBtn.addEventListener('click', () => {
+  modal.style.display = 'none';
+});
+
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) modal.style.display = 'none';
+});
+
+sendBtn.addEventListener('click', async () => {
+  const email = document.getElementById('resetEmail').value.trim();
+  if (!email) { alert('Vul een e-mailadres in.'); return; }
+
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Versturen...';
+
+  try {
+    const res = await fetch('/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    feedback.textContent = data.message;
+    feedback.style.display = 'block';
+    sendBtn.style.display = 'none';
+  } catch {
+    alert('Er is iets misgegaan. Probeer het opnieuw.');
+  } finally {
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Verstuur link';
+  }
+});

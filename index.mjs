@@ -7,6 +7,7 @@ import multer from 'multer';
 import path from 'path';
 import { Server } from "socket.io";
 import http from "http";
+import crypto from 'crypto';
 
 // ── Automatische e-mails via Apps Script ──
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxo_EldpTHSCZIw2Nq8B64RjtlaWjCoSlUGS-LLGt-hCfRFhfDdYFSr_EazJe6u--qeYQ/exec';
@@ -168,6 +169,80 @@ app.post('/logout', (req, res) => {
     res.clearCookie('connect.sid');
     res.json({ message: 'Uitgelogd' });
   });
+});
+
+// ── WACHTWOORD RESET ROUTES ──
+
+app.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const account = await prisma.account.findFirst({
+      where: { E_mail: email }
+    });
+
+    // Altijd zelfde response (voorkomt user enumeration)
+    if (!account) {
+      return res.json({ message: 'Als dit e-mailadres bekend is, ontvang je een link.' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1 uur geldig
+
+    await prisma.account.update({
+      where: { Account_id: account.Account_id },
+      data: { resetToken: token, resetTokenExpiry: expiry }
+    });
+
+    const resetUrl = `https://gereedschapspunt.student.open-ict.hu/wachtwoordreset.html?token=${token}`;
+
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'password_reset',
+        userEmail: account.E_mail,
+        userName: account.Name,
+        resetUrl
+      })
+    });
+
+    res.json({ message: 'Als dit e-mailadres bekend is, ontvang je een link.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Er is iets misgegaan' });
+  }
+});
+
+app.post('/reset-password', async (req, res) => {
+  const { token, password } = req.body;
+  try {
+    const account = await prisma.account.findFirst({
+      where: {
+        resetToken: token,
+        resetTokenExpiry: { gt: new Date() } // token nog geldig
+      }
+    });
+
+    if (!account) {
+      return res.status(400).json({ error: 'Ongeldige of verlopen link.' });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await prisma.account.update({
+      where: { Account_id: account.Account_id },
+      data: {
+        Password: hash,
+        resetToken: null,
+        resetTokenExpiry: null
+      }
+    });
+
+    res.json({ message: 'Wachtwoord succesvol gewijzigd!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Er is iets misgegaan' });
+  }
 });
 
 app.get('/Account', isLoggedIn, async (req, res) => {

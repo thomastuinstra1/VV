@@ -58,7 +58,7 @@
                         <input type="password" id="Password" name="Password" required>
                     </div>
 
-                    <a href="#" class="forgot-password">Wachtwoord vergeten?</a>
+                    <a href="#" class="forgot-password" id="openForgotModal">Wachtwoord vergeten?</a>
 
                     <button type="submit">Log In</button>
 
@@ -68,6 +68,20 @@
 
         </div>
     </div>
+    <!-- Wachtwoord vergeten modal -->
+<div id="forgotModal" class="modal-overlay" style="display:none;">
+  <div class="modal-box">
+    <button class="modal-close" id="closeModal">&times;</button>
+    <h2>Wachtwoord vergeten</h2>
+    <p>Vul je e-mailadres in. Je ontvangt een link om je wachtwoord te herstellen.</p>
+    <div class="form-group">
+      <label for="resetEmail">E-mailadres</label>
+      <input type="email" id="resetEmail" placeholder="jouw@email.nl">
+    </div>
+    <button id="sendResetBtn">Verstuur link</button>
+    <p id="resetFeedback" style="display:none; margin-top: 1rem; color: green;"></p>
+  </div>
+</div>
     </main>
 
  <footer class="site-footer">
