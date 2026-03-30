@@ -96,7 +96,7 @@ function initSocket() {
   });
 
   socket.on("receive_message", (message) => {
-    if (message.chatId === CHAT_ID) addMessageToUI(message);
+    if (message.Chat_id === CHAT_ID) addMessageToUI(message);
   });
 
   socket.on("appointment_updated", (uitleen) => {
