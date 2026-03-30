@@ -292,7 +292,7 @@ app.post('/gereedschap', isLoggedIn, async (req, res) => {
         Naam,
         Beschrijving,
         Begindatum: Begindatum ? new Date(Begindatum) : null,
-        EindDatum: Einddatum ? new Date(Einddatum) : null,
+        Einddatum: Einddatum ? new Date(Einddatum) : null,
         BorgBedrag: BorgBedrag && BorgBedrag !== '' ? parseFloat(BorgBedrag) : null,
         Afbeelding,
         Account_id: req.session.userId

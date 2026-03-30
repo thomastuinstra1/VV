@@ -184,7 +184,6 @@ function renderGereedschap(data) {
           <td class="mono muted">${actU ? fmtDate(actU.StartDatum) : '—'}</td>
           <td class="mono muted">${actU ? fmtDate(actU.EindDatum) : '—'}</td>
           <td class="mono muted">${actU && actU.BorgBedrag != null ? '€' + Number(actU.BorgBedrag).toFixed(2) : '—'}</td>
-          <td class="mono muted">${actU && actU.Kosten != null ? '€' + Number(actU.Kosten).toFixed(2) : '—'}</td>
           <td>${badge(g.status)}</td>
         </tr>`;
       }).join('')
@@ -223,9 +222,7 @@ function renderHistorie(data, page) {
         </td>
         <td class="mono muted">${fmtDate(u.StartDatum)}</td>
         <td class="mono muted">${fmtDate(u.EindDatum)}</td>
-        <td class="mono muted">${fmtDate(u.RetourDatum)}</td>
         <td class="mono muted">${u.BorgBedrag != null ? '€' + Number(u.BorgBedrag).toFixed(2) : '—'}</td>
-        <td class="mono muted">${u.Kosten != null ? '€' + Number(u.Kosten).toFixed(2) : '—'}</td>
         <td>${badge(u.Status)}</td>
       </tr>`;
     }).join('');
