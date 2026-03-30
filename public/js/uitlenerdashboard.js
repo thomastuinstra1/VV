@@ -1,6 +1,6 @@
 // ── State ──────────────────────────────────────────────────────────────────
-let allUitleningen = [];   // ruwe data van /dashboard/uitleningen
-let allGereedschap = [];   // ruwe data van /dashboard/gereedschap
+let allUitleningen = [];
+let allGereedschap = [];
 let filteredHist   = [];
 let histPage       = 1;
 const PER_PAGE     = 10;
@@ -34,10 +34,10 @@ function buildDashboard() {
   const beschikbaar = allGereedschap.filter(g => g.status === 'Beschikbaar').length;
   const verlaat     = allUitleningen.filter(u => u.Status === 'Te laat').length;
 
-  document.getElementById('stat-actief').textContent     = actief.length;
+  document.getElementById('stat-actief').textContent      = actief.length;
   document.getElementById('stat-beschikbaar').textContent = beschikbaar;
-  document.getElementById('stat-verlaat').textContent    = verlaat;
-  document.getElementById('stat-totaal').textContent     = allUitleningen.length;
+  document.getElementById('stat-verlaat').textContent     = verlaat;
+  document.getElementById('stat-totaal').textContent      = allUitleningen.length;
 
   renderBarChart();
   renderDonut();
@@ -46,7 +46,6 @@ function buildDashboard() {
 
 // ── Staafgrafiek ───────────────────────────────────────────────────────────
 function renderBarChart() {
-  // Tel uitleningen per maand op basis van StartDatum
   const counts = new Array(12).fill(0);
   const year   = new Date().getFullYear();
   allUitleningen.forEach(u => {
@@ -154,7 +153,6 @@ function filterActief() {
 
 // ── Gereedschapspagina ─────────────────────────────────────────────────────
 function renderGereedschap(data) {
-  // Tegel-weergave
   document.getElementById('tool-grid-view').innerHTML = data.length
     ? data.map(g => {
         const cls  = statusClass(g.status);
@@ -170,7 +168,6 @@ function renderGereedschap(data) {
       }).join('')
     : '<p style="color:var(--text-subtle);font-family:var(--font-mono);font-size:13px">Geen resultaten</p>';
 
-  // Tabel-weergave
   document.getElementById('tbody-tools-table').innerHTML = data.length
     ? data.map(g => {
         const actU = allUitleningen.find(u =>
@@ -187,7 +184,7 @@ function renderGereedschap(data) {
           <td>${badge(g.status)}</td>
         </tr>`;
       }).join('')
-    : emptyRow(7, 'Geen resultaten');
+    : emptyRow(6, 'Geen resultaten');
 }
 
 function filterTools() {
@@ -207,7 +204,7 @@ function renderHistorie(data, page) {
   const tbody = document.getElementById('tbody-hist');
 
   if (!slice.length) {
-    tbody.innerHTML = emptyRow(9, 'Geen resultaten');
+    tbody.innerHTML = emptyRow(7, 'Geen resultaten');
   } else {
     tbody.innerHTML = slice.map(u => {
       const name = u.lenerNaam || `Account #${u.Account_id}`;
@@ -228,7 +225,6 @@ function renderHistorie(data, page) {
     }).join('');
   }
 
-  // Paginering
   const totalPages = Math.ceil(data.length / PER_PAGE);
   document.getElementById('pagination-hist').innerHTML = `
     <span>${data.length} uitleningen · pagina ${page} van ${Math.max(totalPages, 1)}</span>

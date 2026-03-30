@@ -31,7 +31,6 @@ app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3000;
 const HOST = process.env.HOST || '127.0.0.1';
 
-// Sessie configuratie
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
@@ -40,11 +39,10 @@ app.use(session({
     httpOnly: true,
     secure: true,
     sameSite: 'lax',
-    maxAge: 1000 * 60 * 60 * 24 // 24 uur
+    maxAge: 1000 * 60 * 60 * 24
   }
 }));
 
-// Middleware: controleer of gebruiker ingelogd is
 function isLoggedIn(req, res, next) {
   if (req.session.userId) return next();
   res.status(401).json({ message: 'Niet ingelogd' });
@@ -67,8 +65,10 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 } // max 2MB
+  limits: { fileSize: 2 * 1024 * 1024 }
 });
+
+// ── AFBEELDING ROUTES ──
 
 app.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
   try {
@@ -99,32 +99,24 @@ app.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), async (
   }
 });
 
+// ── AUTH ROUTES ──
+
 app.get('/auth-status', (req, res) => {
   res.json({ ingelogd: !!req.session.userId });
 });
 
-// Registreren
 app.post('/register', async (req, res) => {
   const { Name, E_mail, Password, Postcode } = req.body;
   try {
     const bestaand = await prisma.account.findFirst({
-      where: {
-        OR: [
-          { Name: Name },
-          { E_mail: E_mail }
-        ]
-      }
+      where: { OR: [{ Name }, { E_mail }] }
     });
-
-    if (bestaand) {
-      return res.status(400).json({ message: 'Naam of e-mail is al in gebruik' });
-    }
+    if (bestaand) return res.status(400).json({ message: 'Naam of e-mail is al in gebruik' });
 
     const hash = await bcrypt.hash(Password, 10);
     const account = await prisma.account.create({
       data: { Name, E_mail, Password: hash, Postcode }
     });
-
     res.status(201).json({ message: 'Account aangemaakt!', id: account.Account_id });
   } catch (error) {
     console.error(error);
@@ -132,27 +124,16 @@ app.post('/register', async (req, res) => {
   }
 });
 
-// Login met Name of E_mail
 app.post('/login', async (req, res) => {
   const { login, Password } = req.body;
   try {
     const account = await prisma.account.findFirst({
-      where: {
-        OR: [
-          { Name: login },
-          { E_mail: login }
-        ]
-      }
+      where: { OR: [{ Name: login }, { E_mail: login }] }
     });
-
-    if (!account) {
-      return res.status(401).json({ message: 'Gebruiker niet gevonden' });
-    }
+    if (!account) return res.status(401).json({ message: 'Gebruiker niet gevonden' });
 
     const geldig = await bcrypt.compare(Password, account.Password);
-    if (!geldig) {
-      return res.status(401).json({ message: 'Ongeldig wachtwoord' });
-    }
+    if (!geldig) return res.status(401).json({ message: 'Ongeldig wachtwoord' });
 
     req.session.userId = account.Account_id;
     req.session.Name = account.Name;
@@ -167,7 +148,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Huidige ingelogde gebruiker ophalen
 app.get('/me', isLoggedIn, async (req, res) => {
   try {
     const account = await prisma.account.findUnique({
@@ -182,63 +162,6 @@ app.get('/me', isLoggedIn, async (req, res) => {
   }
 });
 
-// Gereedschap verwijderen
-app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
-  const id = parseInt(req.params.id);
-  try {
-    const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
-
-    if (!tool || tool.Account_id !== req.session.userId) {
-      return res.status(403).json({ error: 'Geen toegang' });
-    }
-
-    await prisma.gereedschap_Categorie.deleteMany({ where: { Gereedschap_id: id } });
-    await prisma.gereedschap.delete({ where: { Gereedschap_id: id } });
-
-    const account = await prisma.account.findUnique({
-      where: { Account_id: req.session.userId },
-      select: { E_mail: true, Name: true }
-    });
-    await sendEmail('tool_deleted', account.E_mail, account.Name, tool.Naam);
-
-    res.json({ message: 'Gereedschap verwijderd!' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Verwijderen mislukt' });
-  }
-});
-
-// Alle unieke gesprekspartners ophalen
-app.get('/mijn-chats', isLoggedIn, async (req, res) => {
-  const userId = req.session.userId;
-  try {
-    const berichten = await prisma.berichten.findMany({
-      where: {
-        OR: [
-          { senderId: userId },
-          { receiverId: userId }
-        ]
-      },
-      orderBy: { id: 'desc' }
-    });
-
-    const partnerIds = [...new Set(
-      berichten.map(b => b.senderId === userId ? b.receiverId : b.senderId)
-    )];
-
-    const partners = await prisma.account.findMany({
-      where: { Account_id: { in: partnerIds } },
-      select: { Account_id: true, Name: true, Afbeelding: true }
-    });
-
-    res.json(partners);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Ophalen mislukt' });
-  }
-});
-
-// Uitloggen
 app.post('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) return res.status(500).json({ message: 'Fout bij uitloggen' });
@@ -247,7 +170,6 @@ app.post('/logout', (req, res) => {
   });
 });
 
-// Accounts ophalen
 app.get('/Account', isLoggedIn, async (req, res) => {
   try {
     const accounts = await prisma.account.findMany();
@@ -258,7 +180,6 @@ app.get('/Account', isLoggedIn, async (req, res) => {
   }
 });
 
-// Account gegevens aanpassen
 app.put('/account', isLoggedIn, async (req, res) => {
   const { Name, E_mail, Postcode, Password, BSN } = req.body;
   try {
@@ -275,7 +196,6 @@ app.put('/account', isLoggedIn, async (req, res) => {
     });
 
     if (Name) req.session.Name = account.Name;
-    console.log(`Account bijgewerkt voor gebruiker: ${account.Name} (ID: ${account.Account_id})`);
     res.json({ message: 'Gegevens bijgewerkt!', Name: account.Name });
   } catch (error) {
     console.error(error);
@@ -283,7 +203,8 @@ app.put('/account', isLoggedIn, async (req, res) => {
   }
 });
 
-// Gereedschap toevoegen
+// ── GEREEDSCHAP ROUTES ──
+
 app.post('/gereedschap', isLoggedIn, async (req, res) => {
   const { Naam, Beschrijving, Begindatum, Einddatum, BorgBedrag, Afbeelding, categorieen } = req.body;
   try {
@@ -325,7 +246,6 @@ app.get('/categorieen', async (req, res) => {
   }
 });
 
-// Alle gereedschappen ophalen
 app.get('/gereedschap', async (req, res) => {
   try {
     const { search, id, categorieen } = req.query;
@@ -356,7 +276,6 @@ app.get('/gereedschap', async (req, res) => {
   }
 });
 
-// Mijn eigen gereedschap ophalen
 app.get('/mijn-gereedschap', isLoggedIn, async (req, res) => {
   try {
     const tools = await prisma.gereedschap.findMany({
@@ -370,7 +289,6 @@ app.get('/mijn-gereedschap', isLoggedIn, async (req, res) => {
   }
 });
 
-// Categorieën van één gereedschap ophalen
 app.get('/gereedschap/:id/categorieen', async (req, res) => {
   try {
     const koppelingen = await prisma.gereedschap_Categorie.findMany({
@@ -383,14 +301,12 @@ app.get('/gereedschap/:id/categorieen', async (req, res) => {
   }
 });
 
-// Gereedschap bewerken
 app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
   const id = parseInt(req.params.id);
   const { Naam, Beschrijving, BorgBedrag, Begindatum, Einddatum, categorieen } = req.body;
 
   try {
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
-
     if (!tool || tool.Account_id !== req.session.userId) {
       return res.status(403).json({ error: 'Geen toegang' });
     }
@@ -431,6 +347,30 @@ app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
   }
 });
 
+app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
+  const id = parseInt(req.params.id);
+  try {
+    const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
+    if (!tool || tool.Account_id !== req.session.userId) {
+      return res.status(403).json({ error: 'Geen toegang' });
+    }
+
+    await prisma.gereedschap_Categorie.deleteMany({ where: { Gereedschap_id: id } });
+    await prisma.gereedschap.delete({ where: { Gereedschap_id: id } });
+
+    const account = await prisma.account.findUnique({
+      where: { Account_id: req.session.userId },
+      select: { E_mail: true, Name: true }
+    });
+    await sendEmail('tool_deleted', account.E_mail, account.Name, tool.Naam);
+
+    res.json({ message: 'Gereedschap verwijderd!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Verwijderen mislukt' });
+  }
+});
+
 // ── DASHBOARD ROUTES ──
 
 app.get('/dashboard/uitleningen', async (req, res) => {
@@ -444,9 +384,7 @@ app.get('/dashboard/uitleningen', async (req, res) => {
       Status:          u.Status,
       StartDatum:      u.StartDatum,
       EindDatum:       u.EindDatum,
-      RetourDatum:     null,        // field doesn't exist in schema
       BorgBedrag:      u.BorgBedrag,
-      Kosten:          null,        // field doesn't exist in schema
       Account_id:      u.Account_id,
       Gereedschap_id:  u.Gereedschap_id,
       lenerNaam:       u.Account?.Name || null,
@@ -470,16 +408,13 @@ app.get('/dashboard/gereedschap', async (req, res) => {
       }
     });
 
-    const mapped = tools.map(g => {
-      const activeUitleen = g.Uitleen[0];
-      return {
-        Gereedschap_id: g.Gereedschap_id,
-        Naam:           g.Naam,
-        Beschrijving:   g.Beschrijving,
-        BorgBedrag:     g.BorgBedrag,
-        status:         activeUitleen ? activeUitleen.Status : 'Beschikbaar'
-      };
-    });
+    const mapped = tools.map(g => ({
+      Gereedschap_id: g.Gereedschap_id,
+      Naam:           g.Naam,
+      Beschrijving:   g.Beschrijving,
+      BorgBedrag:     g.BorgBedrag,
+      status:         g.Uitleen[0] ? g.Uitleen[0].Status : 'Beschikbaar'
+    }));
 
     res.json(mapped);
   } catch (err) {
@@ -505,7 +440,30 @@ app.get('/uitleen/:id', isLoggedIn, async (req, res) => {
 
 // ── CHAT & BERICHTEN ROUTES ──
 
-// Nieuwe chat starten of bestaande ophalen
+app.get('/mijn-chats', isLoggedIn, async (req, res) => {
+  const userId = req.session.userId;
+  try {
+    const berichten = await prisma.berichten.findMany({
+      where: { OR: [{ senderId: userId }, { receiverId: userId }] },
+      orderBy: { id: 'desc' }
+    });
+
+    const partnerIds = [...new Set(
+      berichten.map(b => b.senderId === userId ? b.receiverId : b.senderId)
+    )];
+
+    const partners = await prisma.account.findMany({
+      where: { Account_id: { in: partnerIds } },
+      select: { Account_id: true, Name: true, Afbeelding: true }
+    });
+
+    res.json(partners);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Ophalen mislukt' });
+  }
+});
+
 app.post('/chat/start', isLoggedIn, async (req, res) => {
   const { partnerId, toolId } = req.body;
   const userId = req.session.userId;
@@ -534,14 +492,14 @@ app.post('/chat/start', isLoggedIn, async (req, res) => {
   }
 });
 
-// Berichten ophalen per chat
+// FIX: Chat_id (niet chat_Id)
 app.get('/messages/chat/:chatId', isLoggedIn, async (req, res) => {
   const chatId = parseInt(req.params.chatId);
   if (!chatId) return res.status(400).json({ error: 'Ongeldige chat ID' });
 
   try {
     const messages = await prisma.berichten.findMany({
-      where: { chat_Id: chatId },
+      where: { Chat_id: chatId },
       orderBy: { id: 'asc' }
     });
     res.json(messages);
@@ -551,7 +509,6 @@ app.get('/messages/chat/:chatId', isLoggedIn, async (req, res) => {
   }
 });
 
-// Specifieke chat ophalen
 app.get('/chat/:chatId', isLoggedIn, async (req, res) => {
   const chatId = parseInt(req.params.chatId);
   try {
@@ -564,7 +521,6 @@ app.get('/chat/:chatId', isLoggedIn, async (req, res) => {
   }
 });
 
-// Berichten ophalen per gebruiker (oud endpoint — behouden voor compatibiliteit)
 app.get('/messages/:userId', isLoggedIn, async (req, res) => {
   const currentUserId = req.session.userId;
   const otherUserId = parseInt(req.params.userId);
@@ -615,7 +571,6 @@ io.on("connection", (socket) => {
     console.log(`User ${userId} joined chat_${chatId}`);
   });
 
-  // Chat starten of ophalen
   socket.on("start_chat", async ({ partnerId, toolId }) => {
     try {
       let chat = await prisma.chats.findFirst({
@@ -641,7 +596,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Normaal bericht versturen
+  // FIX: Chat_id (niet chat_Id)
   socket.on("send_message", async ({ chatId, content }) => {
     try {
       const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
@@ -650,7 +605,13 @@ io.on("connection", (socket) => {
       const toUserId = chat.SenderId === userId ? chat.ReceiverId : chat.SenderId;
 
       const message = await prisma.berichten.create({
-        data: { senderId: userId, receiverId: toUserId, content, chat_Id: chatId, type: "text" }
+        data: {
+          senderId: userId,
+          receiverId: toUserId,
+          content,
+          Chat_id: chatId,
+          type: "text"
+        }
       });
 
       io.to(`chat_${chatId}`).emit("receive_message", message);
@@ -659,7 +620,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Afspraak versturen
+  // FIX: Chat_id, geen Lener_id, prisma.berichten (niet prisma.Berichten)
   socket.on("send_appointment", async ({ chatId, borg, startDate, endDate }) => {
     try {
       const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
@@ -673,24 +634,23 @@ io.on("connection", (socket) => {
 
       const uitleen = await prisma.uitleen.create({
         data: {
-          Account_id: tool.Account_id,
-          Lener_id: userId,
+          Account_id:     tool.Account_id,
           Gereedschap_id: tool.Gereedschap_id,
-          StartDatum: new Date(startDate),
-          EindDatum: new Date(endDate),
-          BorgBedrag: parseFloat(borg),
-          Status: "pending"
+          StartDatum:     new Date(startDate),
+          EindDatum:      new Date(endDate),
+          BorgBedrag:     parseFloat(borg),
+          Status:         "pending"
         }
       });
 
-      const message = await prisma.Berichten.create({
+      const message = await prisma.berichten.create({
         data: {
-          senderId: userId,
+          senderId:   userId,
           receiverId: toUserId,
-          content: "Afspraak verzoek",
-          type: "appointment",
-          chat_Id: chatId,
-          uitleenId: uitleen.Uitleen_id
+          content:    "Afspraak verzoek",
+          type:       "appointment",
+          Chat_id:    chatId,
+          uitleenId:  uitleen.Uitleen_id
         }
       });
 
@@ -700,7 +660,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // Accepteren / weigeren afspraak
   socket.on("respond_appointment", async ({ uitleenId, action }) => {
     try {
       const status = action === "accept" ? "accepted" : "rejected";
