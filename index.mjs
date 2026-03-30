@@ -292,7 +292,7 @@ app.post('/gereedschap', isLoggedIn, async (req, res) => {
         Naam,
         Beschrijving,
         Begindatum: Begindatum ? new Date(Begindatum) : null,
-        Einddatum: Einddatum ? new Date(Einddatum) : null,
+        EindDatum: Einddatum ? new Date(Einddatum) : null,
         BorgBedrag: BorgBedrag && BorgBedrag !== '' ? parseFloat(BorgBedrag) : null,
         Afbeelding,
         Account_id: req.session.userId
@@ -434,47 +434,58 @@ app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
 // ── DASHBOARD ROUTES ──
 
 app.get('/dashboard/uitleningen', async (req, res) => {
-  const data = await prisma.uitleen.findMany({
-    include: { Account: true, Gereedschap: true }
-  });
+  try {
+    const data = await prisma.uitleen.findMany({
+      include: { Account: true, Gereedschap: true }
+    });
 
-  const mapped = data.map(u => ({
-    Uitleen_id: u.Uitleen_id,
-    Status: u.Status,
-    StartDatum: u.StartDatum,
-    EindDatum: u.EindDatum,
-    RetourDatum: u.RetourDatum,
-    BorgBedrag: u.BorgBedrag,
-    Kosten: u.Kosten,
-    Account_id: u.Account_id,
-    Gereedschap_id: u.Gereedschap_id,
-    lenerNaam: u.Account?.Name || null,
-    gereedschapNaam: u.Gereedschap?.Naam || null
-  }));
+    const mapped = data.map(u => ({
+      Uitleen_id:      u.Uitleen_id,
+      Status:          u.Status,
+      StartDatum:      u.StartDatum,
+      EindDatum:       u.EindDatum,
+      RetourDatum:     null,        // field doesn't exist in schema
+      BorgBedrag:      u.BorgBedrag,
+      Kosten:          null,        // field doesn't exist in schema
+      Account_id:      u.Account_id,
+      Gereedschap_id:  u.Gereedschap_id,
+      lenerNaam:       u.Account?.Name || null,
+      gereedschapNaam: u.Gereedschap?.Naam || null
+    }));
 
-  res.json(mapped);
+    res.json(mapped);
+  } catch (err) {
+    console.error('Dashboard uitleningen error:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get('/dashboard/gereedschap', async (req, res) => {
-  const tools = await prisma.gereedschap.findMany({
-    include: {
-      Uitleen: {
-        where: { Status: { in: ['Uitgeleend', 'Te laat'] } }
+  try {
+    const tools = await prisma.gereedschap.findMany({
+      include: {
+        Uitleen: {
+          where: { Status: { in: ['Uitgeleend', 'Te laat'] } }
+        }
       }
-    }
-  });
+    });
 
-  const mapped = tools.map(g => ({
-    Gereedschap_id: g.Gereedschap_id,
-    Naam: g.Naam,
-    Beschrijving: g.Beschrijving,
-    BorgBedrag: g.BorgBedrag,
-    status: g.Beschikbaar
-      ? 'Beschikbaar'
-      : (g.Uitleen[0]?.Status || 'Beschikbaar')
-  }));
+    const mapped = tools.map(g => {
+      const activeUitleen = g.Uitleen[0];
+      return {
+        Gereedschap_id: g.Gereedschap_id,
+        Naam:           g.Naam,
+        Beschrijving:   g.Beschrijving,
+        BorgBedrag:     g.BorgBedrag,
+        status:         activeUitleen ? activeUitleen.Status : 'Beschikbaar'
+      };
+    });
 
-  res.json(mapped);
+    res.json(mapped);
+  } catch (err) {
+    console.error('Dashboard gereedschap error:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── UITLEEN ROUTES ──
