@@ -878,6 +878,12 @@ app.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), async (
   }
 });
 
+app.post('/upload/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Geen geldig bestand' });
+  const afbeeldingUrl = '/uploads/' + req.file.filename;
+  res.json({ url: afbeeldingUrl });
+});
+
 server.listen(PORT, HOST, () => {
   console.log(`Server draait op https://${HOST}:${PORT}`);
 });

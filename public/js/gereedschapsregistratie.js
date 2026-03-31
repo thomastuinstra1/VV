@@ -85,7 +85,7 @@ document.getElementById('afbeelding-input').addEventListener('change', async () 
     showMelding("Afbeelding uploaden...", "black");
 
     try {
-        const res = await fetch('/gereedschap/:id/afbeelding', {
+        const res = await fetch('/upload/afbeelding', {
             method: 'POST',
             body: formData,
             credentials: 'include'
