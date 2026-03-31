@@ -1,13 +1,4 @@
 // -----------------------
-// GLOBALE SPINNER FUNCTIES
-// -----------------------
-function showSpinner(show = true) {
-    const spinner = document.getElementById('globalSpinner');
-    if (!spinner) return;
-    spinner.style.display = show ? 'flex' : 'none';
-}
-
-// -----------------------
 // DOMContentLoaded INIT
 // -----------------------
 document.addEventListener("DOMContentLoaded", function () {
@@ -182,8 +173,8 @@ async function loadNewAds() {
 
     showSpinner(true);
     try {
-        const res = await fetch("/gereedschap");
-        const tools = await res.json();
+        const tools = await fetchWithSpinner("/gereedschap");
+        if (tools) displayResults(tools);
 
         if (!tools || tools.length === 0) {
             track.innerHTML = "<p>Geen gereedschap gevonden.</p>";

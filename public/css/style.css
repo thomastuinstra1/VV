@@ -270,7 +270,6 @@ section {
     color: var(--footer-text);
 }
 
-/* RESPONSIVE */
 @media (max-width: 980px) {
     .nav-container {
         flex-direction: row;
