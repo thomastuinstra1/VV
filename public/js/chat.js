@@ -88,7 +88,10 @@ async function loadMessages() {
     const res = await fetch(`/messages/chat/${CHAT_ID}`);
     if (!res.ok) throw new Error('Kon berichten niet ophalen');
     const messages = await res.json();
-    messages.forEach(msg => addMessageToUI(msg));
+    
+    for (const msg of messages) {
+      await addMessageToUI(msg);
+    }
   } catch (err) {
     console.error(err);
   }
