@@ -180,13 +180,12 @@ app.post('/forgot-password', async (req, res) => {
       where: { E_mail: email }
     });
 
-    // Altijd zelfde response (voorkomt user enumeration)
     if (!account) {
       return res.json({ message: 'Als dit e-mailadres bekend is, ontvang je een link.' });
     }
 
     const token = crypto.randomBytes(32).toString('hex');
-    const expiry = new Date(Date.now() + 1000 * 60 * 60); // 1 uur geldig
+    const expiry = new Date(Date.now() + 1000 * 60 * 60);
 
     await prisma.account.update({
       where: { Account_id: account.Account_id },
@@ -219,7 +218,7 @@ app.post('/reset-password', async (req, res) => {
     const account = await prisma.account.findFirst({
       where: {
         resetToken: token,
-        resetTokenExpiry: { gt: new Date() } // token nog geldig
+        resetTokenExpiry: { gt: new Date() }
       }
     });
 
@@ -452,7 +451,7 @@ app.get('/dashboard/uitleningen', isLoggedIn, async (req, res) => {
   try {
     const data = await prisma.uitleen.findMany({
       where: {
-        Gereedschap: { Account_id: req.session.userId }  // ← alleen jouw gereedschap
+        Gereedschap: { Account_id: req.session.userId }
       },
       include: { Account: true, Gereedschap: true }
     });
@@ -466,6 +465,7 @@ app.get('/dashboard/uitleningen', isLoggedIn, async (req, res) => {
       Account_id:      u.Account_id,
       Gereedschap_id:  u.Gereedschap_id,
       lenerNaam:       u.Account?.Name || null,
+      lenerEmail:      u.Account?.E_mail || null,
       gereedschapNaam: u.Gereedschap?.Naam || null
     }));
 
@@ -476,29 +476,122 @@ app.get('/dashboard/uitleningen', isLoggedIn, async (req, res) => {
   }
 });
 
-// ✅ Moet — filter op account + login check
 app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
   try {
+    const now = new Date();
+
     const tools = await prisma.gereedschap.findMany({
-      where: { Account_id: req.session.userId },   // ← toegevoegd
+      where: { Account_id: req.session.userId },
       include: {
         Uitleen: {
-          where: { Status: { in: ['Uitgeleend', 'Te laat'] } }
+          // Haal alle actieve uitleningen op (accepted, pending, te_laat, ingeleverd_te_laat)
+          where: {
+            Status: { in: ['accepted', 'pending', 'te_laat', 'ingeleverd_op_tijd', 'ingeleverd_te_laat'] }
+          },
+          orderBy: { EindDatum: 'desc' }
         }
       }
     });
 
-    const mapped = tools.map(g => ({
-      Gereedschap_id: g.Gereedschap_id,
-      Naam:           g.Naam,
-      Beschrijving:   g.Beschrijving,
-      BorgBedrag:     g.BorgBedrag,
-      status:         g.Uitleen[0] ? g.Uitleen[0].Status : 'Beschikbaar'
-    }));
+    const mapped = tools.map(g => {
+      // Zoek de meest relevante actieve uitleen
+      const actieveUitleen = g.Uitleen.find(u =>
+        u.Status === 'accepted' || u.Status === 'pending' || u.Status === 'te_laat'
+      );
+
+      let dashboardStatus = 'Beschikbaar';
+      let activeUitleenId = null;
+      let lenerNaam = null;
+      let lenerEmail = null;
+      let eindDatum = null;
+
+      if (actieveUitleen) {
+        activeUitleenId = actieveUitleen.Uitleen_id;
+        eindDatum = actieveUitleen.EindDatum;
+
+        if (actieveUitleen.Status === 'pending') {
+          // Aanvraag in behandeling — toon als beschikbaar maar met pending indicator
+          dashboardStatus = 'Beschikbaar';
+        } else if (actieveUitleen.Status === 'accepted') {
+          const isOverDue = actieveUitleen.EindDatum && new Date(actieveUitleen.EindDatum) < now;
+          dashboardStatus = isOverDue ? 'Ingeleverd?' : 'Uitgeleend';
+        } else if (actieveUitleen.Status === 'te_laat') {
+          dashboardStatus = 'Te laat';
+        }
+
+        // Haal lenerinfo op via Account_id
+        lenerNaam  = actieveUitleen.Account?.Name  || null;
+        lenerEmail = actieveUitleen.Account?.E_mail || null;
+      }
+
+      return {
+        Gereedschap_id:  g.Gereedschap_id,
+        Naam:            g.Naam,
+        Beschrijving:    g.Beschrijving,
+        BorgBedrag:      g.BorgBedrag,
+        status:          dashboardStatus,
+        activeUitleenId,
+        lenerNaam,
+        lenerEmail,
+        eindDatum
+      };
+    });
 
     res.json(mapped);
   } catch (err) {
     console.error('Dashboard gereedschap error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── UITLEEN STATUS BIJWERKEN (op tijd / te laat ingeleverd) ──
+
+app.patch('/uitleen/:id/status', isLoggedIn, async (req, res) => {
+  const uitleenId = parseInt(req.params.id);
+  const { status } = req.body; // verwacht: 'ingeleverd_op_tijd' of 'ingeleverd_te_laat'
+
+  const toegestaneStatussen = ['ingeleverd_op_tijd', 'ingeleverd_te_laat'];
+  if (!toegestaneStatussen.includes(status)) {
+    return res.status(400).json({ error: 'Ongeldige status' });
+  }
+
+  try {
+    // Controleer of deze uitleen bij het gereedschap van de ingelogde gebruiker hoort
+    const uitleen = await prisma.uitleen.findUnique({
+      where: { Uitleen_id: uitleenId },
+      include: {
+        Gereedschap: true,
+        Account: true
+      }
+    });
+
+    if (!uitleen) {
+      return res.status(404).json({ error: 'Uitleen niet gevonden' });
+    }
+
+    if (uitleen.Gereedschap.Account_id !== req.session.userId) {
+      return res.status(403).json({ error: 'Geen toegang' });
+    }
+
+    // Status bijwerken
+    await prisma.uitleen.update({
+      where: { Uitleen_id: uitleenId },
+      data: { Status: status }
+    });
+
+    // E-mail sturen naar de lener
+    if (uitleen.Account?.E_mail) {
+      await sendEmail(
+        status,                        // type: 'ingeleverd_op_tijd' of 'ingeleverd_te_laat'
+        uitleen.Account.E_mail,
+        uitleen.Account.Name,
+        uitleen.Gereedschap.Naam
+      );
+    }
+
+    res.json({ message: 'Status bijgewerkt', status });
+  } catch (err) {
+    console.error('Status bijwerken mislukt:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -543,10 +636,10 @@ app.get('/mijn-chats', isLoggedIn, async (req, res) => {
         : chat.Account_Chats_SenderIdToAccount;
 
       return {
-        Chat_id:       chat.Chat_id,
-        Account_id:    partner.Account_id,
-        Name:          partner.Name,
-        Afbeelding:    partner.Afbeelding,
+        Chat_id:        chat.Chat_id,
+        Account_id:     partner.Account_id,
+        Name:           partner.Name,
+        Afbeelding:     partner.Afbeelding,
         Gereedschap_id: chat.Gereedschap_id
       };
     });
@@ -586,7 +679,6 @@ app.post('/chat/start', isLoggedIn, async (req, res) => {
   }
 });
 
-// FIX: Chat_id (niet chat_Id)
 app.get('/messages/chat/:chatId', isLoggedIn, async (req, res) => {
   const chatId = parseInt(req.params.chatId);
   if (!chatId) return res.status(400).json({ error: 'Ongeldige chat ID' });
@@ -690,7 +782,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // FIX: Chat_id (niet chat_Id)
   socket.on("send_message", async ({ chatId, content }) => {
     try {
       const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
@@ -714,7 +805,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // FIX: Chat_id, geen Lener_id, prisma.berichten (niet prisma.Berichten)
   socket.on("send_appointment", async ({ chatId, borg, startDate, endDate }) => {
     try {
       const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });

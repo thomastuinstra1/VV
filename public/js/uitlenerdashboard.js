@@ -31,7 +31,7 @@ async function loadData() {
 // ── Dashboard opbouwen ─────────────────────────────────────────────────────
 function buildDashboard() {
   const actief      = allUitleningen.filter(u => u.Status === 'accepted');
-  const verlaat     = 0; // niet meer apart bijgehouden
+  const verlaat     = allGereedschap.filter(g => g.status === 'Te laat').length;
   const beschikbaar = allGereedschap.filter(g => g.status === 'Beschikbaar').length;
 
   document.getElementById('stat-actief').textContent      = actief.length;
@@ -68,12 +68,16 @@ function renderBarChart() {
 // ── Donut-chart ────────────────────────────────────────────────────────────
 function renderDonut() {
   const avail  = allGereedschap.filter(g => g.status === 'Beschikbaar').length;
-  const uit    = allGereedschap.filter(g => g.status === 'Uitgeleend' || g.status === 'Te laat').length;
-  const total  = avail + uit || 1;
+  const uit    = allGereedschap.filter(g => g.status === 'Uitgeleend').length;
+  const wacht  = allGereedschap.filter(g => g.status === 'Ingeleverd?').length;
+  const telaat = allGereedschap.filter(g => g.status === 'Te laat').length;
+  const total  = avail + uit + wacht + telaat || 1;
 
   const segments = [
-    { label: 'Beschikbaar', count: avail, color: '#3b6d11' },
-    { label: 'Uitgeleend',  count: uit,   color: '#d85a30' },
+    { label: 'Beschikbaar', count: avail,  color: '#3b6d11' },
+    { label: 'Uitgeleend',  count: uit,    color: '#d85a30' },
+    { label: 'Ingeleverd?', count: wacht,  color: '#b07d10' },
+    { label: 'Te laat',     count: telaat, color: '#9b2222' },
   ];
 
   const cx = 60, cy = 60, r = 44, stroke = 18;
@@ -96,13 +100,15 @@ function renderDonut() {
       font-family="'DM Mono',monospace" font-size="18" font-weight="500"
       fill="currentColor">${total}</text>`;
 
-  document.getElementById('donut-legend').innerHTML = segments.map(s => `
-    <div class="legend-item">
-      <div class="legend-dot" style="background:${s.color}"></div>
-      <span class="legend-name">${s.label}</span>
-      <span class="legend-count">${s.count}</span>
-    </div>
-  `).join('');
+  document.getElementById('donut-legend').innerHTML = segments
+    .filter(s => s.count > 0)
+    .map(s => `
+      <div class="legend-item">
+        <div class="legend-dot" style="background:${s.color}"></div>
+        <span class="legend-name">${s.label}</span>
+        <span class="legend-count">${s.count}</span>
+      </div>
+    `).join('');
 }
 
 // ── Actieve uitleningen tabel ──────────────────────────────────────────────
@@ -152,36 +158,96 @@ function filterActief() {
 function renderGereedschap(data) {
   document.getElementById('tool-grid-view').innerHTML = data.length
     ? data.map(g => {
-        const cls  = statusClass(g.status);
-        const actU = allUitleningen.find(u =>
-          u.Gereedschap_id === g.Gereedschap_id &&
-          (u.Status === 'Uitgeleend' || u.Status === 'Te laat')
-        );
+        const cls = statusClass(g.status);
         return `<div class="tool-tile ${cls}">
           <div class="tile-name">${g.Naam}</div>
           ${badge(g.status)}
-          ${actU ? `<div class="tile-meta">${actU.lenerNaam || 'Onbekend'}<br>t/m ${fmtDate(actU.EindDatum)}</div>` : ''}
+          ${renderTileInfo(g)}
+          ${renderInleverKnoppen(g)}
         </div>`;
       }).join('')
     : '<p style="color:var(--text-subtle);font-family:var(--font-mono);font-size:13px">Geen resultaten</p>';
 
   document.getElementById('tbody-tools-table').innerHTML = data.length
     ? data.map(g => {
-        const actU = allUitleningen.find(u =>
-          u.Gereedschap_id === g.Gereedschap_id &&
-          (u.Status === 'Uitgeleend' || u.Status === 'Te laat')
-        );
-        const lener = actU ? (actU.lenerNaam || `Account #${actU.Account_id}`) : '—';
+        const lener = g.lenerNaam || '—';
         return `<tr>
           <td><div class="tool-name">${g.Naam}</div></td>
           <td class="mono muted">${lener}</td>
-          <td class="mono muted">${actU ? fmtDate(actU.StartDatum) : '—'}</td>
-          <td class="mono muted">${actU ? fmtDate(actU.EindDatum) : '—'}</td>
-          <td class="mono muted">${actU && actU.BorgBedrag != null ? '€' + Number(actU.BorgBedrag).toFixed(2) : '—'}</td>
+          <td class="mono muted">${g.eindDatum ? fmtDate(g.eindDatum) : '—'}</td>
+          <td class="mono muted">${g.activeUitleenId != null ? '€' + Number(g.BorgBedrag ?? 0).toFixed(2) : '—'}</td>
           <td>${badge(g.status)}</td>
+          <td>${renderInleverKnoppen(g, true)}</td>
         </tr>`;
       }).join('')
     : emptyRow(6, 'Geen resultaten');
+}
+
+// ── Hulp: info onder badge in tegel ───────────────────────────────────────
+function renderTileInfo(g) {
+  if (g.status === 'Beschikbaar') return '';
+  const lener   = g.lenerNaam || 'Onbekend';
+  const datumTxt = g.eindDatum ? `t/m ${fmtDate(g.eindDatum)}` : '';
+  return `<div class="tile-meta">${lener}${datumTxt ? `<br>${datumTxt}` : ''}</div>`;
+}
+
+// ── Hulp: inlever-knoppen renderen ────────────────────────────────────────
+function renderInleverKnoppen(g, isTableRow = false) {
+  if (g.status !== 'Ingeleverd?' || !g.activeUitleenId) return '';
+
+  if (isTableRow) {
+    return `
+      <div class="inlever-actions">
+        <button class="btn-inlever op-tijd"
+          onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_op_tijd', this)">
+          ✓ Op tijd
+        </button>
+        <button class="btn-inlever te-laat"
+          onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_te_laat', this)">
+          ✗ Te laat
+        </button>
+      </div>`;
+  }
+
+  return `
+    <div class="inlever-actions">
+      <button class="btn-inlever op-tijd"
+        onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_op_tijd', this)">
+        ✓ Op tijd
+      </button>
+      <button class="btn-inlever te-laat"
+        onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_te_laat', this)">
+        ✗ Te laat
+      </button>
+    </div>`;
+}
+
+// ── Inlevering markeren via API ────────────────────────────────────────────
+async function markeerIngeleverd(uitleenId, status, btn) {
+  btn.disabled = true;
+  btn.textContent = '…';
+
+  try {
+    const res = await fetch(`/uitleen/${uitleenId}/status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+
+    if (!res.ok) throw new Error(await res.text());
+
+    const label = status === 'ingeleverd_op_tijd' ? 'Op tijd ingeleverd ✓' : 'Te laat ingeleverd ✗';
+    toast(label);
+
+    // Data herladen en gereedschapspagina vernieuwen
+    await loadData();
+    filterTools();
+  } catch (err) {
+    console.error(err);
+    toast('Fout bij bijwerken status');
+    btn.disabled = false;
+    btn.textContent = status === 'ingeleverd_op_tijd' ? '✓ Op tijd' : '✗ Te laat';
+  }
 }
 
 function filterTools() {
@@ -286,19 +352,28 @@ function initials(name) {
 }
 
 function statusClass(s) {
-  return { 'Beschikbaar': 'beschikbaar', 'Uitgeleend': 'uitgeleend', 'Te laat': 'te-laat' }[s] || 'beschikbaar';
+  return {
+    'Beschikbaar': 'beschikbaar',
+    'Uitgeleend':  'uitgeleend',
+    'Ingeleverd?': 'ingeleverd-vraag',
+    'Te laat':     'te-laat',
+  }[s] || 'beschikbaar';
 }
 
 function badge(status) {
   const map = {
-    'pending':      { cls: 'uitgeleend',   label: 'In afwachting' },
-    'accepted':     { cls: 'teruggegeven', label: 'Geaccepteerd'  },
-    'rejected':     { cls: 'te-laat',      label: 'Geweigerd'     },
-    // Houd deze voor gereedschap status (beschikbaar etc.)
-    'Beschikbaar':  { cls: 'beschikbaar',  label: 'Beschikbaar'   },
-    'Uitgeleend':   { cls: 'uitgeleend',   label: 'Uitgeleend'    },
-    'Te laat':      { cls: 'te-laat',      label: 'Te laat'       },
-    'Teruggegeven': { cls: 'teruggegeven', label: 'Teruggegeven'  },
+    // Uitleen-statussen
+    'pending':             { cls: 'uitgeleend',      label: 'In afwachting'   },
+    'accepted':            { cls: 'teruggegeven',    label: 'Geaccepteerd'    },
+    'rejected':            { cls: 'te-laat',         label: 'Geweigerd'       },
+    'ingeleverd_op_tijd':  { cls: 'teruggegeven',    label: 'Op tijd ingelev.'},
+    'ingeleverd_te_laat':  { cls: 'te-laat',         label: 'Te laat ingelev.'},
+    // Gereedschap-statussen (dashboard)
+    'Beschikbaar':         { cls: 'beschikbaar',     label: 'Beschikbaar'     },
+    'Uitgeleend':          { cls: 'uitgeleend',      label: 'Uitgeleend'      },
+    'Ingeleverd?':         { cls: 'ingeleverd-vraag',label: 'Ingeleverd?'     },
+    'Te laat':             { cls: 'te-laat',         label: 'Te laat'         },
+    'Teruggegeven':        { cls: 'teruggegeven',    label: 'Teruggegeven'    },
   };
   const s = map[status] || { cls: 'teruggegeven', label: status || '—' };
   return `<span class="badge ${s.cls}"><span class="badge-dot"></span>${s.label}</span>`;

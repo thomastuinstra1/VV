@@ -6,6 +6,63 @@
   <title>Uitlenerdashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/uitlenerdashboard.css" />
+
+  <style>
+    /* ── Ingeleverd? badge kleur ── */
+    .badge.ingeleverd-vraag {
+      background: color-mix(in srgb, #b07d10 12%, transparent);
+      color: #b07d10;
+      border: 1px solid color-mix(in srgb, #b07d10 25%, transparent);
+    }
+
+    /* ── Tool-tegel ingeleverd? status ── */
+    .tool-tile.ingeleverd-vraag {
+      border-color: color-mix(in srgb, #b07d10 35%, transparent);
+      background: color-mix(in srgb, #b07d10 5%, var(--bg-card));
+    }
+
+    /* ── Inlever-actieknoppen ── */
+    .inlever-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-inlever {
+      flex: 1;
+      min-width: 80px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+
+    .btn-inlever:hover  { opacity: .85; transform: translateY(-1px); }
+    .btn-inlever:active { transform: translateY(0); }
+    .btn-inlever:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    .btn-inlever.op-tijd {
+      background: color-mix(in srgb, #3b6d11 12%, transparent);
+      color: #3b6d11;
+      border-color: color-mix(in srgb, #3b6d11 30%, transparent);
+    }
+
+    .btn-inlever.te-laat {
+      background: color-mix(in srgb, #9b2222 10%, transparent);
+      color: #9b2222;
+      border-color: color-mix(in srgb, #9b2222 28%, transparent);
+    }
+
+    /* Tabelrij: actiekolom niet te breed */
+    #tbody-tools-table td:last-child .inlever-actions {
+      flex-direction: row;
+    }
+  </style>
 </head>
 <body>
 
@@ -117,6 +174,7 @@
           <option value="">Alle statussen</option>
           <option value="Beschikbaar">Beschikbaar</option>
           <option value="Uitgeleend">Uitgeleend</option>
+          <option value="Ingeleverd?">Ingeleverd?</option>
           <option value="Te laat">Te laat</option>
         </select>
         <div class="tab-bar">
@@ -135,10 +193,10 @@
             <tr>
               <th>Naam</th>
               <th>Uitgeleend aan</th>
-              <th>Startdatum</th>
               <th>Vervaldatum</th>
               <th>Borg</th>
               <th>Status</th>
+              <th>Actie</th>
             </tr>
           </thead>
           <tbody id="tbody-tools-table"></tbody>
@@ -166,6 +224,8 @@
             <option value="pending">In afwachting</option>
             <option value="accepted">Geaccepteerd</option>
             <option value="rejected">Geweigerd</option>
+            <option value="ingeleverd_op_tijd">Op tijd ingeleverd</option>
+            <option value="ingeleverd_te_laat">Te laat ingeleverd</option>
           </select>
         </div>
       </div>
