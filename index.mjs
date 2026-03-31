@@ -855,8 +855,13 @@ io.on("connection", (socket) => {
         data: { Status: status }
       });
 
-      if (updated.Chat_id) {
-        io.to(`chat_${updated.Chat_id}`).emit("appointment_updated", updated);
+      // Zoek de chat op via het bericht dat bij deze uitleen hoort
+      const bericht = await prisma.berichten.findFirst({
+        where: { uitleenId: uitleenId }
+      });
+
+      if (bericht) {
+        io.to(`chat_${bericht.Chat_id}`).emit("appointment_updated", updated);
       }
     } catch (err) {
       console.error("Fout bij reageren op afspraak:", err);
