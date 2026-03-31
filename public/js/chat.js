@@ -66,8 +66,9 @@ async function addMessageToUI(message) {
             ? `
               <button onclick="respond(${uitleen.Uitleen_id}, 'accept')">Accepteren</button>
               <button onclick="respond(${uitleen.Uitleen_id}, 'reject')">Weigeren</button>
+              <p class="afspraak-status"></p>
             `
-            : `<p>Status: ${uitleen.Status}</p>`
+            : `<p class="afspraak-status">Status: ${uitleen.Status}</p>`
         }
       </div>
     `;
@@ -108,8 +109,22 @@ function initSocket() {
   });
 
   socket.on("appointment_updated", (uitleen) => {
-    console.log("Afspraak geüpdatet:", uitleen);
-    loadMessages();
+    const allDivs = document.querySelectorAll('#chat-box > div');
+  
+    for (const div of allDivs) {
+      const acceptBtn = div.querySelector(`button[onclick="respond(${uitleen.Uitleen_id}, 'accept')"]`);
+      const rejectBtn = div.querySelector(`button[onclick="respond(${uitleen.Uitleen_id}, 'reject')"]`);
+      
+      if (acceptBtn || rejectBtn) {
+        const statusEl = div.querySelector('.afspraak-status');
+        if (statusEl) {
+          statusEl.textContent = `Status: ${uitleen.Status}`;
+        }
+        if (acceptBtn) acceptBtn.remove();
+        if (rejectBtn) rejectBtn.remove();
+        break;
+      }
+    }
   });
 
   socket.on("disconnect", () => console.log("Socket.IO verbinding verbroken"));
