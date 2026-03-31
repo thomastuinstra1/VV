@@ -69,37 +69,6 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 }
 });
 
-// ── AFBEELDING ROUTES ──
-
-app.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
-  try {
-    const afbeeldingUrl = '/uploads/' + req.file.filename;
-    await prisma.gereedschap.update({
-      where: { Gereedschap_id: parseInt(req.params.id) },
-      data: { Afbeelding: afbeeldingUrl }
-    });
-    res.json({ message: 'Afbeelding opgeslagen!', url: afbeeldingUrl });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Er is iets misgegaan' });
-  }
-});
-
-app.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'Geen geldig afbeeldingsbestand' });
-  try {
-    const afbeeldingUrl = '/uploads/' + req.file.filename;
-    await prisma.account.update({
-      where: { Account_id: req.session.userId },
-      data: { Afbeelding: afbeeldingUrl }
-    });
-    res.json({ message: 'Profielfoto opgeslagen!', url: afbeeldingUrl });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Er is iets misgegaan' });
-  }
-});
-
 // ── AUTH ROUTES ──
 
 app.get('/auth-status', (req, res) => {
@@ -875,6 +844,38 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`User ${userId} heeft verbinding verbroken`);
   });
+});
+
+
+// ── AFBEELDING ROUTES ──
+
+app.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+  try {
+    const afbeeldingUrl = '/uploads/' + req.file.filename;
+    await prisma.gereedschap.update({
+      where: { Gereedschap_id: parseInt(req.params.id) },
+      data: { Afbeelding: afbeeldingUrl }
+    });
+    res.json({ message: 'Afbeelding opgeslagen!', url: afbeeldingUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Er is iets misgegaan' });
+  }
+});
+
+app.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Geen geldig afbeeldingsbestand' });
+  try {
+    const afbeeldingUrl = '/uploads/' + req.file.filename;
+    await prisma.account.update({
+      where: { Account_id: req.session.userId },
+      data: { Afbeelding: afbeeldingUrl }
+    });
+    res.json({ message: 'Profielfoto opgeslagen!', url: afbeeldingUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Er is iets misgegaan' });
+  }
 });
 
 server.listen(PORT, HOST, () => {
