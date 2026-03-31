@@ -56,7 +56,7 @@ async function addMessageToUI(message) {
     const uitleen = await res.json();
 
     div.innerHTML = `
-      <div style="border:1px solid #ccc; padding:10px; border-radius:10px;">
+      <div data-uitleen-id="${uitleen.Uitleen_id}" style="border:1px solid #ccc; padding:10px; border-radius:10px;">
         <p><b>📅 Afspraak</b></p>
         <p>Borg: €${uitleen.BorgBedrag}</p>
         <p>Van: ${uitleen.StartDatum.split('T')[0]}</p>
@@ -109,19 +109,27 @@ function initSocket() {
   });
 
   socket.on("appointment_updated", (uitleen) => {
-    const allDivs = document.querySelectorAll('#chat-box > div');
-  
+  const allDivs = document.querySelectorAll('#chat-box > div');
+
     for (const div of allDivs) {
+      // Voor de ontvanger: zoek via de knoppen
       const acceptBtn = div.querySelector(`button[onclick="respond(${uitleen.Uitleen_id}, 'accept')"]`);
       const rejectBtn = div.querySelector(`button[onclick="respond(${uitleen.Uitleen_id}, 'reject')"]`);
-      
+
+      // Voor de verzender: zoek via data-attribuut
+      const isAppointmentDiv = div.querySelector(`[data-uitleen-id="${uitleen.Uitleen_id}"]`);
+
       if (acceptBtn || rejectBtn) {
         const statusEl = div.querySelector('.afspraak-status');
-        if (statusEl) {
-          statusEl.textContent = `Status: ${uitleen.Status}`;
-        }
+        if (statusEl) statusEl.textContent = `Status: ${uitleen.Status}`;
         if (acceptBtn) acceptBtn.remove();
         if (rejectBtn) rejectBtn.remove();
+        break;
+      }
+
+      if (isAppointmentDiv) {
+        const statusEl = div.querySelector('.afspraak-status');
+        if (statusEl) statusEl.textContent = `Status: ${uitleen.Status}`;
         break;
       }
     }
