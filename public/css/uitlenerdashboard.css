@@ -474,7 +474,10 @@ tr:hover td { background: var(--bg); }
 .tool-tile:hover { transform: translateY(-1px); border-color: var(--border-strong); }
 .tool-tile.beschikbaar { border-left-color: var(--green); }
 .tool-tile.uitgeleend  { border-left-color: var(--accent); }
-.tool-tile.te-laat     { border-left-color: var(--red); }
+.tool-tile.te-laat {
+  border-color: color-mix(in srgb, #9b2222 35%, transparent);
+  background: color-mix(in srgb, #9b2222 5%, var(--bg-card));
+}
 
 .tile-name {
   font-size: 13px;

@@ -550,7 +550,7 @@ app.patch('/uitleen/:id/status', isLoggedIn, async (req, res) => {
   const uitleenId = parseInt(req.params.id);
   const { status } = req.body; // verwacht: 'ingeleverd_op_tijd' of 'ingeleverd_te_laat'
 
-  const toegestaneStatussen = ['ingeleverd_op_tijd', 'ingeleverd_te_laat'];
+  const toegestaneStatussen = ['ingeleverd_op_tijd', 'ingeleverd_te_laat', 'te_laat'];
   if (!toegestaneStatussen.includes(status)) {
     return res.status(400).json({ error: 'Ongeldige status' });
   }

@@ -193,9 +193,8 @@ function renderTileInfo(g) {
 
 // ── Hulp: inlever-knoppen renderen ────────────────────────────────────────
 function renderInleverKnoppen(g, isTableRow = false) {
-  if (g.status !== 'Ingeleverd?' || !g.activeUitleenId) return '';
-
-  if (isTableRow) {
+  // Ingeleverd? → toon "Op tijd" en "Te laat"
+  if (g.status === 'Ingeleverd?' && g.activeUitleenId) {
     return `
       <div class="inlever-actions">
         <button class="btn-inlever op-tijd"
@@ -203,23 +202,24 @@ function renderInleverKnoppen(g, isTableRow = false) {
           ✓ Op tijd
         </button>
         <button class="btn-inlever te-laat"
-          onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_te_laat', this)">
+          onclick="markeerIngeleverd(${g.activeUitleenId}, 'te_laat', this)">
           ✗ Te laat
         </button>
       </div>`;
   }
 
-  return `
-    <div class="inlever-actions">
-      <button class="btn-inlever op-tijd"
-        onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_op_tijd', this)">
-        ✓ Op tijd
-      </button>
-      <button class="btn-inlever te-laat"
-        onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_te_laat', this)">
-        ✗ Te laat
-      </button>
-    </div>`;
+  // Te laat → toon alleen "Is ingeleverd"
+  if (g.status === 'Te laat' && g.activeUitleenId) {
+    return `
+      <div class="inlever-actions">
+        <button class="btn-inlever op-tijd"
+          onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_te_laat', this)">
+          ✓ Is ingeleverd
+        </button>
+      </div>`;
+  }
+
+  return '';
 }
 
 // ── Inlevering markeren via API ────────────────────────────────────────────
