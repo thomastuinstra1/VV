@@ -700,6 +700,31 @@ app.get('/messages/:userId', isLoggedIn, async (req, res) => {
   }
 });
 
+app.delete('/chat/:chatId', isLoggedIn, async (req, res) => {
+  const chatId = parseInt(req.params.chatId);
+  const userId = req.session.userId;
+
+  try {
+    const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
+
+    if (!chat) return res.status(404).json({ error: 'Chat niet gevonden' });
+
+    // Controleer of de gebruiker onderdeel is van de chat
+    if (chat.SenderId !== userId && chat.ReceiverId !== userId) {
+      return res.status(403).json({ error: 'Geen toegang' });
+    }
+
+    // Berichten eerst verwijderen (foreign key)
+    await prisma.berichten.deleteMany({ where: { Chat_id: chatId } });
+    await prisma.chats.delete({ where: { Chat_id: chatId } });
+
+    res.json({ message: 'Chat verwijderd' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Verwijderen mislukt' });
+  }
+});
+
 // ── SERVER & SOCKET.IO ──
 
 const server = http.createServer(app);
