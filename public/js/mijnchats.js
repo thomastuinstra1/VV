@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             li.innerHTML = `
                 <img src="${chat.Afbeelding || '/images/default.jpg'}" alt="${chat.Name}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                 <a href="chat.html?partner=${chat.Account_id}&tool=${chat.Gereedschap_id}">${chat.Name}</a>
+                <span class="gereedschap-naam">${chat.Gereedschap_naam || ''}</span>
             `;
             lijst.appendChild(li);
         });
