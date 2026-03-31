@@ -819,9 +819,13 @@ io.on("connection", (socket) => {
         where: { Gereedschap_id: chat.Gereedschap_id }
       });
 
+      // De lener is degene die NIET de eigenaar is van het gereedschap
+      const lenerId = userId === tool.Account_id ? toUserId : userId;
+
       const uitleen = await prisma.uitleen.create({
         data: {
           Account_id:     tool.Account_id,
+          Lener_id:       lenerId,
           Gereedschap_id: tool.Gereedschap_id,
           StartDatum:     new Date(startDate),
           EindDatum:      new Date(endDate),
