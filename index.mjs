@@ -807,7 +807,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("send_appointment", async ({ chatId, borg, startDate, endDate }) => {
+  // FIX: Chat_id, geen Lener_id, prisma.berichten (niet prisma.Berichten)
+  socket.on("send_appointment", async ({ chatId, startDate, endDate }) => {
     try {
       const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
       if (!chat) return;
@@ -824,7 +825,7 @@ io.on("connection", (socket) => {
           Gereedschap_id: tool.Gereedschap_id,
           StartDatum:     new Date(startDate),
           EindDatum:      new Date(endDate),
-          BorgBedrag:     parseFloat(borg),
+          BorgBedrag:     tool.BorgBedrag ?? 0,
           Status:         "pending"
         }
       });

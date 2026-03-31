@@ -1,6 +1,7 @@
 let CURRENT_USER_ID;
 let CHAT_ID;
 let socket;
+let TOOL_BORG = 0;
 
 async function getCurrentUserId() {
   try {
@@ -18,7 +19,7 @@ async function getChatInfo() {
   const partnerId = parseInt(params.get('partner'));
   const toolId = parseInt(params.get('tool')) || null;
 
-  if (!partnerId) return console.error('Geen partner ID in URL (bijv. ?partner=2)');
+  if (!partnerId) return console.error('Geen partner ID in URL');
 
   try {
     const res = await fetch('/chat/start', {
@@ -28,6 +29,13 @@ async function getChatInfo() {
     });
     const chat = await res.json();
     CHAT_ID = chat.Chat_id;
+
+    if (toolId) {
+      const toolRes = await fetch(`/gereedschap?id=${toolId}`);
+      const tools = await toolRes.json();
+      TOOL_BORG = tools[0]?.BorgBedrag ?? 0;
+    }
+
   } catch (err) {
     console.error('Chat starten mislukt:', err);
   }
@@ -148,6 +156,7 @@ window.respond = function(uitleenId, action) {
 };
 
 window.openModal = function() {
+  document.getElementById("modal-borg").textContent = TOOL_BORG ?? 0;
   document.getElementById("modal").style.display = "block";
 };
 
@@ -156,7 +165,6 @@ window.closeModal = function() {
 };
 
 window.sendAppointment = function() {
-  const borg = document.getElementById("borg").value;
   const startDate = document.getElementById("startDate").value;
   const endDate = document.getElementById("endDate").value;
 
@@ -164,9 +172,9 @@ window.sendAppointment = function() {
 
   socket.emit("send_appointment", {
     chatId: CHAT_ID,
-    borg,
     startDate,
     endDate
+    // borg wordt nu server-side bepaald
   });
 
   closeModal();
