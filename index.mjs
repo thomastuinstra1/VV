@@ -813,7 +813,22 @@ io.on("connection", (socket) => {
         where: { Gereedschap_id: chat.Gereedschap_id }
       });
 
-      // De lener is degene die NIET de eigenaar is van het gereedschap
+       const overlap = await prisma.uitleen.findFirst({
+        where: {
+          Gereedschap_id: tool.Gereedschap_id,
+          Status: { in: ['pending', 'accepted'] },
+          StartDatum: { lte: new Date(endDate) },
+          EindDatum:  { gte: new Date(startDate) }
+        }
+      });
+
+      if (overlap) {
+        socket.emit("appointment_error", {
+          message: "Dit gereedschap is al uitgeleend in deze periode."
+        });
+        return;
+      }
+
       const lenerId = userId === tool.Account_id ? toUserId : userId;
 
       const uitleen = await prisma.uitleen.create({

@@ -108,8 +108,16 @@ function initSocket() {
   });
 
   socket.on("receive_message", (message) => {
-    if (message.Chat_id === CHAT_ID) addMessageToUI(message);
+    if (message.Chat_id === CHAT_ID) {
+      if (message.type === "appointment") closeModal();
+      addMessageToUI(message);
+    }
   });
+
+  socket.on("appointment_error", ({ message }) => {
+    closeModal();
+    alert(message); 
+});
 
   socket.on("appointment_updated", (uitleen) => {
   const allDivs = document.querySelectorAll('#chat-box > div');
@@ -203,5 +211,4 @@ window.sendAppointment = function() {
     // borg wordt nu server-side bepaald
   });
 
-  closeModal();
 };
