@@ -27,7 +27,6 @@ einddatumInput.setAttribute('min', today);
 
 begindatumInput.addEventListener('change', () => {
     if(begindatumInput.value){
-        // Einddatum minimaal 1 dag na begindatum
         const begindatum = new Date(begindatumInput.value);
         begindatum.setDate(begindatum.getDate() + 1);
         const minEind = begindatum.toISOString().split('T')[0];
@@ -66,46 +65,6 @@ document.getElementById('afbeelding-input').addEventListener('change', () => {
 });
 
 // ==============================
-// 🖼️ AFBEELDING SELECT + AUTO UPLOAD
-// ==============================
-document.getElementById('afbeelding-input').addEventListener('change', async () => {
-    const fileInput = document.getElementById('afbeelding-input');
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    // Preview tonen
-    const preview = document.getElementById('gereedschap-preview');
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = 'block';
-
-    // Upload starten
-    const formData = new FormData();
-    formData.append('afbeelding', file);
-
-    showMelding("Afbeelding uploaden...", "black");
-
-    try {
-        const res = await fetch('/account/afbeelding', {
-            method: 'POST',
-            body: formData,
-            credentials: 'include'
-        });
-
-        const data = await res.json();
-
-        if (res.ok) {
-            document.getElementById('afbeelding-url').value = data.url;
-            showMelding("Afbeelding succesvol geüpload!", "green");
-        } else {
-            showMelding(data.error || "Upload mislukt");
-        }
-
-    } catch (err) {
-        showMelding("Server fout bij upload");
-    }
-});
-
-// ==============================
 // 📤 FORMULIER VERSTUREN
 // ==============================
 document.getElementById("toolForm").addEventListener("submit", async (e) => {
@@ -114,16 +73,6 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
 
     const form = e.target;
     const data = Object.fromEntries(new FormData(form));
-
-    // ✅ Afbeelding expliciet ophalen (BELANGRIJK)
-    const afbeeldingUrl = document.getElementById('afbeelding-url').value;
-
-    if (!afbeeldingUrl) {
-        showMelding("Upload eerst een afbeelding");
-        return;
-    }
-
-    data.Afbeelding = afbeeldingUrl;
 
     // ✅ Haal geselecteerde categorieën
     const groepen = ["Type", "Materiaal", "Werkwijze", "Gewicht", "Staat"];
@@ -183,16 +132,29 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
             body: JSON.stringify(data)
         });
 
-        const result = await res.json();
-
         if (res.ok) {
+            const result = await res.json();
+
+            // Afbeelding uploaden met het gereedschap-ID
+            const fileInput = document.getElementById('afbeelding-input');
+            if (fileInput.files[0]) {
+                const formData = new FormData();
+                formData.append('afbeelding', fileInput.files[0]);
+
+                await fetch(`/gereedschap/${result.id}/afbeelding`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+            }
+
             showMelding("Gereedschap succesvol toegevoegd!", "green");
             form.reset();
-
             document.getElementById('gereedschap-preview').style.display = 'none';
-            document.getElementById('afbeelding-url').value = ""; // reset afbeelding
+            document.getElementById('afbeelding-url').value = "";
 
         } else {
+            const result = await res.json();
             showMelding(result.message || "Er ging iets mis");
         }
 

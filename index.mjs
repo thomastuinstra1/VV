@@ -303,7 +303,7 @@ app.post('/gereedschap', isLoggedIn, async (req, res) => {
       });
     }
 
-    res.json({ message: "Gereedschap opgeslagen!" });
+    res.json({ message: "Gereedschap opgeslagen!", id: tool.Gereedschap_id });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Opslaan mislukt" });
