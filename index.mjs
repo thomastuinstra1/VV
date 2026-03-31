@@ -532,12 +532,13 @@ app.get('/mijn-chats', isLoggedIn, async (req, res) => {
       },
       include: {
         Account_Chats_SenderIdToAccount: true,
-        Account_Chats_ReceiverIdToAccount: true
+        Account_Chats_ReceiverIdToAccount: true,
+        Gereedschap: true
       },
       orderBy: { CreatedAt: 'desc' }
     });
 
-    const mapped = chats.map(chat => {
+    const mapped = chats.map(chat => {  
       const partner = chat.SenderId === userId
         ? chat.Account_Chats_ReceiverIdToAccount
         : chat.Account_Chats_SenderIdToAccount;
@@ -547,7 +548,8 @@ app.get('/mijn-chats', isLoggedIn, async (req, res) => {
         Account_id:    partner.Account_id,
         Name:          partner.Name,
         Afbeelding:    partner.Afbeelding,
-        Gereedschap_id: chat.Gereedschap_id
+        Gereedschap_id: chat.Gereedschap_id,
+        Gereedschap_naam: chat.Gereedschap?.Naam || ''
       };
     });
 
