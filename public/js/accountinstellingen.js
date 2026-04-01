@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
 document.getElementById('logout-btn').addEventListener('click', async () => {
-    const response = await fetch('/logout', { method: 'POST' });
+    const response = await fetchWithSpinner('/logout', { method: 'POST' });
     if (response.ok) {
         window.location.href = 'inlog.html';
     } else {
@@ -11,7 +11,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
     
     // Huidige gegevens ophalen en invullen
     try {
-        const response = await fetch('/me');
+        const response = await fetchWithSpinner('/me');
         if (!response.ok) {
             alert('Je bent niet ingelogd');
             window.location.href = 'inlog.html';
@@ -61,7 +61,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         }
 
         try {
-            const response = await fetch('/account', {
+            const response = await fetchWithSpinner('/account', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -95,7 +95,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         formData.append('afbeelding', file);
 
         try {
-            const response = await fetch('/account/afbeelding', {
+            const response = await fetchWithSpinner('/account/afbeelding', {
                 method: 'POST',
                 body: formData,
                 credentials: 'include'
