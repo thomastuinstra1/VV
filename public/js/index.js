@@ -1,9 +1,11 @@
+// -----------------------
+// DOMContentLoaded INIT
+// -----------------------
 document.addEventListener("DOMContentLoaded", function () {
     loadFilters();
     loadNewAds();
 
     const searchInput = document.getElementById("searchInput");
-
     if (searchInput) {
         searchInput.addEventListener("keyup", function (e) {
             if (e.key === "Enter") searchTools();
@@ -11,14 +13,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-
+// -----------------------
 // ZOEKFUNCTIE
+// -----------------------
 async function searchTools() {
     const inputEl = document.getElementById("searchInput");
     if (!inputEl) return;
 
     const input = inputEl.value.trim();
-
     if (input === "") {
         alert("Vul een zoekterm in!");
         return;
@@ -27,8 +29,9 @@ async function searchTools() {
     window.location.href = `/lijst.html?search=${encodeURIComponent(input)}`;
 }
 
-
+// -----------------------
 // RESULTATEN TONEN
+// -----------------------
 function displayResults(results) {
     const container = document.getElementById("toolsContainer");
     if (!container) return;
@@ -63,56 +66,61 @@ function displayResults(results) {
     });
 }
 
-
-// FILTERS LADEN (veilig gemaakt)
+// -----------------------
+// FILTERS LADEN
+// -----------------------
 async function loadFilters() {
-    const container = document.getElementById('filterGroups');
-    if (!container) return; // voorkomt errors op index
+    const container = document.getElementById("filterGroups");
+    if (!container) return;
 
+    showSpinner(true);
     try {
-        const res = await fetch('/categorieen');
+        const res = await fetch("/categorieen");
         const cats = await res.json();
         renderFilters(cats);
     } catch (err) {
+        console.error(err);
         container.innerHTML = '<p style="color:#9ca3af;font-size:.85rem">Filters niet beschikbaar.</p>';
+    } finally {
+        showSpinner(false);
     }
 }
 
 function renderFilters(categorieen) {
-    const container = document.getElementById('filterGroups');
+    const container = document.getElementById("filterGroups");
     if (!container) return;
 
     const parents = categorieen.filter(c => c.Parent_id === null);
     const children = categorieen.filter(c => c.Parent_id !== null);
 
-    container.innerHTML = '';
+    container.innerHTML = "";
 
     for (const parent of parents) {
-        const groepEl = document.createElement('div');
-        groepEl.classList.add('filter-group');
+        const groepEl = document.createElement("div");
+        groepEl.classList.add("filter-group");
 
-        const title = document.createElement('div');
-        title.classList.add('filter-group-title');
+        const title = document.createElement("div");
+        title.classList.add("filter-group-title");
         title.textContent = parent.Naam;
         groepEl.appendChild(title);
 
         const opties = children.filter(c => c.Parent_id === parent.Categorie_id);
 
         for (const cat of opties) {
-            const label = document.createElement('label');
-            label.classList.add('filter-option');
+            const label = document.createElement("label");
+            label.classList.add("filter-option");
 
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
             checkbox.value = cat.Categorie_id;
             checkbox.dataset.naam = cat.Naam;
             checkbox.id = `cat-${cat.Categorie_id}`;
-            checkbox.addEventListener('change', applyFilters);
+            checkbox.addEventListener("change", applyFilters);
 
-            label.setAttribute('for', `cat-${cat.Categorie_id}`);
+            label.setAttribute("for", `cat-${cat.Categorie_id}`);
             label.appendChild(checkbox);
 
-            const span = document.createElement('span');
+            const span = document.createElement("span");
             span.textContent = cat.Naam;
             label.appendChild(span);
 
@@ -123,14 +131,18 @@ function renderFilters(categorieen) {
     }
 }
 
-
-// FILTERS (alleen actief op lijst.html)
+// -----------------------
+// FILTERS TOEPASSEN
+// -----------------------
 function buildFilterParams() {
     const checkboxes = document.querySelectorAll('#filterGroups input[type="checkbox"]:checked');
     const ids = Array.from(checkboxes).map(cb => cb.value);
 
     const params = new URLSearchParams();
-    if (ids.length > 0) params.set('categorieen', ids.join(','));
+    if (ids.length > 0) params.set("categorieen", ids.join(","));
+
+    const searchInput = document.getElementById("searchInput")?.value.trim();
+    if (searchInput) params.set("search", searchInput);
 
     return params;
 }
@@ -140,30 +152,29 @@ async function applyFilters() {
     if (!container) return;
 
     const params = buildFilterParams();
-    const searchInput = document.getElementById("searchInput");
-
-    if (searchInput && searchInput.value.trim()) {
-        params.set('search', searchInput.value.trim());
-    }
-
+    showSpinner(true);
     try {
         const res = await fetch(`/gereedschap?${params.toString()}`);
         const tools = await res.json();
         displayResults(tools);
     } catch (err) {
         console.error(err);
+    } finally {
+        showSpinner(false);
     }
 }
 
-
-// SLIDER (blijft zoals jij wilde)
+// -----------------------
+// SLIDER (Nieuwste Gereedschap)
+// -----------------------
 async function loadNewAds() {
     const track = document.getElementById("newAdsTrack");
     if (!track) return;
 
+    showSpinner(true);
     try {
-        const res = await fetch("/gereedschap");
-        const tools = await res.json();
+        const tools = await fetchWithSpinner("/gereedschap");
+        if (tools) displayResults(tools);
 
         if (!tools || tools.length === 0) {
             track.innerHTML = "<p>Geen gereedschap gevonden.</p>";
@@ -173,15 +184,10 @@ async function loadNewAds() {
         const nieuwsteTools = tools.slice(0, 6);
         const sliderTools = [...nieuwsteTools, ...nieuwsteTools];
 
-        track.innerHTML = sliderTools.map((tool) => {
-            const afbeelding =
-                tool.Afbeelding && tool.Afbeelding.trim() !== ""
-                    ? tool.Afbeelding
-                    : "../images/placeholder.jpg";
-
+        track.innerHTML = sliderTools.map(tool => {
+            const afbeelding = tool.Afbeelding?.trim() || "../images/placeholder.jpg";
             const titel = tool.Naam || "Gereedschap";
-            const beschrijving =
-                tool.Beschrijving || "Nieuw geplaatst op Gereedschapspunt.";
+            const beschrijving = tool.Beschrijving || "Nieuw geplaatst op Gereedschapspunt.";
 
             return `
                 <article class="ad-card">
@@ -195,12 +201,15 @@ async function loadNewAds() {
             `;
         }).join("");
 
-    } catch (error) {
-        console.error("Fout bij laden slider:", error);
+    } catch (err) {
+        console.error("Fout bij laden slider:", err);
         track.innerHTML = "<p>Advertenties laden mislukt.</p>";
+    } finally {
+        showSpinner(false);
     }
 }
 
-
-// nodig voor onclick in HTML
+// -----------------------
+// NODIG VOOR HTML ONCLICK
+// -----------------------
 window.searchTools = searchTools;
