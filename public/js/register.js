@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Verstuur naar server
         try {
-            const response = await fetch('/register', {
+            const response = await fetchWithSpinner('/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Name, E_mail, Password, Postcode })
