@@ -426,9 +426,8 @@ app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
       where: { Account_id: req.session.userId },
       select: { E_mail: true, Name: true }
     });
-    await sendEmail('tool_deleted', account.E_mail, account.Name, tool.Naam);
-
     res.json({ message: 'Gereedschap verwijderd!' });
+    sendEmail('tool_deleted', account.E_mail, account.Name, tool.Naam).catch(console.error);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Verwijderen mislukt' });

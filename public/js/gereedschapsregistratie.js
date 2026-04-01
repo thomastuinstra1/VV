@@ -43,12 +43,12 @@ begindatumInput.addEventListener('change', () => {
 // ==============================
 // 🖱️ MAX 1 CHECKBOX PER GROEP
 // ==============================
-document.querySelectorAll('input[type="checkbox"][data-group]').forEach(cb => {
+document.querySelectorAll('input[data-group]').forEach(cb => {
     cb.addEventListener('change', () => {
-        if(cb.checked){
+        if (cb.checked && cb.dataset.group !== 'Materiaal') {
             const group = cb.dataset.group;
-            document.querySelectorAll(`input[type="checkbox"][data-group="${group}"]`)
-                .forEach(other => { if(other !== cb) other.checked = false; });
+            document.querySelectorAll(`input[data-group="${group}"]`)
+                .forEach(other => { if (other !== cb) other.checked = false; });
         }
     });
 });
@@ -126,13 +126,21 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
     data.Afbeelding = afbeeldingUrl;
 
     // ✅ Haal geselecteerde categorieën
-    const groepen = ["Type", "Materiaal", "Werkwijze", "Gewicht", "Staat"];
+
+
+    const groepen = ["Type", "Werkwijze", "Gewicht", "Staat"];
     let categorieen = [];
 
-    groepen.forEach(group => {
-        const selected = document.querySelector(`input[name="${group}"]:checked`);
-        if (selected) categorieen.push(parseInt(selected.value));
+        // Eén selectie per groep
+        groepen.forEach(group => {
+            const selected = document.querySelector(`input[name="${group}"]:checked`);
+            if (selected) categorieen.push(parseInt(selected.value));
     });
+
+// Materiaal apart: meerdere mogelijk
+document.querySelectorAll('input[name="Materiaal"]:checked').forEach(cb => {
+    categorieen.push(parseInt(cb.value));
+});
 
     // ==============================
     // 🔴 VALIDATIE
@@ -166,10 +174,14 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
         return;
     }
 
-    if (categorieen.length !== groepen.length) {
-        showMelding("Selecteer één optie per groep");
-        return;
-    }
+    const verplichtGroepen = ["Type", "Werkwijze", "Gewicht", "Staat"]; // Materiaal optioneel of meerdere
+const alleVerplichtIngevuld = verplichtGroepen.every(group =>
+    document.querySelector(`input[name="${group}"]:checked`)
+);
+if (!alleVerplichtIngevuld) {
+    showMelding("Selecteer één optie per groep (behalve Materiaal mag meerdere)");
+    return;
+}
 
     data.categorieen = categorieen;
 
