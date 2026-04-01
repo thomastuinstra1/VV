@@ -248,14 +248,6 @@ app.put('/account', isLoggedIn, async (req, res) => {
   try {
     const data = {};
 
-    if (Name) {
-      const bestaandNaam = await prisma.account.findFirst({
-        where: { Name, NOT: { Account_id: req.session.userId } }
-      });
-      if (bestaandNaam) return res.status(400).json({ message: 'Deze gebruikersnaam is al in gebruik' });
-      data.Name = Name;
-    }
-
     if (E_mail) {
       const bestaandEmail = await prisma.account.findFirst({
         where: { E_mail, NOT: { Account_id: req.session.userId } }
@@ -264,6 +256,7 @@ app.put('/account', isLoggedIn, async (req, res) => {
       data.E_mail = E_mail;
     }
 
+    if (Name) data.Name = Name;
     if (Postcode) data.Postcode = Postcode;
     if (Password) data.Password = await bcrypt.hash(Password, 10);
     if (BSN) data.BSN = BSN;
