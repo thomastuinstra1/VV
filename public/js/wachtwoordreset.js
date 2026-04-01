@@ -10,9 +10,9 @@ if (!token) {
     const password = document.getElementById('newPassword').value;
     const confirm  = document.getElementById('confirmPassword').value;
 
-    if (password.length < 8) {
+    if (password.length < 6) {
       msg.style.color = 'red';
-      msg.textContent = 'Wachtwoord moet minimaal 8 tekens zijn.';
+      msg.textContent = 'Wachtwoord moet minimaal 6 tekens zijn.';
       return;
     }
     if (password !== confirm) {
