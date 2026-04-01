@@ -10,7 +10,7 @@ import http from "http";
 import crypto from 'crypto';
 
 // ── Automatische e-mails via Apps Script ──
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxo_EldpTHSCZIw2Nq8B64RjtlaWjCoSlUGS-LLGt-hCfRFhfDdYFSr_EazJe6u--qeYQ/exec';
+const APPS_SCRIPT_URL = process.env.APPS_SCRIPT_URL;
 
 async function sendEmail(type, userEmail, userName, toolName = null) {
   try {
@@ -161,7 +161,7 @@ app.post('/forgot-password', async (req, res) => {
       data: { resetToken: token, resetTokenExpiry: expiry }
     });
 
-    const resetUrl = `https://gereedschapspunt.student.open-ict.hu/wachtwoordreset.html?token=${token}`;
+    const resetUrl = `${process.env.RESET_URL}?token=${token}`;
 
     await fetch(APPS_SCRIPT_URL, {
       method: 'POST',
@@ -754,7 +754,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://gereedschapspunt.student.open-ict.hu",
+    origin: process.env.CORS_ORIGIN,
     methods: ["GET", "POST"]
   }
 });
