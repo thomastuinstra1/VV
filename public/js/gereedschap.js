@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     try {
-        const res = await fetch(`/gereedschap?id=${toolId}`);
+        const res = await fetchWithSpinner(`/gereedschap?id=${toolId}`);
         const tools = await res.json();
 
         if (!tools || tools.length === 0) {
