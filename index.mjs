@@ -499,6 +499,7 @@ app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
         Naam:            g.Naam,
         Beschrijving:    g.Beschrijving,
         BorgBedrag:      g.BorgBedrag,
+        Afbeelding:      g.Afbeelding, 
         status:          dashboardStatus,
         activeUitleenId,
         lenerNaam,
