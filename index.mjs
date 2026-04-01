@@ -638,13 +638,34 @@ app.post('/chat/start', isLoggedIn, async (req, res) => {
       }
     });
 
+    let isNew = false;
+
     if (!chat) {
       chat = await prisma.chats.create({
         data: { SenderId: userId, ReceiverId: partnerId, Gereedschap_id: toolId }
       });
+      isNew = true;
+
+      // Haal gegevens op van beide gebruikers
+      const [sender, receiver] = await Promise.all([
+        prisma.account.findUnique({ where: { Account_id: userId }, select: { Name: true } }),
+        prisma.account.findUnique({ where: { Account_id: partnerId }, select: { Name: true, E_mail: true } })
+      ]);
+
+      // Stuur email naar de ontvanger (partner)
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'new_chat',
+          receiverEmail: receiver.E_mail,
+          receiverName: receiver.Name,
+          senderName: sender.Name
+        })
+      });
     }
 
-    res.json(chat);
+    res.json({ ...chat, isNew });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Chat starten mislukt' });
