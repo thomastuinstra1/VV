@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
     try {
-        const res = await fetch('/mijn-chats');
+        const res = await fetchWithSpinner('/mijn-chats');
         if (res.status === 401) {
             window.location.href = 'inlog.html';
             return;
@@ -34,7 +34,7 @@ window.verwijderChat = async function(chatId, btn) {
     if (!confirm('Weet je zeker dat je deze chat wilt verwijderen?')) return;
 
     try {
-        const res = await fetch(`/chat/${chatId}`, { method: 'DELETE' });
+        const res = await fetchWithSpinner(`/chat/${chatId}`, { method: 'DELETE' });
         if (!res.ok) throw new Error('Verwijderen mislukt');
 
         btn.closest('li').remove();
