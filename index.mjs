@@ -8,7 +8,7 @@ import path from 'path';
 import { Server } from "socket.io";
 import http from "http";
 import crypto from 'crypto';
-import { postcodeNaarCoords } from './js/afstandfilter.js';
+import { postcodeNaarCoords } from 'public/js/afstandfilter.js';
 
 // ── Automatische e-mails via Apps Script ──
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxo_EldpTHSCZIw2Nq8B64RjtlaWjCoSlUGS-LLGt-hCfRFhfDdYFSr_EazJe6u--qeYQ/exec';
