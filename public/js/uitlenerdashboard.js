@@ -169,8 +169,12 @@ function filterActief() {
 function renderGereedschap(data) {
   document.getElementById('tool-grid-view').innerHTML = data.length
     ? data.map(g => {
-        const cls = statusClass(g.status);
-        return `<div class="tool-tile ${cls}">
+        const cls    = statusClass(g.status);
+        const imgHtml = g.Afbeelding
+          ? `<img class="tile-img" src="${g.Afbeelding}" alt="${g.Naam}">`
+          : `<div class="tile-img-placeholder">Geen foto</div>`;
+        return `<div class="tool-tile ${cls}" onclick="openGmModal(${g.Gereedschap_id})">
+          ${imgHtml}
           <div class="tile-name">${g.Naam}</div>
           ${badge(g.status)}
           ${renderTileInfo(g)}
@@ -182,17 +186,142 @@ function renderGereedschap(data) {
   document.getElementById('tbody-tools-table').innerHTML = data.length
     ? data.map(g => {
         const lener = g.lenerNaam || '—';
-        return `<tr>
+        return `<tr style="cursor:pointer" onclick="openGmModal(${g.Gereedschap_id})">
           <td><div class="tool-name">${g.Naam}</div></td>
           <td class="mono muted">${lener}</td>
           <td class="mono muted">${g.eindDatum ? fmtDate(g.eindDatum) : '—'}</td>
           <td class="mono muted">${g.activeUitleenId != null ? '€' + Number(g.BorgBedrag ?? 0).toFixed(2) : '—'}</td>
           <td>${badge(g.status)}</td>
-          <td>${renderInleverKnoppen(g, true)}</td>
+          <td onclick="event.stopPropagation()">${renderInleverKnoppen(g, true)}</td>
         </tr>`;
       }).join('')
     : emptyRow(6, 'Geen resultaten');
 }
+
+// ── Gereedschap modal ──────────────────────────────────────────────────────
+async function openGmModal(id) {
+  try {
+    const [toolRes, allCatRes, toolCatRes] = await Promise.all([
+      fetch(`/gereedschap?id=${id}`).then(r => r.json()),
+      fetch('/categorieen').then(r => r.json()),
+      fetch(`/gereedschap/${id}/categorieen`).then(r => r.json()),
+    ]);
+
+    const tool = toolRes[0];
+    if (!tool) return;
+
+    const geselecteerd = toolCatRes.map(c => c.Categorie_id);
+
+    document.getElementById('gm-id').value          = tool.Gereedschap_id;
+    document.getElementById('gm-naam').value         = tool.Naam || '';
+    document.getElementById('gm-beschrijving').value = tool.Beschrijving || '';
+    document.getElementById('gm-borg').value         = tool.BorgBedrag || '';
+    document.getElementById('gm-begindatum').value   = tool.Begindatum ? tool.Begindatum.split('T')[0] : '';
+    document.getElementById('gm-einddatum').value    = tool.Einddatum  ? tool.Einddatum.split('T')[0]  : '';
+
+    document.getElementById('gm-img-wrap').innerHTML = tool.Afbeelding
+      ? `<img src="${tool.Afbeelding}" alt="${tool.Naam}">`
+      : `<div class="gm-no-img">Geen afbeelding</div>`;
+
+    // Categorieën opbouwen
+    const parents  = allCatRes.filter(c => c.Parent_id === null);
+    const children = allCatRes.filter(c => c.Parent_id !== null);
+    const catGrid  = document.getElementById('gm-categorieen');
+    catGrid.innerHTML = '';
+
+    for (const parent of parents) {
+      const kids = children.filter(c => c.Parent_id === parent.Categorie_id);
+      if (!kids.length) continue;
+
+      const titel = document.createElement('div');
+      titel.className = 'gm-cat-groep-titel';
+      titel.textContent = parent.Naam;
+      catGrid.appendChild(titel);
+
+      for (const cat of kids) {
+        const lbl = document.createElement('label');
+        lbl.className = 'gm-cat-label' + (geselecteerd.includes(cat.Categorie_id) ? ' checked' : '');
+        lbl.innerHTML = `<input type="checkbox" value="${cat.Categorie_id}"
+          ${geselecteerd.includes(cat.Categorie_id) ? 'checked' : ''}>${cat.Naam}`;
+        lbl.querySelector('input').addEventListener('change', e => {
+          lbl.classList.toggle('checked', e.target.checked);
+        });
+        catGrid.appendChild(lbl);
+      }
+    }
+
+    document.getElementById('gm-overlay').hidden = false;
+    document.body.style.overflow = 'hidden';
+  } catch (err) {
+    console.error(err);
+    toast('Fout bij laden gereedschap');
+  }
+}
+
+function sluitGmModal() {
+  document.getElementById('gm-overlay').hidden = true;
+  document.body.style.overflow = '';
+  document.getElementById('gm-afbeelding').value = '';
+}
+
+async function gmOpslaan() {
+  const id = document.getElementById('gm-id').value;
+  const data = {
+    Naam:         document.getElementById('gm-naam').value,
+    Beschrijving: document.getElementById('gm-beschrijving').value,
+    BorgBedrag:   document.getElementById('gm-borg').value || null,
+    Begindatum:   document.getElementById('gm-begindatum').value || null,
+    Einddatum:    document.getElementById('gm-einddatum').value || null,
+    categorieen:  Array.from(
+      document.querySelectorAll('#gm-categorieen input[type="checkbox"]:checked')
+    ).map(cb => parseInt(cb.value))
+  };
+
+  try {
+    const res = await fetch(`/gereedschap/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error();
+
+    const fileInput = document.getElementById('gm-afbeelding');
+    if (fileInput.files.length > 0) {
+      const formData = new FormData();
+      formData.append('afbeelding', fileInput.files[0]);
+      await fetch(`/gereedschap/${id}/afbeelding`, { method: 'POST', body: formData });
+    }
+
+    toast('Opgeslagen ✓');
+    sluitGmModal();
+    await loadData();
+    filterTools();
+  } catch {
+    toast('Fout bij opslaan');
+  }
+}
+
+async function gmVerwijder() {
+  const id = document.getElementById('gm-id').value;
+  if (!confirm('Weet je zeker dat je dit gereedschap wilt verwijderen?')) return;
+
+  try {
+    const res = await fetch(`/gereedschap/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+
+    toast('Verwijderd');
+    sluitGmModal();
+    await loadData();
+    filterTools();
+  } catch {
+    toast('Fout bij verwijderen');
+  }
+}
+
+// Sluiten via klik buiten modal
+document.getElementById('gm-overlay').addEventListener('click', function(e) {
+  if (e.target === this) sluitGmModal();
+});
 
 // ── Hulp: info onder badge in tegel ───────────────────────────────────────
 function renderTileInfo(g) {

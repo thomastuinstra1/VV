@@ -6,6 +6,7 @@
   <title>Uitlenerdashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/uitlenerdashboard.css" />
+  <link rel="stylesheet" href="css/gereedschap-modal.css" />
 
   <style>
     /* ── Ingeleverd? badge kleur ── */
@@ -250,6 +251,63 @@
     </div>
   </div>
 
+</div>
+
+  <!-- ══ GEREEDSCHAP MODAL ══ -->
+<div class="gm-overlay" id="gm-overlay" hidden>
+  <div class="gm-modal">
+    <div class="gm-header">
+      <h2>Gereedschap bewerken</h2>
+      <button class="gm-sluit" onclick="sluitGmModal()">×</button>
+    </div>
+    <div class="gm-img-wrap" id="gm-img-wrap">
+      <div class="gm-no-img">Geen afbeelding</div>
+    </div>
+    <div class="gm-body">
+      <form id="gm-form">
+        <input type="hidden" id="gm-id" />
+        <div class="gm-form-group">
+          <label>Naam</label>
+          <input type="text" id="gm-naam" required />
+        </div>
+        <div class="gm-form-group">
+          <label>Beschrijving</label>
+          <textarea id="gm-beschrijving" rows="3"></textarea>
+        </div>
+        <div class="gm-two-col">
+          <div class="gm-form-group">
+            <label>Borgbedrag (€)</label>
+            <input type="number" id="gm-borg" min="0" step="0.01" />
+          </div>
+          <div class="gm-form-group">
+            <label>Nieuwe afbeelding</label>
+            <input type="file" id="gm-afbeelding" accept="image/*" />
+          </div>
+        </div>
+        <div class="gm-two-col">
+          <div class="gm-form-group">
+            <label>Beschikbaar vanaf</label>
+            <input type="date" id="gm-begindatum" />
+          </div>
+          <div class="gm-form-group">
+            <label>Beschikbaar tot</label>
+            <input type="date" id="gm-einddatum" />
+          </div>
+        </div>
+        <div class="gm-form-group">
+          <label>Categorieën</label>
+          <div class="gm-cat-grid" id="gm-categorieen"></div>
+        </div>
+      </form>
+    </div>
+    <div class="gm-footer">
+      <button class="gm-btn verwijder" onclick="gmVerwijder()">🗑 Verwijderen</button>
+      <div style="display:flex;gap:8px">
+        <button class="gm-btn annuleer" onclick="sluitGmModal()">Annuleren</button>
+        <button class="gm-btn opslaan" onclick="gmOpslaan()">Opslaan</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
