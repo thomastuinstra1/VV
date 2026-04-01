@@ -130,36 +130,35 @@
     </div>
 
     <div class="table-section">
-      <div class="table-header">
-        <div class="table-title">Actieve uitleningen</div>
-        <div class="table-controls">
-          <input class="search-input" type="text" placeholder="Zoek lener of item…" id="search-actief" oninput="filterActief()" />
-          <select class="filter-select" onchange="filterActief()" id="filter-actief-status">
-            <option value="">Alle statussen</option>
-            <option value="Uitgeleend">Uitgeleend</option>
-            <option value="Te laat">Te laat</option>
-          </select>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Gereedschap</th>
-              <th>Uitgeleend aan</th>
-              <th>Startdatum</th>
-              <th>Vervaldatum</th>
-              <th>Borg</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="tbody-actief">
-            <tr class="loading-row"><td colspan="6">Laden…</td></tr>
-          </tbody>
-        </table>
-      </div>
+  <div class="table-header">
+    <div class="table-title">Actieve uitleningen</div>
+    <div class="table-controls">
+      <select class="filter-select" onchange="filterActief()" id="filter-actief-status">
+        <option value="">Alle</option>
+        <option value="Bezig">Bezig</option>
+        <option value="Komend">Komend</option>
+      </select>
     </div>
   </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Gereedschap</th>
+          <th>Uitgeleend aan</th>
+          <th>Startdatum</th>
+          <th>Vervaldatum</th>
+          <th>Borg</th>
+          <th>Type</th>
+        </tr>
+      </thead>
+      <tbody id="tbody-actief">
+        <tr class="loading-row"><td colspan="6">Laden…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
 
   <!-- ══ GEREEDSCHAP ══ -->
   <div id="page-gereedschap" style="display:none">

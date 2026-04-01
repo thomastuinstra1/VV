@@ -118,10 +118,17 @@ function renderActief(rows) {
     tbody.innerHTML = emptyRow(6, 'Geen actieve uitleningen');
     return;
   }
+
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+
   tbody.innerHTML = rows.map(u => {
-    const isLate   = u.Status === 'Te laat';
-    const daysLate = isLate ? Math.ceil((Date.now() - new Date(u.EindDatum)) / 86400000) : 0;
-    const name     = u.lenerNaam || `Account #${u.Account_id}`;
+    const start  = u.StartDatum ? new Date(u.StartDatum) : null;
+    const eind   = u.EindDatum  ? new Date(u.EindDatum)  : null;
+    const bezig  = start && eind && start <= now && eind >= now;
+    const typeLabel = bezig ? 'Bezig' : 'Komend';
+    const typeCls   = bezig ? 'uitgeleend' : 'beschikbaar';
+    const name   = u.lenerNaam || `Account #${u.Account_id}`;
+
     return `<tr>
       <td><div class="tool-name">${u.gereedschapNaam || `ID ${u.Gereedschap_id}`}
         <small>#${u.Uitleen_id}</small></div></td>
@@ -132,25 +139,29 @@ function renderActief(rows) {
         </div>
       </td>
       <td class="mono muted">${fmtDate(u.StartDatum)}</td>
-      <td class="mono muted">
-        ${fmtDate(u.EindDatum)}
-        ${isLate ? `<div class="overdue-days">+${daysLate} dag${daysLate > 1 ? 'en' : ''}</div>` : ''}
-      </td>
+      <td class="mono muted">${fmtDate(u.EindDatum)}</td>
       <td class="mono muted">${u.BorgBedrag != null ? '€' + Number(u.BorgBedrag).toFixed(2) : '—'}</td>
-      <td>${badge(u.Status)}</td>
+      <td><span class="badge ${typeCls}"><span class="badge-dot"></span>${typeLabel}</span></td>
     </tr>`;
   }).join('');
 }
 
 // ── Filter: actief ─────────────────────────────────────────────────────────
 function filterActief() {
-  const q = document.getElementById('search-actief').value.toLowerCase();
+  const s   = document.getElementById('filter-actief-status').value; // 'Bezig'|'Komend'|''
+  const now = new Date(); now.setHours(0, 0, 0, 0);
+
   const rows = allUitleningen.filter(u => {
-    const name = (u.lenerNaam || '').toLowerCase();
-    const tool = (u.gereedschapNaam || '').toLowerCase();
-    return u.Status === 'accepted'
-      && (!q || name.includes(q) || tool.includes(q));
+    if (u.Status !== 'accepted') return false;
+    if (!s) return true;
+
+    const start = u.StartDatum ? new Date(u.StartDatum) : null;
+    const eind  = u.EindDatum  ? new Date(u.EindDatum)  : null;
+    const bezig = start && eind && start <= now && eind >= now;
+
+    return s === 'Bezig' ? bezig : !bezig;
   });
+
   renderActief(rows);
 }
 

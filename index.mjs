@@ -483,7 +483,8 @@ app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
           dashboardStatus = 'Beschikbaar';
         } else if (actieveUitleen.Status === 'accepted') {
           const isOverDue = actieveUitleen.EindDatum && new Date(actieveUitleen.EindDatum) < now;
-          dashboardStatus = isOverDue ? 'Ingeleverd?' : 'Uitgeleend';
+          const isStarted = actieveUitleen.StartDatum && new Date(actieveUitleen.StartDatum) <= now;
+          dashboardStatus = isOverDue ? 'Ingeleverd?' : isStarted ? 'Uitgeleend' : 'Beschikbaar';
         } else if (actieveUitleen.Status === 'te_laat') {
           dashboardStatus = 'Te laat';
         }
