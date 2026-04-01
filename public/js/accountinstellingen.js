@@ -47,11 +47,6 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
             return;
         }
 
-        if (Password && (Password.length < 6 || !Password.match(/[0-9]/) || !Password.match(/[A-Z]/))) {
-            alert('Wachtwoord moet minimaal 6 tekens bevatten, een cijfer en een hoofdletter');
-            return;
-        }
-
         const body = {};
         if (Name) body.Name = Name;
         if (E_mail) body.E_mail = E_mail;
