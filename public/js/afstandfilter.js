@@ -1,7 +1,7 @@
 export async function postcodeNaarCoords(Postcode) {
     const url = `https://nominatim.openstreetmap.org/search?postalcode=${Postcode}&country=NL&format=json&limit=1`;
 
-    const res = await fetch(url, {
+    const res = await fetchWithSpinner(url, {
         headers: { "User-Agent": "app" }
     });
 
