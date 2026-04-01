@@ -76,6 +76,8 @@ app.get('/auth-status', (req, res) => {
   res.json({ ingelogd: !!req.session.userId });
 });
 
+// FIX: Gecombineerde /register route (was dubbel gedefinieerd)
+// Bevat: wachtwoord-hash, bestaanscheck, sessie én postcode-coördinaten
 app.post('/register', async (req, res) => {
   const { Name, E_mail, Password, Postcode } = req.body;
   try {
@@ -85,9 +87,25 @@ app.post('/register', async (req, res) => {
     if (bestaand) return res.status(400).json({ message: 'Naam of e-mail is al in gebruik' });
 
     const hash = await bcrypt.hash(Password, 10);
+
+    let coords = { lat: null, lon: null };
+    try {
+      coords = await postcodeNaarCoords(Postcode);
+    } catch (coordErr) {
+      console.warn('Coördinaten ophalen mislukt:', coordErr);
+    }
+
     const account = await prisma.account.create({
-      data: { Name, E_mail, Password: hash, Postcode }
+      data: {
+        Name,
+        E_mail,
+        Password: hash,
+        Postcode,
+        lat: coords.lat,
+        lon: coords.lon
+      }
     });
+
     res.status(201).json({ message: 'Account aangemaakt!', id: account.Account_id });
   } catch (error) {
     console.error(error);
@@ -119,6 +137,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
+// FIX: Enkele /me route met isLoggedIn middleware (dubbele verwijderd)
 app.get('/me', isLoggedIn, async (req, res) => {
   try {
     const account = await prisma.account.findUnique({
@@ -290,6 +309,7 @@ app.get('/categorieen', async (req, res) => {
   }
 });
 
+// FIX: Enkele /gereedschap GET route met alle filters (dubbele verwijderd)
 app.get('/gereedschap', async (req, res) => {
   try {
     const { search, id, categorieen } = req.query;
@@ -310,6 +330,7 @@ app.get('/gereedschap', async (req, res) => {
 
     const tools = await prisma.gereedschap.findMany({
       where,
+      include: { Account: true },
       orderBy: { Gereedschap_id: 'desc' }
     });
 
@@ -350,7 +371,6 @@ app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
   const { Naam, Beschrijving, BorgBedrag, Begindatum, Einddatum, categorieen } = req.body;
 
   try {
-    // FIX: parseInt() zodat type-vergelijking altijd klopt
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
     if (!tool || tool.Account_id !== parseInt(req.session.userId)) {
       return res.status(403).json({ error: 'Geen toegang' });
@@ -395,14 +415,11 @@ app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
 app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
   const id = parseInt(req.params.id);
   try {
-    // FIX: parseInt() zodat type-vergelijking altijd klopt
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
     if (!tool || tool.Account_id !== parseInt(req.session.userId)) {
       return res.status(403).json({ error: 'Geen toegang' });
     }
 
-    // FIX: verwijder eerst alle gerelateerde records (foreign key volgorde)
-    // 1. Berichten die horen bij chats over dit gereedschap
     const chats = await prisma.chats.findMany({
       where: { Gereedschap_id: id },
       select: { Chat_id: true }
@@ -414,20 +431,17 @@ app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
       await prisma.chats.deleteMany({ where: { Chat_id: { in: chatIds } } });
     }
 
-    // 2. Uitleen-records
     await prisma.uitleen.deleteMany({ where: { Gereedschap_id: id } });
-
-    // 3. Categorie-koppelingen
     await prisma.gereedschap_Categorie.deleteMany({ where: { Gereedschap_id: id } });
-
-    // 4. Gereedschap zelf
     await prisma.gereedschap.delete({ where: { Gereedschap_id: id } });
 
     const account = await prisma.account.findUnique({
       where: { Account_id: req.session.userId },
       select: { E_mail: true, Name: true }
     });
+
     res.json({ message: 'Gereedschap verwijderd!' });
+    // FIX: sendEmail bewust na res.json() — fire-and-forget patroon, fout heeft geen invloed op response
     sendEmail('tool_deleted', account.E_mail, account.Name, tool.Naam).catch(console.error);
   } catch (error) {
     console.error(error);
@@ -477,6 +491,8 @@ app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
           where: {
             Status: { in: ['accepted', 'pending', 'te_laat', 'ingeleverd_op_tijd', 'ingeleverd_te_laat'] }
           },
+          // FIX: Account includen zodat lenerNaam en lenerEmail beschikbaar zijn
+          include: { Account: true },
           orderBy: { EindDatum: 'desc' }
         }
       }
@@ -553,7 +569,6 @@ app.patch('/uitleen/:id/status', isLoggedIn, async (req, res) => {
       return res.status(404).json({ error: 'Uitleen niet gevonden' });
     }
 
-    // FIX: parseInt() zodat type-vergelijking altijd klopt
     if (uitleen.Gereedschap.Account_id !== parseInt(req.session.userId)) {
       return res.status(403).json({ error: 'Geen toegang' });
     }
@@ -756,6 +771,51 @@ app.delete('/chat/:chatId', isLoggedIn, async (req, res) => {
   }
 });
 
+// ── AFBEELDING ROUTES ──
+
+// FIX: eigenaarcheck toegevoegd zodat gebruikers niet elkaars afbeeldingen kunnen overschrijven
+app.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
+
+    if (!tool || tool.Account_id !== parseInt(req.session.userId)) {
+      return res.status(403).json({ error: 'Geen toegang' });
+    }
+
+    const afbeeldingUrl = '/uploads/' + req.file.filename;
+    await prisma.gereedschap.update({
+      where: { Gereedschap_id: id },
+      data: { Afbeelding: afbeeldingUrl }
+    });
+    res.json({ message: 'Afbeelding opgeslagen!', url: afbeeldingUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Er is iets misgegaan' });
+  }
+});
+
+app.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Geen geldig afbeeldingsbestand' });
+  try {
+    const afbeeldingUrl = '/uploads/' + req.file.filename;
+    await prisma.account.update({
+      where: { Account_id: req.session.userId },
+      data: { Afbeelding: afbeeldingUrl }
+    });
+    res.json({ message: 'Profielfoto opgeslagen!', url: afbeeldingUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Er is iets misgegaan' });
+  }
+});
+
+app.post('/upload/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'Geen geldig bestand' });
+  const afbeeldingUrl = '/uploads/' + req.file.filename;
+  res.json({ url: afbeeldingUrl });
+});
+
 // ── SERVER & SOCKET.IO ──
 
 const server = http.createServer(app);
@@ -913,87 +973,6 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log(`User ${userId} heeft verbinding verbroken`);
   });
-});
-
-// ── AFBEELDING ROUTES ──
-
-app.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
-  try {
-    const afbeeldingUrl = '/uploads/' + req.file.filename;
-    await prisma.gereedschap.update({
-      where: { Gereedschap_id: parseInt(req.params.id) },
-      data: { Afbeelding: afbeeldingUrl }
-    });
-    res.json({ message: 'Afbeelding opgeslagen!', url: afbeeldingUrl });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Er is iets misgegaan' });
-  }
-});
-
-app.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'Geen geldig afbeeldingsbestand' });
-  try {
-    const afbeeldingUrl = '/uploads/' + req.file.filename;
-    await prisma.account.update({
-      where: { Account_id: req.session.userId },
-      data: { Afbeelding: afbeeldingUrl }
-    });
-    res.json({ message: 'Profielfoto opgeslagen!', url: afbeeldingUrl });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Er is iets misgegaan' });
-  }
-});
-
-app.post('/upload/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'Geen geldig bestand' });
-  const afbeeldingUrl = '/uploads/' + req.file.filename;
-  res.json({ url: afbeeldingUrl });
-});
-
-app.post('/register', async (req, res) => {
-  const { Name, E_mail, Password, Postcode } = req.body;
-    try {
-      const coords = await postcodeNaarCoords(Postcode);
-
-        await prisma.account.create({
-          data: {
-            Name,
-            E_mail,
-            Password,
-            Postcode,
-            lat: coords.lat,
-            lon: coords.lon
-          }
-        });
-
-      res.json({ message: "Account aangemaakt" });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Fout bij registreren" });
-  }
-});
-
-app.get('/gereedschap', async (req, res) => {
-    const tools = await prisma.gereedschap.findMany({
-        include: {
-            Account: true 
-        }
-    });
-
-    res.json(tools);
-});
-
-app.get('/me', async (req, res) => {
-    const userId = 1; 
-
-    const user = await prisma.account.findUnique({
-        where: { Account_id: userId }
-    });
-
-    res.json(user);
 });
 
 server.listen(PORT, HOST, () => {
