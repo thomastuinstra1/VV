@@ -35,5 +35,34 @@
   <script src="js/globaal.js"></script>
   <script src="js/wachtwoordreset.js"></script>
 
+<<<<<<< Updated upstream
+=======
+    document.getElementById('resetBtn').addEventListener('click', async () => {
+      const password = document.getElementById('newPassword').value;
+      const confirm  = document.getElementById('confirmPassword').value;
+      const msg      = document.getElementById('resetMsg');
+
+      if (password.length < 6) { msg.style.color='red'; msg.textContent='Wachtwoord moet minimaal 6 tekens zijn.'; return; }
+      if (!password.match(/[0-9]/) || !password.match(/[A-Z]/)) { msg.style.color='red'; msg.textContent='Wachtwoord moet een cijfer en een hoofdletter bevatten.'; return; }
+      if (password !== confirm) { msg.style.color='red'; msg.textContent='Wachtwoorden komen niet overeen.'; return; }
+      
+      const res  = await fetch('/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password })
+      });
+      const data = await res.json();
+
+      if (res.ok) {
+        msg.style.color = 'green';
+        msg.textContent = data.message + ' Je wordt doorgestuurd...';
+        setTimeout(() => window.location.href = 'inlog.html', 2500);
+      } else {
+        msg.style.color = 'red';
+        msg.textContent = data.error;
+      }
+    });
+  </script>
+>>>>>>> Stashed changes
 </body>
 </html>
