@@ -654,7 +654,7 @@ app.post('/chat/start', isLoggedIn, async (req, res) => {
       ]);
 
       // Stuur email naar de ontvanger (partner)
-      await fetch(APPS_SCRIPT_URL, {
+      fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -663,7 +663,7 @@ app.post('/chat/start', isLoggedIn, async (req, res) => {
           receiverName: receiver.Name,
           senderName: sender.Name
         })
-      });
+      }).catch(err => console.error('Email versturen mislukt:', err));
     }
 
     res.json({ ...chat, isNew });
