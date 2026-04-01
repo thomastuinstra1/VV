@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Verstuur naar server
         try {
-            const response = await fetch('/login', {
+            const response = await fetchWithSpinner('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include', // ← toevoegen
@@ -64,7 +64,7 @@ sendBtn.addEventListener('click', async () => {
   sendBtn.textContent = 'Versturen...';
 
   try {
-    const res = await fetch('/forgot-password', {
+    const res = await fetchWithSpinner('/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
