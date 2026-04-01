@@ -355,7 +355,7 @@ function renderTileInfo(g) {
 function renderInleverKnoppen(g, isTableRow = false) {
   if (g.status === 'Ingeleverd?' && g.activeUitleenId) {
     return `
-      <div class="inlever-actions">
+      <div class="inlever-actions" onclick="event.stopPropagation()">
         <button class="btn-inlever op-tijd"
           onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_op_tijd', this)">
           ✓ Op tijd
@@ -369,7 +369,7 @@ function renderInleverKnoppen(g, isTableRow = false) {
 
   if (g.status === 'Te laat' && g.activeUitleenId) {
     return `
-      <div class="inlever-actions">
+      <div class="inlever-actions" onclick="event.stopPropagation()">
         <button class="btn-inlever op-tijd"
           onclick="markeerIngeleverd(${g.activeUitleenId}, 'ingeleverd_te_laat', this)">
           ✓ Is ingeleverd
