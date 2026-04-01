@@ -8,6 +8,7 @@ import path from 'path';
 import { Server } from "socket.io";
 import http from "http";
 import crypto from 'crypto';
+import { postcodeNaarCoords } from './js/afstandfilter.js';
 
 // ── Automatische e-mails via Apps Script ──
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxo_EldpTHSCZIw2Nq8B64RjtlaWjCoSlUGS-LLGt-hCfRFhfDdYFSr_EazJe6u--qeYQ/exec';
@@ -922,6 +923,50 @@ app.post('/upload/afbeelding', isLoggedIn, upload.single('afbeelding'), async (r
   if (!req.file) return res.status(400).json({ error: 'Geen geldig bestand' });
   const afbeeldingUrl = '/uploads/' + req.file.filename;
   res.json({ url: afbeeldingUrl });
+});
+
+app.post('/register', async (req, res) => {
+  const { Name, E_mail, Password, Postcode } = req.body;
+    try {
+      const coords = await postcodeNaarCoords(Postcode);
+
+        await prisma.account.create({
+          data: {
+            Name,
+            E_mail,
+            Password,
+            Postcode,
+            lat: coords.lat,
+            lon: coords.lon
+          }
+        });
+
+      res.json({ message: "Account aangemaakt" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Fout bij registreren" });
+  }
+});
+
+app.get('/gereedschap', async (req, res) => {
+    const tools = await prisma.gereedschap.findMany({
+        include: {
+            Account: true 
+        }
+    });
+
+    res.json(tools);
+});
+
+app.get('/me', async (req, res) => {
+    const userId = 1; 
+
+    const user = await prisma.account.findUnique({
+        where: { Account_id: userId }
+    });
+
+    res.json(user);
 });
 
 server.listen(PORT, HOST, () => {
