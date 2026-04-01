@@ -5,7 +5,7 @@ let TOOL_BORG = 0;
 
 async function getCurrentUserId() {
   try {
-    const res = await fetch('/me');
+    const res = await fetchWithSpinner('/me');
     if (!res.ok) throw new Error('Kon gebruiker niet ophalen');
     const user = await res.json();
     CURRENT_USER_ID = user.Account_id;
@@ -22,7 +22,7 @@ async function getChatInfo() {
   if (!partnerId) return console.error('Geen partner ID in URL');
 
   try {
-    const res = await fetch('/chat/start', {
+    const res = await fetchWithSpinner('/chat/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ partnerId, toolId })
@@ -31,7 +31,7 @@ async function getChatInfo() {
     CHAT_ID = chat.Chat_id;
 
     if (toolId) {
-      const toolRes = await fetch(`/gereedschap?id=${toolId}`);
+      const toolRes = await fetchWithSpinner(`/gereedschap?id=${toolId}`);
       const tools = await toolRes.json();
       TOOL_BORG = tools[0]?.BorgBedrag ?? 0;
     }
@@ -52,7 +52,7 @@ async function addMessageToUI(message) {
   }
 
   if (message.type === "appointment") {
-    const res = await fetch(`/uitleen/${message.uitleenId}`);
+    const res = await fetchWithSpinner(`/uitleen/${message.uitleenId}`);
     const uitleen = await res.json();
 
     div.innerHTML = `
@@ -85,7 +85,7 @@ function sendMessage(content) {
 
 async function loadMessages() {
   try {
-    const res = await fetch(`/messages/chat/${CHAT_ID}`);
+    const res = await fetchWithSpinner(`/messages/chat/${CHAT_ID}`);
     if (!res.ok) throw new Error('Kon berichten niet ophalen');
     const messages = await res.json();
     
