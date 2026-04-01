@@ -15,6 +15,11 @@ if (!token) {
       msg.textContent = 'Wachtwoord moet minimaal 6 tekens zijn.';
       return;
     }
+    if (!password.match(/[0-9]/) || !password.match(/[A-Z]/)) {
+      msg.style.color = 'red';
+      msg.textContent = 'Wachtwoord moet een cijfer en een hoofdletter bevatten.';
+      return;
+    }
     if (password !== confirm) {
       msg.style.color = 'red';
       msg.textContent = 'Wachtwoorden komen niet overeen.';
