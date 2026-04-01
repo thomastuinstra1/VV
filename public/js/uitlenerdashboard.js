@@ -148,7 +148,7 @@ function renderActief(rows) {
 
 // ── Filter: actief ─────────────────────────────────────────────────────────
 function filterActief() {
-  const s   = document.getElementById('filter-actief-status').value; // 'Bezig'|'Komend'|''
+  const s   = document.getElementById('filter-actief-status').value;
   const now = new Date(); now.setHours(0, 0, 0, 0);
 
   const rows = allUitleningen.filter(u => {
@@ -223,7 +223,10 @@ async function openGmModal(id) {
       ? `<img src="${tool.Afbeelding}" alt="${tool.Naam}">`
       : `<div class="gm-no-img">Geen afbeelding</div>`;
 
-    // Categorieën opbouwen
+    // ── Categorieën opbouwen ───────────────────────────────────────────────
+    // Groepen met meerdere selecties toegestaan (naam van de parent-categorie)
+    const MULTI_SELECT_GROEPEN = ['Materiaal'];
+
     const parents  = allCatRes.filter(c => c.Parent_id === null);
     const children = allCatRes.filter(c => c.Parent_id !== null);
     const catGrid  = document.getElementById('gm-categorieen');
@@ -233,19 +236,34 @@ async function openGmModal(id) {
       const kids = children.filter(c => c.Parent_id === parent.Categorie_id);
       if (!kids.length) continue;
 
+      // FIX: Materiaal → checkbox (meerdere), alle andere → radio (één)
+      const isMulti   = MULTI_SELECT_GROEPEN.includes(parent.Naam);
+      const inputType = isMulti ? 'checkbox' : 'radio';
+      const groupName = `cat-groep-${parent.Categorie_id}`;
+
       const titel = document.createElement('div');
       titel.className = 'gm-cat-groep-titel';
       titel.textContent = parent.Naam;
       catGrid.appendChild(titel);
 
       for (const cat of kids) {
+        const isChecked = geselecteerd.includes(cat.Categorie_id);
         const lbl = document.createElement('label');
-        lbl.className = 'gm-cat-label' + (geselecteerd.includes(cat.Categorie_id) ? ' checked' : '');
-        lbl.innerHTML = `<input type="checkbox" value="${cat.Categorie_id}"
-          ${geselecteerd.includes(cat.Categorie_id) ? 'checked' : ''}>${cat.Naam}`;
+        lbl.className = 'gm-cat-label' + (isChecked ? ' checked' : '');
+        lbl.innerHTML = `<input type="${inputType}" name="${groupName}" value="${cat.Categorie_id}"
+          ${isChecked ? 'checked' : ''}>${cat.Naam}`;
+
         lbl.querySelector('input').addEventListener('change', e => {
-          lbl.classList.toggle('checked', e.target.checked);
+          if (!isMulti) {
+            // Deselecteer andere labels in dezelfde groep
+            catGrid.querySelectorAll(`input[name="${groupName}"]`).forEach(inp => {
+              inp.closest('label').classList.toggle('checked', inp.checked);
+            });
+          } else {
+            lbl.classList.toggle('checked', e.target.checked);
+          }
         });
+
         catGrid.appendChild(lbl);
       }
     }
@@ -272,8 +290,9 @@ async function gmOpslaan() {
     BorgBedrag:   document.getElementById('gm-borg').value || null,
     Begindatum:   document.getElementById('gm-begindatum').value || null,
     Einddatum:    document.getElementById('gm-einddatum').value || null,
+    // FIX: pik zowel radio- als checkbox-inputs op
     categorieen:  Array.from(
-      document.querySelectorAll('#gm-categorieen input[type="checkbox"]:checked')
+      document.querySelectorAll('#gm-categorieen input:checked')
     ).map(cb => parseInt(cb.value))
   };
 
@@ -307,13 +326,14 @@ async function gmVerwijder() {
 
   try {
     const res = await fetch(`/gereedschap/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error();
+    if (!res.ok) throw new Error(await res.text());
 
     toast('Verwijderd');
     sluitGmModal();
     await loadData();
     filterTools();
-  } catch {
+  } catch (err) {
+    console.error(err);
     toast('Fout bij verwijderen');
   }
 }
@@ -333,7 +353,6 @@ function renderTileInfo(g) {
 
 // ── Hulp: inlever-knoppen renderen ────────────────────────────────────────
 function renderInleverKnoppen(g, isTableRow = false) {
-  // Ingeleverd? → toon "Op tijd" en "Te laat"
   if (g.status === 'Ingeleverd?' && g.activeUitleenId) {
     return `
       <div class="inlever-actions">
@@ -348,7 +367,6 @@ function renderInleverKnoppen(g, isTableRow = false) {
       </div>`;
   }
 
-  // Te laat → toon alleen "Is ingeleverd"
   if (g.status === 'Te laat' && g.activeUitleenId) {
     return `
       <div class="inlever-actions">
@@ -379,7 +397,6 @@ async function markeerIngeleverd(uitleenId, status, btn) {
     const label = status === 'ingeleverd_op_tijd' ? 'Op tijd ingeleverd ✓' : 'Te laat ingeleverd ✗';
     toast(label);
 
-    // Data herladen en gereedschapspagina vernieuwen
     await loadData();
     filterTools();
   } catch (err) {
@@ -502,18 +519,16 @@ function statusClass(s) {
 
 function badge(status) {
   const map = {
-    // Uitleen-statussen
-    'pending':             { cls: 'uitgeleend',      label: 'In afwachting'   },
-    'accepted':            { cls: 'teruggegeven',    label: 'Geaccepteerd'    },
-    'rejected':            { cls: 'te-laat',         label: 'Geweigerd'       },
-    'ingeleverd_op_tijd':  { cls: 'teruggegeven',    label: 'Op tijd ingelev.'},
-    'ingeleverd_te_laat':  { cls: 'te-laat',         label: 'Te laat ingelev.'},
-    // Gereedschap-statussen (dashboard)
-    'Beschikbaar':         { cls: 'beschikbaar',     label: 'Beschikbaar'     },
-    'Uitgeleend':          { cls: 'uitgeleend',      label: 'Uitgeleend'      },
-    'Ingeleverd?':         { cls: 'ingeleverd-vraag',label: 'Ingeleverd?'     },
-    'Te laat':             { cls: 'te-laat',         label: 'Te laat'         },
-    'Teruggegeven':        { cls: 'teruggegeven',    label: 'Teruggegeven'    },
+    'pending':             { cls: 'uitgeleend',       label: 'In afwachting'    },
+    'accepted':            { cls: 'teruggegeven',     label: 'Geaccepteerd'     },
+    'rejected':            { cls: 'te-laat',          label: 'Geweigerd'        },
+    'ingeleverd_op_tijd':  { cls: 'teruggegeven',     label: 'Op tijd ingelev.' },
+    'ingeleverd_te_laat':  { cls: 'te-laat',          label: 'Te laat ingelev.' },
+    'Beschikbaar':         { cls: 'beschikbaar',      label: 'Beschikbaar'      },
+    'Uitgeleend':          { cls: 'uitgeleend',       label: 'Uitgeleend'       },
+    'Ingeleverd?':         { cls: 'ingeleverd-vraag', label: 'Ingeleverd?'      },
+    'Te laat':             { cls: 'te-laat',          label: 'Te laat'          },
+    'Teruggegeven':        { cls: 'teruggegeven',     label: 'Teruggegeven'     },
   };
   const s = map[status] || { cls: 'teruggegeven', label: status || '—' };
   return `<span class="badge ${s.cls}"><span class="badge-dot"></span>${s.label}</span>`;

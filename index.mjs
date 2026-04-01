@@ -349,8 +349,9 @@ app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
   const { Naam, Beschrijving, BorgBedrag, Begindatum, Einddatum, categorieen } = req.body;
 
   try {
+    // FIX: parseInt() zodat type-vergelijking altijd klopt
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
-    if (!tool || tool.Account_id !== req.session.userId) {
+    if (!tool || tool.Account_id !== parseInt(req.session.userId)) {
       return res.status(403).json({ error: 'Geen toegang' });
     }
 
@@ -393,12 +394,32 @@ app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
 app.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
   const id = parseInt(req.params.id);
   try {
+    // FIX: parseInt() zodat type-vergelijking altijd klopt
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
-    if (!tool || tool.Account_id !== req.session.userId) {
+    if (!tool || tool.Account_id !== parseInt(req.session.userId)) {
       return res.status(403).json({ error: 'Geen toegang' });
     }
 
+    // FIX: verwijder eerst alle gerelateerde records (foreign key volgorde)
+    // 1. Berichten die horen bij chats over dit gereedschap
+    const chats = await prisma.chats.findMany({
+      where: { Gereedschap_id: id },
+      select: { Chat_id: true }
+    });
+    const chatIds = chats.map(c => c.Chat_id);
+
+    if (chatIds.length > 0) {
+      await prisma.berichten.deleteMany({ where: { Chat_id: { in: chatIds } } });
+      await prisma.chats.deleteMany({ where: { Chat_id: { in: chatIds } } });
+    }
+
+    // 2. Uitleen-records
+    await prisma.uitleen.deleteMany({ where: { Gereedschap_id: id } });
+
+    // 3. Categorie-koppelingen
     await prisma.gereedschap_Categorie.deleteMany({ where: { Gereedschap_id: id } });
+
+    // 4. Gereedschap zelf
     await prisma.gereedschap.delete({ where: { Gereedschap_id: id } });
 
     const account = await prisma.account.findUnique({
@@ -453,7 +474,6 @@ app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
       where: { Account_id: req.session.userId },
       include: {
         Uitleen: {
-          // Haal alle actieve uitleningen op (accepted, pending, te_laat, ingeleverd_te_laat)
           where: {
             Status: { in: ['accepted', 'pending', 'te_laat', 'ingeleverd_op_tijd', 'ingeleverd_te_laat'] }
           },
@@ -463,7 +483,6 @@ app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
     });
 
     const mapped = tools.map(g => {
-      // Zoek de meest relevante actieve uitleen
       const actieveUitleen = g.Uitleen.find(u =>
         u.Status === 'accepted' || u.Status === 'pending' || u.Status === 'te_laat'
       );
@@ -479,7 +498,6 @@ app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
         eindDatum = actieveUitleen.EindDatum;
 
         if (actieveUitleen.Status === 'pending') {
-          // Aanvraag in behandeling — toon als beschikbaar maar met pending indicator
           dashboardStatus = 'Beschikbaar';
         } else if (actieveUitleen.Status === 'accepted') {
           const isOverDue = actieveUitleen.EindDatum && new Date(actieveUitleen.EindDatum) < now;
@@ -489,7 +507,6 @@ app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
           dashboardStatus = 'Te laat';
         }
 
-        // Haal lenerinfo op via Account_id
         lenerNaam  = actieveUitleen.Account?.Name  || null;
         lenerEmail = actieveUitleen.Account?.E_mail || null;
       }
@@ -499,7 +516,7 @@ app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
         Naam:            g.Naam,
         Beschrijving:    g.Beschrijving,
         BorgBedrag:      g.BorgBedrag,
-        Afbeelding:      g.Afbeelding, 
+        Afbeelding:      g.Afbeelding,
         status:          dashboardStatus,
         activeUitleenId,
         lenerNaam,
@@ -515,11 +532,11 @@ app.get('/dashboard/gereedschap', isLoggedIn, async (req, res) => {
   }
 });
 
-// ── UITLEEN STATUS BIJWERKEN (op tijd / te laat ingeleverd) ──
+// ── UITLEEN STATUS BIJWERKEN ──
 
 app.patch('/uitleen/:id/status', isLoggedIn, async (req, res) => {
   const uitleenId = parseInt(req.params.id);
-  const { status } = req.body; // verwacht: 'ingeleverd_op_tijd' of 'ingeleverd_te_laat'
+  const { status } = req.body;
 
   const toegestaneStatussen = ['ingeleverd_op_tijd', 'ingeleverd_te_laat', 'te_laat'];
   if (!toegestaneStatussen.includes(status)) {
@@ -527,33 +544,28 @@ app.patch('/uitleen/:id/status', isLoggedIn, async (req, res) => {
   }
 
   try {
-    // Controleer of deze uitleen bij het gereedschap van de ingelogde gebruiker hoort
     const uitleen = await prisma.uitleen.findUnique({
       where: { Uitleen_id: uitleenId },
-      include: {
-        Gereedschap: true,
-        Account: true
-      }
+      include: { Gereedschap: true, Account: true }
     });
 
     if (!uitleen) {
       return res.status(404).json({ error: 'Uitleen niet gevonden' });
     }
 
-    if (uitleen.Gereedschap.Account_id !== req.session.userId) {
+    // FIX: parseInt() zodat type-vergelijking altijd klopt
+    if (uitleen.Gereedschap.Account_id !== parseInt(req.session.userId)) {
       return res.status(403).json({ error: 'Geen toegang' });
     }
 
-    // Status bijwerken
     await prisma.uitleen.update({
       where: { Uitleen_id: uitleenId },
       data: { Status: status }
     });
 
-    // E-mail sturen naar de lener
     if (uitleen.Account?.E_mail) {
       await sendEmail(
-        status,                        // type: 'ingeleverd_op_tijd' of 'ingeleverd_te_laat'
+        status,
         uitleen.Account.E_mail,
         uitleen.Account.Name,
         uitleen.Gereedschap.Naam
@@ -602,17 +614,17 @@ app.get('/mijn-chats', isLoggedIn, async (req, res) => {
       orderBy: { CreatedAt: 'desc' }
     });
 
-    const mapped = chats.map(chat => {  
+    const mapped = chats.map(chat => {
       const partner = chat.SenderId === userId
         ? chat.Account_Chats_ReceiverIdToAccount
         : chat.Account_Chats_SenderIdToAccount;
 
       return {
-        Chat_id:       chat.Chat_id,
-        Account_id:    partner.Account_id,
-        Name:          partner.Name,
-        Afbeelding:    partner.Afbeelding,
-        Gereedschap_id: chat.Gereedschap_id,
+        Chat_id:          chat.Chat_id,
+        Account_id:       partner.Account_id,
+        Name:             partner.Name,
+        Afbeelding:       partner.Afbeelding,
+        Gereedschap_id:   chat.Gereedschap_id,
         Gereedschap_naam: chat.Gereedschap?.Naam || ''
       };
     });
@@ -647,13 +659,11 @@ app.post('/chat/start', isLoggedIn, async (req, res) => {
       });
       isNew = true;
 
-      // Haal gegevens op van beide gebruikers
       const [sender, receiver] = await Promise.all([
         prisma.account.findUnique({ where: { Account_id: userId }, select: { Name: true } }),
         prisma.account.findUnique({ where: { Account_id: partnerId }, select: { Name: true, E_mail: true } })
       ]);
 
-      // Stuur email naar de ontvanger (partner)
       fetch(APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -732,12 +742,10 @@ app.delete('/chat/:chatId', isLoggedIn, async (req, res) => {
 
     if (!chat) return res.status(404).json({ error: 'Chat niet gevonden' });
 
-    // Controleer of de gebruiker onderdeel is van de chat
     if (chat.SenderId !== userId && chat.ReceiverId !== userId) {
       return res.status(403).json({ error: 'Geen toegang' });
     }
 
-    // Berichten eerst verwijderen (foreign key)
     await prisma.berichten.deleteMany({ where: { Chat_id: chatId } });
     await prisma.chats.delete({ where: { Chat_id: chatId } });
 
@@ -824,7 +832,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // FIX: Chat_id, geen Lener_id, prisma.berichten (niet prisma.Berichten)
   socket.on("send_appointment", async ({ chatId, startDate, endDate }) => {
     try {
       const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
@@ -836,7 +843,7 @@ io.on("connection", (socket) => {
         where: { Gereedschap_id: chat.Gereedschap_id }
       });
 
-       const overlap = await prisma.uitleen.findFirst({
+      const overlap = await prisma.uitleen.findFirst({
         where: {
           Gereedschap_id: tool.Gereedschap_id,
           Status: { in: ['pending', 'accepted'] },
@@ -891,7 +898,6 @@ io.on("connection", (socket) => {
         data: { Status: status }
       });
 
-      // Zoek de chat op via het bericht dat bij deze uitleen hoort
       const bericht = await prisma.berichten.findFirst({
         where: { uitleenId: uitleenId }
       });
@@ -908,7 +914,6 @@ io.on("connection", (socket) => {
     console.log(`User ${userId} heeft verbinding verbroken`);
   });
 });
-
 
 // ── AFBEELDING ROUTES ──
 
