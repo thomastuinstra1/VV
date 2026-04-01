@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
 // ─── Gereedschap ophalen ───────────────────────────────────
 async function laadMijnGereedschap() {
     try {
-        const res = await fetch('/mijn-gereedschap');
+        const res = await fetchWithSpinner('/mijn-gereedschap');
         if (res.status === 401) {
             window.location.href = '/inlog.html';
             return;
@@ -58,8 +58,8 @@ async function openModal(id) {
     try {
         // Laad gereedschap details
         const [toolRes, catRes] = await Promise.all([
-            fetch(`/gereedschap?id=${id}`),
-            fetch('/categorieen')
+            fetchWithSpinner(`/gereedschap?id=${id}`),
+            fetchWithSpinner('/categorieen')
         ]);
         const tools = await toolRes.json();
         const tool = tools[0];
@@ -82,7 +82,7 @@ async function openModal(id) {
             : '<span>Geen afbeelding</span>';
 
         // Laad categorieën van dit gereedschap
-        const toolCatRes = await fetch(`/gereedschap/${tool.Gereedschap_id}/categorieen`);
+        const toolCatRes = await fetchWithSpinner(`/gereedschap/${tool.Gereedschap_id}/categorieen`);
         const toolCats = await toolCatRes.json();
         const geselecteerdeIds = toolCats.map(c => c.Categorie_id);
 
@@ -163,7 +163,7 @@ document.getElementById('bewerkForm').addEventListener('submit', async function 
     };
 
     try {
-        const res = await fetch(`/gereedschap/${id}`, {
+        const res = await fetchWithSpinner(`/gereedschap/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
@@ -176,7 +176,7 @@ document.getElementById('bewerkForm').addEventListener('submit', async function 
         if (afbeeldingInput.files.length > 0) {
             const formData = new FormData();
             formData.append('afbeelding', afbeeldingInput.files[0]);
-            await fetch(`/gereedschap/${id}/afbeelding`, {
+            await fetchWithSpinner(`/gereedschap/${id}/afbeelding`, {
                 method: 'POST',
                 body: formData
             });
@@ -195,7 +195,7 @@ window.verwijderGereedschap = async function(id) {
     if (!confirm('Weet je zeker dat je dit gereedschap wilt verwijderen?')) return;
 
     try {
-        const res = await fetch(`/gereedschap/${id}`, { method: 'DELETE' });
+        const res = await fetchWithSpinner(`/gereedschap/${id}`, { method: 'DELETE' });
 
         if (!res.ok) throw new Error('Verwijderen mislukt');
 
