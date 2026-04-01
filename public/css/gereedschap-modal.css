@@ -1,0 +1,223 @@
+/* ── Overlay ── */
+.gm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+}
+.gm-overlay[hidden] { display: none; }
+
+/* ── Modal ── */
+.gm-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  width: 100%;
+  max-width: 540px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+}
+
+.gm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}
+
+.gm-header h2 {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.gm-sluit {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: var(--text-subtle);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: background .15s;
+}
+.gm-sluit:hover { background: var(--bg-hover); }
+
+/* ── Afbeelding ── */
+.gm-img-wrap {
+  width: 100%;
+  height: 170px;
+  overflow: hidden;
+  background: var(--bg-hover);
+}
+.gm-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.gm-no-img {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-subtle);
+}
+
+/* ── Formulier ── */
+.gm-body { padding: 20px 24px; }
+
+.gm-form-group { margin-bottom: 14px; }
+
+.gm-form-group label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--text-subtle);
+  margin-bottom: 5px;
+}
+
+.gm-form-group input,
+.gm-form-group textarea {
+  width: 100%;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  transition: border-color .15s;
+}
+.gm-form-group input:focus,
+.gm-form-group textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.gm-form-group textarea { resize: vertical; min-height: 70px; }
+
+.gm-two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Categorieën ── */
+.gm-cat-groep-titel {
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.gm-cat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.gm-cat-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.gm-cat-label input { display: none; }
+.gm-cat-label.checked {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+/* ── Footer ── */
+.gm-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gm-btn {
+  padding: 7px 16px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity .15s, transform .1s;
+}
+.gm-btn:hover  { opacity: .85; transform: translateY(-1px); }
+.gm-btn:active { transform: translateY(0); }
+
+.gm-btn.opslaan {
+  background: var(--accent, #d85a30);
+  color: #fff;
+}
+.gm-btn.annuleer {
+  background: var(--bg-hover);
+  color: var(--text-subtle);
+  border-color: var(--border);
+}
+.gm-btn.verwijder {
+  background: color-mix(in srgb, #9b2222 10%, transparent);
+  color: #9b2222;
+  border-color: color-mix(in srgb, #9b2222 28%, transparent);
+}
+
+/* ── Tegel: afbeelding ── */
+.tile-img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+.tile-img-placeholder {
+  width: 100%;
+  height: 90px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: var(--bg-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-subtle);
+}
+.tool-tile { cursor: pointer; }
+.tool-tile:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.10); }
