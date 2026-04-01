@@ -978,6 +978,11 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("disconnect", () => {
+    console.log(`User ${userId} heeft verbinding verbroken`);
+  });
+});
+
   // ── LENER DASHBOARD ROUTE ─────────────────────────────────────────────────
 app.get('/mijn-leningen', isLoggedIn, async (req, res) => {
   try {
@@ -1038,11 +1043,6 @@ app.get('/mijn-leningen', isLoggedIn, async (req, res) => {
     console.error('Mijn leningen error:', err);
     res.status(500).json({ error: err.message });
   }
-});
-
-  socket.on("disconnect", () => {
-    console.log(`User ${userId} heeft verbinding verbroken`);
-  });
 });
 
 server.listen(PORT, HOST, () => {
