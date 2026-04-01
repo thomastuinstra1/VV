@@ -970,6 +970,68 @@ io.on("connection", (socket) => {
     }
   });
 
+  // ── LENER DASHBOARD ROUTE ─────────────────────────────────────────────────
+app.get('/mijn-leningen', isLoggedIn, async (req, res) => {
+  try {
+    const uitleningen = await prisma.uitleen.findMany({
+      where: {
+        Lener_id: req.session.userId
+      },
+      include: {
+        Gereedschap: {
+          include: {
+            Account: {
+              select: { Account_id: true, Name: true, E_mail: true }
+            }
+          }
+        }
+      },
+      orderBy: { EindDatum: 'asc' }
+    });
+
+    // Haal chats op zodat we de Chat_id kunnen meegeven per lening
+    const chatList = await prisma.chats.findMany({
+      where: {
+        OR: [
+          { SenderId: req.session.userId },
+          { ReceiverId: req.session.userId }
+        ]
+      },
+      select: { Chat_id: true, SenderId: true, ReceiverId: true, Gereedschap_id: true }
+    });
+
+    const mapped = uitleningen.map(u => {
+      const tool     = u.Gereedschap;
+      const eigenaar = tool?.Account;
+
+      // Zoek de bijbehorende chat op basis van gereedschap + gesprekspartner (eigenaar)
+      const chat = chatList.find(c =>
+        c.Gereedschap_id === u.Gereedschap_id &&
+        (c.SenderId === eigenaar?.Account_id || c.ReceiverId === eigenaar?.Account_id)
+      );
+
+      return {
+        Uitleen_id:      u.Uitleen_id,
+        Status:          u.Status,
+        StartDatum:      u.StartDatum,
+        EindDatum:       u.EindDatum,
+        BorgBedrag:      u.BorgBedrag,
+        Gereedschap_id:  u.Gereedschap_id,
+        gereedschapNaam: tool?.Naam    || null,
+        Afbeelding:      tool?.Afbeelding || null,
+        eigenaarNaam:    eigenaar?.Name  || null,
+        eigenaarEmail:   eigenaar?.E_mail || null,
+        Chat_id:         chat?.Chat_id   || null
+      };
+    });
+
+    res.json(mapped);
+  } catch (err) {
+    console.error('Mijn leningen error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
   socket.on("disconnect", () => {
     console.log(`User ${userId} heeft verbinding verbroken`);
   });
