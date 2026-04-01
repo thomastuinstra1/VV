@@ -7,6 +7,10 @@
   <link rel="stylesheet" href="css/inlog.css">
 </head>
 <body>
+  <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+    <div class="spinner"></div>
+  </div>
+
   <main class="login-page">
     <div class="container">
       <div class="login-shell">
@@ -28,37 +32,8 @@
     </div>
   </main>
 
-  <script>
-    const token = new URLSearchParams(window.location.search).get('token');
-    if (!token) {
-      document.querySelector('.login-box').innerHTML =
-        '<p style="color:red;">Ongeldige of verlopen link.</p>';
-    }
+  <script src="js/globaal.js"></script>
+  <script src="js/wachtwoordreset.js"></script>
 
-    document.getElementById('resetBtn').addEventListener('click', async () => {
-      const password = document.getElementById('newPassword').value;
-      const confirm  = document.getElementById('confirmPassword').value;
-      const msg      = document.getElementById('resetMsg');
-
-      if (password.length < 8) { msg.style.color='red'; msg.textContent='Wachtwoord moet minimaal 8 tekens zijn.'; return; }
-      if (password !== confirm) { msg.style.color='red'; msg.textContent='Wachtwoorden komen niet overeen.'; return; }
-
-      const res  = await fetch('/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, password })
-      });
-      const data = await res.json();
-
-      if (res.ok) {
-        msg.style.color = 'green';
-        msg.textContent = data.message + ' Je wordt doorgestuurd...';
-        setTimeout(() => window.location.href = 'inlog.html', 2500);
-      } else {
-        msg.style.color = 'red';
-        msg.textContent = data.error;
-      }
-    });
-  </script>
 </body>
 </html>
