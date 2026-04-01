@@ -85,7 +85,7 @@ document.getElementById('afbeelding-input').addEventListener('change', async () 
     showMelding("Afbeelding uploaden...", "black");
 
     try {
-        const res = await fetch('/upload/afbeelding', {
+        const res = await fetchWithSpinner('/upload/afbeelding', {
             method: 'POST',
             body: formData,
             credentials: 'include'
@@ -189,7 +189,7 @@ if (!alleVerplichtIngevuld) {
     // 📡 DATA VERSTUREN NAAR SERVER
     // ==============================
     try {
-        const res = await fetch("/gereedschap", {
+        const res = await fetchWithSpinner("/gereedschap", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(data)
