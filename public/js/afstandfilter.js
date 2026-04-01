@@ -1,0 +1,32 @@
+export async function postcodeNaarCoords(Postcode) {
+    const url = `https://nominatim.openstreetmap.org/search?postalcode=${Postcode}&country=NL&format=json&limit=1`;
+
+    const res = await fetch(url, {
+        headers: { "User-Agent": "app" }
+    });
+
+    const data = await res.json();
+
+    if (!data.length) throw new Error("Postcode niet gevonden");
+
+    return {
+        lat: parseFloat(data[0].lat),
+        lon: parseFloat(data[0].lon)
+    };
+}
+
+export function haversine(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const toRad = d => d * Math.PI / 180;
+
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) ** 2;
+
+    return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}

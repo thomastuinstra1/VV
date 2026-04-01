@@ -1,3 +1,5 @@
+let currentUserCoords = null;
+
 function getSearchFromURL() {
     const params = new URLSearchParams(window.location.search);
     return params.get("search") || "";
@@ -36,12 +38,26 @@ function displayTools(tools) {
 
     const imageUrl = tool.Afbeelding?.trim() || "../images/placeholder.jpg";
 
+    let afstandText = "";
+
+    if (currentUserCoords && tool.Account?.lat && tool.Account?.lon) {
+        const afstand = haversine(
+          currentUserCoords.lat,
+          currentUserCoords.lon,
+          tool.Account.lat,
+          tool.Account.lon
+        );
+
+        afstandText = `<div class="tool-distance">${afstand.toFixed(1)} km</div>`;
+    }
+
     card.innerHTML = `
       <img src="${imageUrl}" alt="${tool.Naam}">
       <div class="tool-card-content">
         <h3>${tool.Naam}</h3>
         <p>${tool.Beschrijving || ""}</p>
         <div class="tool-price">€${tool.BorgBedrag || 0} borg</div>
+        ${afstandText}
       </div>
     `;
 
@@ -236,10 +252,26 @@ async function loadNewAds() {
   }
 }
 
+async function loadCurrentUser() {
+  try {
+    const res = await fetch("/me");
+    const user = await res.json();
+
+    currentUserCoords = {
+      lat: user.lat,
+      lon: user.lon
+    };
+  } catch (err) {
+    console.error("Fout bij laden gebruiker:", err);
+  }
+}
+
 // -----------------------
 // INIT
 // -----------------------
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadCurrentUser(); // 🔥 BELANGRIJK
+
   loadFilters();
   loadNewAds();
 
@@ -252,10 +284,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   fetchAndDisplay(url);
-
-  // zet zoekterm terug in input
   const searchInput = document.getElementById("searchInput");
   if (searchInput && search) {
     searchInput.value = search;
   }
 });
+
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const toRad = d => d * Math.PI / 180;
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) *
+    Math.cos(toRad(lat2)) *
+    Math.sin(dLon / 2) ** 2;
+
+  return 2 * R * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
