@@ -89,3 +89,13 @@ function injectFloatingChatHTML() {
 document.addEventListener('DOMContentLoaded', () => {
     injectFloatingChatHTML();
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname.toLowerCase();
+
+    if (path.includes('inlog') || path.includes('registre')) {
+        return;
+    }
+
+    injectFloatingChatHTML();
+});
