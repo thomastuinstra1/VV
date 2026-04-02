@@ -3,16 +3,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const toolId = params.get('id');
 
     if (!toolId) {
-        alert("Geen gereedschap geselecteerd");
+        showToast("Geen gereedschap geselecteerd", "error");
         return;
     }
 
     try {
-        const res = await fetch(`/gereedschap?id=${toolId}`);
+        const res = await fetchWithSpinner(`/gereedschap?id=${toolId}`);
         const tools = await res.json();
 
         if (!tools || tools.length === 0) {
-            alert("Gereedschap niet gevonden");
+            showToast("Gereedschap niet gevonden", "error");
             return;
         }
 
@@ -37,6 +37,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     } catch (err) {
         console.error(err);
-        alert("Fout bij ophalen gereedschap");
+        showToast("Fout bij ophalen gereedschap", "error");
     }
 });

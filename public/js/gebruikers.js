@@ -3,7 +3,7 @@ let CURRENT_USER_ID;
 // Huidige gebruiker ophalen
 async function getCurrentUserId() {
   try {
-    const res = await fetch('/me');
+    const res = await fetchWithSpinner('/me');
     if (!res.ok) throw new Error('Kon gebruiker niet ophalen');
     const user = await res.json();
     CURRENT_USER_ID = user.Account_id;
@@ -15,7 +15,7 @@ async function getCurrentUserId() {
 // Alle gebruikers ophalen (behalve jezelf)
 async function loadUsers() {
   try {
-    const res = await fetch('/Account');
+    const res = await fetchWithSpinner('/Account');
     if (!res.ok) throw new Error('Kon gebruikers niet ophalen');
     const users = await res.json();
 
