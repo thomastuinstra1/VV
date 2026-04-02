@@ -169,10 +169,17 @@ document.querySelectorAll('input[name="Materiaal"]:checked').forEach(cb => {
     }
 
     if (!data.BorgBedrag) {
-        showMelding("Borg bedrag is verplicht");
-        form.BorgBedrag.classList.add("error");
-        return;
-    }
+    showMelding("Borg bedrag is verplicht");
+    form.BorgBedrag.classList.add("error");
+    return;
+}
+
+    // ✅ Nieuw: negatieve borg blokkeren
+    if (parseFloat(data.BorgBedrag) < 0) {
+    showMelding("Borg bedrag mag niet negatief zijn");
+    form.BorgBedrag.classList.add("error");
+    return;
+}
 
     const verplichtGroepen = ["Type", "Werkwijze", "Gewicht", "Staat"]; // Materiaal optioneel of meerdere
 const alleVerplichtIngevuld = verplichtGroepen.every(group =>
