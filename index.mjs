@@ -1044,6 +1044,7 @@ app.get('/mijn-leningen', isLoggedIn, async (req, res) => {
         Gereedschap_id:  u.Gereedschap_id,
         gereedschapNaam: tool?.Naam    || null,
         Afbeelding:      tool?.Afbeelding || null,
+        eigenaarId:      eigenaar?.Account_id || null,
         eigenaarNaam:    eigenaar?.Name  || null,
         eigenaarEmail:   eigenaar?.E_mail || null,
         Chat_id:         chat?.Chat_id   || null

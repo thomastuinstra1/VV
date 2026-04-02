@@ -66,7 +66,9 @@ function cardHtml(u, now) {
     ? `<img class="lening-card-img" src="${u.Afbeelding}" alt="">`
     : `<div class="lening-card-img-placeholder">Geen foto</div>`;
   const eigenaar = u.eigenaarNaam || 'Onbekend';
-  const chatHref = u.Chat_id ? `/chat.html?chatId=${u.Chat_id}` : '#';
+  const chatHref = u.Chat_id
+    ? `/chat.html?partner=${u.eigenaarId}&tool=${u.Gereedschap_id}`
+    : '#';
 
   return `<div class="lening-card ${cardCls}">
     ${imgHtml}
@@ -162,7 +164,7 @@ function renderLeningen(data) {
         <td class="mono muted">${fmtDate(u.EindDatum)}</td>
         <td class="mono muted">${u.BorgBedrag != null ? '€'+Number(u.BorgBedrag).toFixed(2) : '—'}</td>
         <td>${badge(u.Status)}</td>
-        <td><a class="btn-chat" href="${u.Chat_id ? `/chat.html?chatId=${u.Chat_id}` : '#'}" style="font-size:10px;padding:4px 9px">Chat</a></td>
+        <td><a class="btn-chat" href="${u.Chat_id ? `/chat.html?partner=${u.eigenaarId}&tool=${u.Gereedschap_id}` : '#'}" style="font-size:10px;padding:4px 9px">Chat</a></td>
       </tr>`).join('')
     : `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-subtle);font-family:var(--font-mono);font-size:12px">Geen resultaten</td></tr>`;
 }
