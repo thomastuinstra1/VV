@@ -1,6 +1,18 @@
+html, body {
+  height: 100%;
+}
+
+/* main content should take remaining space */
+main {
+  flex: 1;
+}
+
 body {
     background: linear-gradient(180deg, #fff7ed 0%, #e0ecff 100%);
     background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column
 }
 
 .tool-detail-section {
