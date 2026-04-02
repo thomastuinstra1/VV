@@ -1,19 +1,19 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
 document.getElementById('logout-btn').addEventListener('click', async () => {
-    const response = await fetch('/logout', { method: 'POST' });
+    const response = await fetchWithSpinner('/logout', { method: 'POST' });
     if (response.ok) {
         window.location.href = 'inlog.html';
     } else {
-        alert('Er is iets misgegaan bij het uitloggen');
+        showToast('Er is iets misgegaan bij het uitloggen', 'error');
     }
 });
     
     // Huidige gegevens ophalen en invullen
     try {
-        const response = await fetch('/me');
+        const response = await fetchWithSpinner('/me');
         if (!response.ok) {
-            alert('Je bent niet ingelogd');
+            showToast('Je bent niet ingelogd', 'error');
             window.location.href = 'inlog.html';
             return;
         }
@@ -43,12 +43,12 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         const BSN = document.getElementById('BSN').value.trim();
 
         if (Password && Password !== confirmPassword) {
-            alert('Wachtwoorden komen niet overeen');
+            showToast('Wachtwoorden komen niet overeen', 'error');
             return;
         }
 
         if (Password && (Password.length < 6 || !Password.match(/[0-9]/) || !Password.match(/[A-Z]/))) {
-            alert('Wachtwoord moet minimaal 6 tekens bevatten, een cijfer en een hoofdletter');
+            showToast('Wachtwoord moet minimaal 6 tekens bevatten, een cijfer en een hoofdletter', 'error');
             return;
         }
 
@@ -66,7 +66,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         }
 
         try {
-            const response = await fetch('/account', {
+            const response = await fetchWithSpinner('/account', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -75,13 +75,13 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert('Gegevens opgeslagen!');
+                showToast('Gegevens opgeslagen!', 'success');
             } else {
-                alert(data.message || 'Er is iets misgegaan');
+                showToast(data.message || 'Er is iets misgegaan', 'error');
             }
         } catch (error) {
             console.error(error);
-            alert('Er is iets misgegaan');
+            showToast('Er is iets misgegaan', 'error');
         }
     });
 
@@ -100,7 +100,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         formData.append('afbeelding', file);
 
         try {
-            const response = await fetch('/account/afbeelding', {
+            const response = await fetchWithSpinner('/account/afbeelding', {
                 method: 'POST',
                 body: formData,
                 credentials: 'include'
@@ -113,13 +113,13 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
                 document.getElementById('afbeelding-url').value = data.url;
 
                 preview.src = data.url;
-                alert('Profielfoto opgeslagen!');
+                showToast('Profielfoto opgeslagen!', 'success');
             } else {
-                alert(data.error || 'Upload mislukt');
+                showToast(data.error || 'Upload mislukt', 'error');
             }
 
         } catch (err) {
-            alert('Server fout bij upload');
+            showToast('Server fout bij upload', 'error');
         }
     });
 });

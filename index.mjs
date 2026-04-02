@@ -278,6 +278,12 @@ app.put('/account', isLoggedIn, async (req, res) => {
 
 app.post('/gereedschap', isLoggedIn, async (req, res) => {
   const { Naam, Beschrijving, Begindatum, Einddatum, BorgBedrag, Afbeelding, categorieen } = req.body;
+  
+    // ✅ Validatie: borg mag niet negatief zijn
+  if (BorgBedrag !== undefined && BorgBedrag !== null && BorgBedrag !== '' && parseFloat(BorgBedrag) < 0) {
+    return res.status(400).json({ error: 'Borg bedrag mag niet negatief zijn' });
+  }
+  
   try {
     const tool = await prisma.gereedschap.create({
       data: {
@@ -378,6 +384,11 @@ app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
   const id = parseInt(req.params.id);
   const { Naam, Beschrijving, BorgBedrag, Begindatum, Einddatum, categorieen } = req.body;
 
+    // ✅ Validatie: borg mag niet negatief zijn
+  if (BorgBedrag !== undefined && BorgBedrag !== null && BorgBedrag !== '' && parseFloat(BorgBedrag) < 0) {
+    return res.status(400).json({ error: 'Borg bedrag mag niet negatief zijn' });
+  }
+
   try {
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
     if (!tool || tool.Account_id !== parseInt(req.session.userId)) {
@@ -465,8 +476,16 @@ app.get('/dashboard/uitleningen', isLoggedIn, async (req, res) => {
       where: {
         Gereedschap: { Account_id: req.session.userId }
       },
-      include: { Account: true, Gereedschap: true }
+      include: { Gereedschap: true }
     });
+
+    // Haal alle unieke lener-IDs op en zoek hun namen in één query
+    const lenerIds = [...new Set(data.map(u => u.Lener_id).filter(Boolean))];
+    const leners = await prisma.account.findMany({
+      where: { Account_id: { in: lenerIds } },
+      select: { Account_id: true, Name: true, E_mail: true }
+    });
+    const lenerMap = Object.fromEntries(leners.map(l => [l.Account_id, l]));
 
     const mapped = data.map(u => ({
       Uitleen_id:      u.Uitleen_id,
@@ -476,8 +495,8 @@ app.get('/dashboard/uitleningen', isLoggedIn, async (req, res) => {
       BorgBedrag:      u.BorgBedrag,
       Account_id:      u.Account_id,
       Gereedschap_id:  u.Gereedschap_id,
-      lenerNaam:       u.Account?.Name || null,
-      lenerEmail:      u.Account?.E_mail || null,
+      lenerNaam:       lenerMap[u.Lener_id]?.Name  || null,   // ← nu de echte lener
+      lenerEmail:      lenerMap[u.Lener_id]?.E_mail || null,
       gereedschapNaam: u.Gereedschap?.Naam || null
     }));
 
@@ -1017,10 +1036,14 @@ app.get('/mijn-leningen', isLoggedIn, async (req, res) => {
       const tool     = u.Gereedschap;
       const eigenaar = tool?.Account;
 
-      // Zoek de bijbehorende chat op basis van gereedschap + gesprekspartner (eigenaar)
+     // Zoek de bijbehorende chat op basis van gereedschap + beide deelnemers (lener én eigenaar)
+      const lenerId = req.session.userId;
       const chat = chatList.find(c =>
         c.Gereedschap_id === u.Gereedschap_id &&
-        (c.SenderId === eigenaar?.Account_id || c.ReceiverId === eigenaar?.Account_id)
+        (
+          (c.SenderId === lenerId && c.ReceiverId === eigenaar?.Account_id) ||
+          (c.SenderId === eigenaar?.Account_id && c.ReceiverId === lenerId)
+        )
       );
 
       return {
@@ -1032,6 +1055,7 @@ app.get('/mijn-leningen', isLoggedIn, async (req, res) => {
         Gereedschap_id:  u.Gereedschap_id,
         gereedschapNaam: tool?.Naam    || null,
         Afbeelding:      tool?.Afbeelding || null,
+        eigenaarId:      eigenaar?.Account_id || null,
         eigenaarNaam:    eigenaar?.Name  || null,
         eigenaarEmail:   eigenaar?.E_mail || null,
         Chat_id:         chat?.Chat_id   || null

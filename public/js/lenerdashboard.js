@@ -18,10 +18,10 @@ async function loadData() {
     // /mijn-leningen geeft de leningen terug waarbij de ingelogde user de Lener is
     // Verwacht velden: Uitleen_id, Status, StartDatum, EindDatum, BorgBedrag,
     //                  Gereedschap_id, gereedschapNaam, eigenaarNaam, Afbeelding, Chat_id
-    const data = await fetch('/mijn-leningen').then(r => r.json());
+    const data = await fetchWithSpinner('/mijn-leningen').then(r => r.json());
     allLeningen = Array.isArray(data) ? data : [];
   } catch (err) {
-    toast('Fout bij laden data');
+    showToast('Fout bij laden data', 'error');
     console.error(err);
   }
 }
@@ -66,7 +66,9 @@ function cardHtml(u, now) {
     ? `<img class="lening-card-img" src="${u.Afbeelding}" alt="">`
     : `<div class="lening-card-img-placeholder">Geen foto</div>`;
   const eigenaar = u.eigenaarNaam || 'Onbekend';
-  const chatHref = u.Chat_id ? `/chat.html?chatId=${u.Chat_id}` : '#';
+  const chatHref = u.Chat_id
+    ? `/chat.html?partner=${u.eigenaarId}&tool=${u.Gereedschap_id}`
+    : '#';
 
   return `<div class="lening-card ${cardCls}">
     ${imgHtml}
@@ -162,7 +164,7 @@ function renderLeningen(data) {
         <td class="mono muted">${fmtDate(u.EindDatum)}</td>
         <td class="mono muted">${u.BorgBedrag != null ? '€'+Number(u.BorgBedrag).toFixed(2) : '—'}</td>
         <td>${badge(u.Status)}</td>
-        <td><a class="btn-chat" href="${u.Chat_id ? `/chat.html?chatId=${u.Chat_id}` : '#'}" style="font-size:10px;padding:4px 9px">Chat</a></td>
+        <td><a class="btn-chat" href="${u.Chat_id ? `/chat.html?partner=${u.eigenaarId}&tool=${u.Gereedschap_id}` : '#'}" style="font-size:10px;padding:4px 9px">Chat</a></td>
       </tr>`).join('')
     : `<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-subtle);font-family:var(--font-mono);font-size:12px">Geen resultaten</td></tr>`;
 }
@@ -279,8 +281,9 @@ function setTimestamp() {
   if (el) el.textContent = new Date().toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
 
-function toast(msg, ms = 3000) {
+function showToast(msg, type = 'info', ms = 3000) {
   const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
+  el.textContent = msg;
+  el.className = `show ${type}`;
   setTimeout(() => el.classList.remove('show'), ms);
 }

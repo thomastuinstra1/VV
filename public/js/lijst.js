@@ -13,7 +13,7 @@ async function fetchAndDisplay(url) {
   if (!container) return;
 
   try {
-    const response = await fetch(url);
+    const response = await fetchWithSpinner(url);
     const tools = await response.json();
     displayTools(tools);
     updateToolCount(tools.length);
@@ -82,7 +82,7 @@ async function loadFilters() {
   if (!container) return;
 
   try {
-    const res = await fetch("/categorieen");
+    const res = await fetchWithSpinner("/categorieen");
     const categorieen = await res.json();
 
     const parents = categorieen.filter(c => c.Parent_id === null);
@@ -219,7 +219,7 @@ async function loadNewAds() {
   if (!track) return;
 
   try {
-    const res = await fetch("/gereedschap");
+    const res = await fetchWithSpinner("/gereedschap");
     const tools = await res.json();
 
     if (!tools || tools.length === 0) {
@@ -254,7 +254,7 @@ async function loadNewAds() {
 
 async function loadCurrentUser() {
   try {
-    const res = await fetch("/me");
+    const res = await fetchWithSpinner("/me");
     const user = await res.json();
 
     currentUserCoords = {

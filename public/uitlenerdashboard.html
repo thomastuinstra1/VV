@@ -37,13 +37,47 @@
     </div>
   </header>
 
-  <main id="main-content">
-    <section class="dashboard-shell">
-      <div class="container">
-        <div class="dashboard-subnav">
-          <button class="dashboard-tab active" onclick="showPage('dashboard', this)">Dashboard</button>
-          <button class="dashboard-tab" onclick="showPage('gereedschap', this)">Gereedschap</button>
-          <button class="dashboard-tab" onclick="showPage('geschiedenis', this)">Geschiedenis</button>
+<div class="main">
+
+  <!-- ══ DASHBOARD ══ -->
+  <div id="page-dashboard">
+    <div class="page-title">
+      <div>
+        <h1>Uitlener<span>dashboard</span></h1>
+        <p class="subtitle">Overzicht van alle uitleningen en beschikbaarheid</p>
+      </div>
+      <div class="timestamp" id="ts"></div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card orange">
+        <div class="stat-label">Actief uitgeleend</div>
+        <div class="stat-value" id="stat-actief">—</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-label">Beschikbaar</div>
+        <div class="stat-value" id="stat-beschikbaar">—</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-label">Te laat terug</div>
+        <div class="stat-value" id="stat-verlaat">—</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-label">Totaal uitleningen</div>
+        <div class="stat-value" id="stat-totaal">—</div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="section-label">Uitleningen per maand</div>
+        <div class="bar-chart" id="bar-chart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="section-label">Statusverdeling</div>
+        <div class="donut-wrap">
+          <svg id="donut-svg" width="120" height="120" viewBox="0 0 120 120"></svg>
+          <div class="donut-legend" id="donut-legend"></div>
         </div>
 
         <div class="main">

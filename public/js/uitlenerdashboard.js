@@ -17,13 +17,13 @@ const MONTHS = ['Jan', 'Feb', 'Mrt', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', '
 async function loadData() {
   try {
     const [u, g] = await Promise.all([
-      fetch('/dashboard/uitleningen').then((r) => r.json()),
-      fetch('/dashboard/gereedschap').then((r) => r.json()),
+      fetchWithSpinner('/dashboard/uitleningen').then(r => r.json()),
+      fetchWithSpinner('/dashboard/gereedschap').then(r => r.json()),
     ]);
     allUitleningen = u;
     allGereedschap = g;
   } catch (err) {
-    toast('Fout bij laden data');
+    showToast('Fout bij laden data', 'error');
     console.error(err);
   }
 }
@@ -256,9 +256,9 @@ function renderGereedschap(data) {
 async function openGmModal(id) {
   try {
     const [toolRes, allCatRes, toolCatRes] = await Promise.all([
-      fetch(`/gereedschap?id=${id}`).then((r) => r.json()),
-      fetch('/categorieen').then((r) => r.json()),
-      fetch(`/gereedschap/${id}/categorieen`).then((r) => r.json()),
+      fetchWithSpinner(`/gereedschap?id=${id}`).then(r => r.json()),
+      fetchWithSpinner('/categorieen').then(r => r.json()),
+      fetchWithSpinner(`/gereedschap/${id}/categorieen`).then(r => r.json()),
     ]);
 
     const tool = toolRes[0];
@@ -324,7 +324,7 @@ async function openGmModal(id) {
     document.body.style.overflow = 'hidden';
   } catch (err) {
     console.error(err);
-    toast('Fout bij laden gereedschap');
+    showToast('Fout bij laden gereedschap', 'error');
   }
 }
 
@@ -346,7 +346,7 @@ async function gmOpslaan() {
   };
 
   try {
-    const res = await fetch(`/gereedschap/${id}`, {
+    const res = await fetchWithSpinner(`/gereedschap/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
@@ -361,12 +361,12 @@ async function gmOpslaan() {
       await fetch(`/gereedschap/${id}/afbeelding`, { method: 'POST', body: formData });
     }
 
-    toast('Opgeslagen ✓');
+    showToast('Opgeslagen ✓', 'success');
     sluitGmModal();
     await loadData();
     filterTools();
   } catch {
-    toast('Fout bij opslaan');
+    showToast('Fout bij opslaan', 'error');
   }
 }
 
@@ -375,16 +375,16 @@ async function gmVerwijder() {
   if (!confirm('Weet je zeker dat je dit gereedschap wilt verwijderen?')) return;
 
   try {
-    const res = await fetch(`/gereedschap/${id}`, { method: 'DELETE' });
+    const res = await fetchWithSpinner(`/gereedschap/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error(await res.text());
 
-    toast('Verwijderd');
+    showToast('Verwijderd', 'success');
     sluitGmModal();
     await loadData();
     filterTools();
   } catch (err) {
     console.error(err);
-    toast('Fout bij verwijderen');
+    showToast('Fout bij verwijderen', 'error');
   }
 }
 
@@ -437,7 +437,7 @@ async function markeerIngeleverd(uitleenId, status, btn) {
   btn.textContent = '…';
 
   try {
-    const res = await fetch(`/uitleen/${uitleenId}/status`, {
+    const res = await fetchWithSpinner(`/uitleen/${uitleenId}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status }),
@@ -446,13 +446,13 @@ async function markeerIngeleverd(uitleenId, status, btn) {
     if (!res.ok) throw new Error(await res.text());
 
     const label = status === 'ingeleverd_op_tijd' ? 'Op tijd ingeleverd ✓' : 'Te laat ingeleverd ✗';
-    toast(label);
+    showToast(label, 'success');
 
     await loadData();
     filterTools();
   } catch (err) {
     console.error(err);
-    toast('Fout bij bijwerken status');
+    showToast('Fout bij bijwerken status', 'error');
     btn.disabled = false;
     btn.textContent = status === 'ingeleverd_op_tijd' ? '✓ Op tijd' : '✗ Te laat';
   }

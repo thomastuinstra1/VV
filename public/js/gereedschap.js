@@ -3,16 +3,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const toolId = params.get('id');
 
     if (!toolId) {
-        alert("Geen gereedschap geselecteerd");
+        showToast("Geen gereedschap geselecteerd", "error");
         return;
     }
 
     try {
-        const res = await fetch(`/gereedschap?id=${toolId}`);
+        const res = await fetchWithSpinner(`/gereedschap?id=${toolId}`);
         const tools = await res.json();
 
         if (!tools || tools.length === 0) {
-            alert("Gereedschap niet gevonden");
+            showToast("Gereedschap niet gevonden", "error");
             return;
         }
 
@@ -29,14 +29,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("startDate").textContent = start;
         document.getElementById("endDate").textContent = end;
 
-        const chatKnop = document.createElement('a');
+        const chatKnop = document.getElementById('reserveBtn');
         chatKnop.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
         chatKnop.textContent = '💬 Chat met eigenaar';
-        chatKnop.classList.add('btn-chat');
-        document.querySelector('.tool-info').appendChild(chatKnop);
 
     } catch (err) {
         console.error(err);
-        alert("Fout bij ophalen gereedschap");
+        showToast("Fout bij ophalen gereedschap", "error");
     }
 });

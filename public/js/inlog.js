@@ -8,13 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const Password = document.getElementById('Password').value;
 
         if (!login || !Password) {
-            alert('Please fill in all fields');
+            showToast('Please fill in all fields', 'error');
             return;
         }
 
         // Verstuur naar server
         try {
-            const response = await fetch('/login', {
+            const response = await fetchWithSpinner('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include', // ← toevoegen
@@ -24,14 +24,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert(`Welkom ${data.Name}!`);
+                showToast(`Welkom ${data.Name}!`, 'success');
                 window.location.href = 'index.html'; // stuur door na index
             } else {
-                alert(data.message || 'Er is iets misgegaan');
+                showToast(data.message || 'Er is iets misgegaan', 'error');
             }
         } catch (error) {
             console.error(error);
-            alert('Er is iets misgegaan');
+            showToast('Er is iets misgegaan', 'error');
         }
     });
 });
@@ -58,13 +58,13 @@ modal.addEventListener('click', (e) => {
 
 sendBtn.addEventListener('click', async () => {
   const email = document.getElementById('resetEmail').value.trim();
-  if (!email) { alert('Vul een e-mailadres in.'); return; }
+  if (!email) { showToast('Vul een e-mailadres in.', 'error'); return; }
 
   sendBtn.disabled = true;
   sendBtn.textContent = 'Versturen...';
 
   try {
-    const res = await fetch('/forgot-password', {
+    const res = await fetchWithSpinner('/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email })
@@ -74,7 +74,7 @@ sendBtn.addEventListener('click', async () => {
     feedback.style.display = 'block';
     sendBtn.style.display = 'none';
   } catch {
-    alert('Er is iets misgegaan. Probeer het opnieuw.');
+    showToast('Er is iets misgegaan. Probeer het opnieuw.', 'error');
   } finally {
     sendBtn.disabled = false;
     sendBtn.textContent = 'Verstuur link';

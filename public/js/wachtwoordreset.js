@@ -1,7 +1,6 @@
 const token = new URLSearchParams(window.location.search).get('token');
 const loginBox = document.querySelector('.login-box');
 const resetBtn = document.getElementById('resetBtn');
-const msg = document.getElementById('resetMsg');
 
 if (!token) {
   loginBox.innerHTML = '<p style="color:red;">Ongeldige of verlopen link.</p>';
@@ -11,18 +10,17 @@ if (!token) {
     const confirm  = document.getElementById('confirmPassword').value;
 
     if (password.length < 6) {
-      msg.style.color = 'red';
-      msg.textContent = 'Wachtwoord moet minimaal 6 tekens zijn.';
+      showToast('Wachtwoord moet minimaal 6 tekens zijn.', 'error');
       return;
     }
+
     if (!password.match(/[0-9]/) || !password.match(/[A-Z]/)) {
-      msg.style.color = 'red';
-      msg.textContent = 'Wachtwoord moet een cijfer en een hoofdletter bevatten.';
+      showToast('Wachtwoord moet een cijfer en een hoofdletter bevatten.', 'error');
       return;
     }
+
     if (password !== confirm) {
-      msg.style.color = 'red';
-      msg.textContent = 'Wachtwoorden komen niet overeen.';
+      showToast('Wachtwoorden komen niet overeen.', 'error');
       return;
     }
 
@@ -34,22 +32,20 @@ if (!token) {
       });
 
       if (!res) {
-        msg.style.color = 'red';
-        msg.textContent = 'Er is iets misgegaan. Probeer het opnieuw.';
+        showToast('Er is iets misgegaan. Probeer het opnieuw.', 'error');
         return;
       }
 
-      msg.style.color = res.success ? 'green' : 'red';
-      msg.textContent = res.success
-        ? res.message + ' Je wordt doorgestuurd...'
-        : res.error || 'Wachtwoord kon niet worden gereset.';
-
-      if (res.success) setTimeout(() => window.location.href = 'inlog.html', 2500);
+      if (res.success) {
+        showToast(res.message + ' Je wordt doorgestuurd...', 'success');
+        setTimeout(() => window.location.href = 'inlog.html', 2500);
+      } else {
+        showToast(res.error || 'Wachtwoord kon niet worden gereset.', 'error');
+      }
 
     } catch (err) {
       console.error(err);
-      msg.style.color = 'red';
-      msg.textContent = 'Serverfout. Probeer later opnieuw.';
+      showToast('Serverfout. Probeer later opnieuw.', 'error');
     }
   });
 }
