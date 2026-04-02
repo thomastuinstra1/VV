@@ -278,6 +278,12 @@ app.put('/account', isLoggedIn, async (req, res) => {
 
 app.post('/gereedschap', isLoggedIn, async (req, res) => {
   const { Naam, Beschrijving, Begindatum, Einddatum, BorgBedrag, Afbeelding, categorieen } = req.body;
+  
+    // ✅ Validatie: borg mag niet negatief zijn
+  if (BorgBedrag !== undefined && BorgBedrag !== null && BorgBedrag !== '' && parseFloat(BorgBedrag) < 0) {
+    return res.status(400).json({ error: 'Borg bedrag mag niet negatief zijn' });
+  }
+  
   try {
     const tool = await prisma.gereedschap.create({
       data: {
@@ -377,6 +383,11 @@ app.get('/gereedschap/:id/categorieen', async (req, res) => {
 app.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
   const id = parseInt(req.params.id);
   const { Naam, Beschrijving, BorgBedrag, Begindatum, Einddatum, categorieen } = req.body;
+
+    // ✅ Validatie: borg mag niet negatief zijn
+  if (BorgBedrag !== undefined && BorgBedrag !== null && BorgBedrag !== '' && parseFloat(BorgBedrag) < 0) {
+    return res.status(400).json({ error: 'Borg bedrag mag niet negatief zijn' });
+  }
 
   try {
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
