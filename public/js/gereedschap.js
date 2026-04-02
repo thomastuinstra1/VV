@@ -29,11 +29,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("startDate").textContent = start;
         document.getElementById("endDate").textContent = end;
 
-        const chatKnop = document.createElement('a');
+        const chatKnop = document.getElementById('reserveBtn');
         chatKnop.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
         chatKnop.textContent = '💬 Chat met eigenaar';
-        chatKnop.classList.add('btn-chat');
-        document.querySelector('.tool-info').appendChild(chatKnop);
 
     } catch (err) {
         console.error(err);
