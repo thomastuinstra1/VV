@@ -18,10 +18,10 @@ async function loadData() {
     // /mijn-leningen geeft de leningen terug waarbij de ingelogde user de Lener is
     // Verwacht velden: Uitleen_id, Status, StartDatum, EindDatum, BorgBedrag,
     //                  Gereedschap_id, gereedschapNaam, eigenaarNaam, Afbeelding, Chat_id
-    const data = await fetch('/mijn-leningen').then(r => r.json());
+    const data = await fetchWithSpinner('/mijn-leningen').then(r => r.json());
     allLeningen = Array.isArray(data) ? data : [];
   } catch (err) {
-    toast('Fout bij laden data');
+    showToast('Fout bij laden data', 'error');
     console.error(err);
   }
 }
@@ -275,8 +275,9 @@ function setTimestamp() {
   if (el) el.textContent = new Date().toLocaleDateString('nl-NL',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
 
-function toast(msg, ms = 3000) {
+function showToast(msg, type = 'info', ms = 3000) {
   const el = document.getElementById('toast');
-  el.textContent = msg; el.classList.add('show');
+  el.textContent = msg;
+  el.className = `show ${type}`;
   setTimeout(() => el.classList.remove('show'), ms);
 }
