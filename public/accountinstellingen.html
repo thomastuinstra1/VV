@@ -9,29 +9,30 @@
   </head>
   <body class="account-page-body">
     <header class="site-header">
-      <div class="container nav-container">
-        <div class="logo">
-          <a href="index.html">
-            <img
-              src="./images/Logo.png"
-              alt="Gereedschapspunt"
-              class="logo-img"
-            />
-          </a>
-        </div>
+  <div class="container nav-container">
+    
+    <div class="logo">
+      <a href="index.html">
+        <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+      </a>
+    </div>
 
-        <nav class="main-nav">
-          <ul>
-            <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
-            <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
-            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
-            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
-            <li data-auth="true"><a href="accountinstellingen.html">Account</a></li>
-            <li><a href="gereedschapsregistratie.html" class="cta-small">Plaats gereedschap</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
+    <nav class="main-nav">
+      <ul>
+        <li data-auth="true"><a href="lenerdashboard.html">Lenen</a></li>
+        <li data-auth="true"><a href="uitlenerdashboard.html">Verhuren</a></li>
+        <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+
+        <li data-auth="true"><a href="accountinstellingen.html">Account</a></li>
+
+        <!-- Guest only -->
+        <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+        <li data-guest="true"><a href="registreren.html">Registreren</a></li>
+      </ul>
+    </nav>
+
+  </div>
+</header>
 
     <main class="account-page">
       <div class="container">
