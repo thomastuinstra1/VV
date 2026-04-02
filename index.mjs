@@ -1025,10 +1025,14 @@ app.get('/mijn-leningen', isLoggedIn, async (req, res) => {
       const tool     = u.Gereedschap;
       const eigenaar = tool?.Account;
 
-      // Zoek de bijbehorende chat op basis van gereedschap + gesprekspartner (eigenaar)
+     // Zoek de bijbehorende chat op basis van gereedschap + beide deelnemers (lener én eigenaar)
+      const lenerId = req.session.userId;
       const chat = chatList.find(c =>
         c.Gereedschap_id === u.Gereedschap_id &&
-        (c.SenderId === eigenaar?.Account_id || c.ReceiverId === eigenaar?.Account_id)
+        (
+          (c.SenderId === lenerId && c.ReceiverId === eigenaar?.Account_id) ||
+          (c.SenderId === eigenaar?.Account_id && c.ReceiverId === lenerId)
+        )
       );
 
       return {
