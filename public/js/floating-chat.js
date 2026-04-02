@@ -210,4 +210,9 @@ function initFloatingSocket() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', initFloatingChat);
+// ── Alleen initialiseren op pagina's die niet inlog/registratie zijn ──
+document.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('inlog') || path.includes('registre')) return;
+    initFloatingChat();
+});
