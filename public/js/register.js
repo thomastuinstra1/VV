@@ -12,12 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Wachtwoord validatie
         if (Password !== confirmPassword) {
-            alert('Passwords do not match');
+            showToast('Wachtwoorden komen niet overeen', 'error');
             return;
         }
 
         if (Password.length < 6 || !Password.match(/[0-9]/) || !Password.match(/[A-Z]/)) {
-            alert('Password must be at least 6 characters, contain a number and an uppercase letter');
+            showToast('Minimaal 6 tekens, 1 cijfer en 1 hoofdletter', 'error');
             return;
         }
 
@@ -32,14 +32,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                alert('Account aangemaakt!');
-                window.location.href = 'inlog.html'; // stuur door naar login
+                showToast('Account aangemaakt!', 'success');
+
+                setTimeout(() => {
+                    window.location.href = 'inlog.html';
+                }, 2000);
+
             } else {
-                alert(data.message || 'Er is iets misgegaan');
+                showToast(data.message || 'Er is iets misgegaan', 'error');
             }
+
         } catch (error) {
             console.error(error);
-            alert('Er is zeker iets misgegaan');
+            showToast('Serverfout, probeer later opnieuw', 'error');
         }
     });
 });
