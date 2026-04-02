@@ -3,36 +3,105 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Gereedschap Detail</title>
-    <link rel="stylesheet" href="css/index.css" />
+    <title>Gereedschap Detail - Gereedschapspunt</title>
+    <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/gereedschap.css" />
   </head>
 
   <body>
-    <div class="tool-detail-container">
-      <div class="tool-images">
-        <img
-          id="toolImage"
-          src="/images/default.jpg"
-          alt="gereedschap afbeelding"
-        />
-      </div>
-
-      <div class="tool-info">
-        <h1 id="toolName">Gereedschap Naam</h1>
-        <p id="toolDescription">Beschrijving gereedschap</p>
-
-        <div class="tool-price" id="toolBorg">Borg: €0</div>
-
-        <div class="availability" id="toolAvailability">
-          Beschikbaar van <span id="startDate">--</span> tot
-          <span id="endDate">--</span>
-        </div>
-
-        <a href="#" class="btn-reserve" id="reserveBtn">Reserveer nu</a>
-      </div>
+    <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+      <div class="spinner"></div>
     </div>
 
+    <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
+
+    <header class="site-header">
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="./images/Logo.png"
+              alt="Gereedschapspunt"
+              class="logo-img"
+            />
+          </a>
+        </div>
+
+        <nav class="main-nav">
+          <ul>
+            <li data-auth="true"><a href="mijngereedschap.html">Mijn Gereedschap</a></li>
+            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+            <li><a href="lijst.html">Aanbod</a></li>
+            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+            <li data-auth="true"><a href="accountinstellingen.html">Account</a></li>
+            <li><a href="gereedschapsregistratie.html" class="cta-small">Plaats gereedschap</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section class="tool-detail-section">
+        <div class="container">
+          <div class="detail-breadcrumb">
+            <a href="lijst.html">Aanbod</a>
+            <span>/</span>
+            <span id="breadcrumbName">Gereedschap</span>
+          </div>
+
+          <div class="tool-detail-container">
+            <div class="tool-images">
+              <img
+                id="toolImage"
+                src="/images/default.jpg"
+                alt="gereedschap afbeelding"
+              />
+            </div>
+
+            <div class="tool-info">
+              <span class="detail-tag">Beschikbaar in jouw buurt</span>
+              <h1 id="toolName">Gereedschap Naam</h1>
+              <p id="toolDescription">Beschrijving gereedschap</p>
+
+              <div class="tool-meta-card">
+                <div class="tool-price" id="toolBorg">Borg: €0</div>
+
+                <div class="availability" id="toolAvailability">
+                  Beschikbaar van <span id="startDate">--</span> tot
+                  <span id="endDate">--</span>
+                </div>
+              </div>
+
+              <div class="detail-actions">
+                <a href="#" class="btn-reserve" id="reserveBtn">Reserveer nu</a>
+                <a href="lijst.html" class="btn-back">Terug naar aanbod</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-container">
+        <div class="footer-brand">
+          <h3>Gereedschapspunt</h3>
+          <p>Leen slim, lokaal en duurzaam.</p>
+        </div>
+
+        <ul class="footer-links">
+          <li><a href="#">Over ons</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 Gereedschapspunt</p>
+      </div>
+    </footer>
+
+    <script src="js/globaal.js"></script>
     <script src="js/gereedschap.js"></script>
   </body>
 </html>

@@ -228,18 +228,22 @@ function goPage(p) { histPage = p; renderHistorie(filteredHist, p); }
 
 // ── Navigatie ─────────────────────────────────────────────────────────────
 function showPage(name) {
-  ['dashboard','leningen','geschiedenis'].forEach(p => {
-    document.getElementById('page-'+p).style.display = p === name ? '' : 'none';
+  ['dashboard', 'leningen', 'geschiedenis'].forEach((p) => {
+    document.getElementById('page-' + p).style.display = p === name ? '' : 'none';
   });
-  document.querySelectorAll('header nav button').forEach((btn, i) => {
-    btn.classList.toggle('active', ['dashboard','leningen','geschiedenis'][i] === name);
+
+  document.querySelectorAll('.dashboard-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', ['dashboard', 'leningen', 'geschiedenis'][i] === name);
   });
+
   if (name === 'leningen') {
-    const active = allLeningen.filter(u => ['pending','accepted','te_laat'].includes(u.Status));
+    const active = allLeningen.filter((u) => ['pending', 'accepted', 'te_laat'].includes(u.Status));
     renderLeningen(active);
   }
+
   if (name === 'geschiedenis') {
     filteredHist = [...allLeningen];
+    histPage = 1;
     renderHistorie(filteredHist, histPage);
   }
 }

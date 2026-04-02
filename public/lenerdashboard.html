@@ -3,176 +3,214 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lenerdashboard</title>
+  <title>Lenerdashboard - Gereedschapspunt</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/lenerdashboard.css" />
 </head>
 <body>
-
-<header>
-  <div class="logo">
-    <div class="logo-icon">
-      <svg viewBox="0 0 24 24"><path d="M19.5 5.5L18 4H6L4.5 5.5v13L6 20h12l1.5-1.5V5.5zm-2 12H6.5V6.5h11V17.5zm-6-9h2v5h-2z"/></svg>
-    </div>
-    Uitleendienst
-  </div>
-  <nav>
-    <button class="active" onclick="showPage('dashboard')">Dashboard</button>
-    <button onclick="showPage('leningen')">Mijn leningen</button>
-    <button onclick="showPage('geschiedenis')">Geschiedenis</button>
-  </nav>
-</header>
-
-<div class="main">
-
-  <!-- ══ DASHBOARD ══ -->
-  <div id="page-dashboard">
-    <div class="page-title">
-      <div>
-        <h1>Lener<span>dashboard</span></h1>
-        <p class="subtitle">Jouw actieve leningen en afspraken</p>
-      </div>
-      <div class="timestamp" id="ts"></div>
-    </div>
-
-    <div class="stats-grid">
-      <div class="stat-card blue">
-        <div class="stat-label">Actief geleend</div>
-        <div class="stat-value" id="stat-actief">—</div>
-        <div class="stat-sub">items momenteel bij jou</div>
-      </div>
-      <div class="stat-card amber">
-        <div class="stat-label">Bijna verlopen</div>
-        <div class="stat-value" id="stat-bijna">—</div>
-        <div class="stat-sub">binnen 3 dagen terug</div>
-      </div>
-      <div class="stat-card red">
-        <div class="stat-label">Te laat</div>
-        <div class="stat-value" id="stat-telaat">—</div>
-        <div class="stat-sub">over deadline</div>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-head">
-        <div>
-          <div class="section-label">Overzicht</div>
-          <div class="section-title">Actieve leningen</div>
-        </div>
-      </div>
-      <div class="active-grid" id="active-cards">
-        <div class="empty-state"><div class="empty-icon">📦</div><div class="empty-text">Laden…</div></div>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-head">
-        <div>
-          <div class="section-label">Planning</div>
-          <div class="section-title">Inleverschema</div>
-        </div>
-      </div>
-      <div class="timeline" id="timeline"></div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-head">
-        <div>
-          <div class="section-label">Financieel</div>
-          <div class="section-title">Borgbedragen</div>
-        </div>
-      </div>
-      <div id="borg-overzicht"></div>
-    </div>
+  <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+    <div class="spinner"></div>
   </div>
 
-  <!-- ══ MIJN LENINGEN ══ -->
-  <div id="page-leningen" style="display:none">
-    <div class="page-title">
-      <div>
-        <h1>Mijn <span>leningen</span></h1>
-        <p class="subtitle">Alle actieve en openstaande verzoeken</p>
+  <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
+
+  <header class="site-header">
+    <div class="container nav-container">
+      <div class="logo">
+        <a href="index.html">
+          <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+        </a>
       </div>
-      <div class="controls">
-        <input class="search-input" type="text" placeholder="Zoek gereedschap…" id="search-leningen" oninput="filterLeningen()" />
-        <select class="filter-select" id="filter-leningen" onchange="filterLeningen()">
-          <option value="">Alle statussen</option>
-          <option value="pending">In afwachting</option>
-          <option value="accepted">Actief</option>
-          <option value="te_laat">Te laat</option>
-        </select>
-        <div class="tab-bar">
-          <button class="tab active" onclick="setLeningView('cards', this)">Tegels</button>
-          <button class="tab" onclick="setLeningView('table', this)">Tabel</button>
+
+      <nav class="main-nav">
+        <ul>
+          <li data-auth="true"><a href="mijngereedschap.html">Mijn Gereedschap</a></li>
+          <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+          <li><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+          <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+          <li data-auth="true"><a href="accountinstellingen.html">Account</a></li>
+          <li><a href="gereedschapsregistratie.html" class="cta-small">Plaats gereedschap</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="dashboard-shell">
+      <div class="container">
+        <div class="dashboard-subnav">
+          <button class="dashboard-tab active" onclick="showPage('dashboard')">Dashboard</button>
+          <button class="dashboard-tab" onclick="showPage('leningen')">Mijn leningen</button>
+          <button class="dashboard-tab" onclick="showPage('geschiedenis')">Geschiedenis</button>
+        </div>
+
+        <div class="main">
+          <!-- DASHBOARD -->
+          <div id="page-dashboard">
+            <div class="page-title">
+              <div>
+                <h1>Lener<span>dashboard</span></h1>
+                <p class="subtitle">Jouw actieve leningen en afspraken</p>
+              </div>
+              <div class="timestamp" id="ts"></div>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat-card blue">
+                <div class="stat-label">Actief geleend</div>
+                <div class="stat-value" id="stat-actief">—</div>
+                <div class="stat-sub">items momenteel bij jou</div>
+              </div>
+              <div class="stat-card amber">
+                <div class="stat-label">Bijna verlopen</div>
+                <div class="stat-value" id="stat-bijna">—</div>
+                <div class="stat-sub">binnen 3 dagen terug</div>
+              </div>
+              <div class="stat-card red">
+                <div class="stat-label">Te laat</div>
+                <div class="stat-value" id="stat-telaat">—</div>
+                <div class="stat-sub">over deadline</div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-head">
+                <div>
+                  <div class="section-label">Overzicht</div>
+                  <div class="section-title">Actieve leningen</div>
+                </div>
+              </div>
+              <div class="active-grid" id="active-cards">
+                <div class="empty-state">
+                  <div class="empty-icon">📦</div>
+                  <div class="empty-text">Laden…</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-head">
+                <div>
+                  <div class="section-label">Planning</div>
+                  <div class="section-title">Inleverschema</div>
+                </div>
+              </div>
+              <div class="timeline" id="timeline"></div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-head">
+                <div>
+                  <div class="section-label">Financieel</div>
+                  <div class="section-title">Borgbedragen</div>
+                </div>
+              </div>
+              <div id="borg-overzicht"></div>
+            </div>
+          </div>
+
+          <!-- MIJN LENINGEN -->
+          <div id="page-leningen" style="display:none">
+            <div class="page-title">
+              <div>
+                <h1>Mijn <span>leningen</span></h1>
+                <p class="subtitle">Alle actieve en openstaande verzoeken</p>
+              </div>
+              <div class="controls">
+                <input class="search-input" type="text" placeholder="Zoek gereedschap…" id="search-leningen" oninput="filterLeningen()" />
+                <select class="filter-select" id="filter-leningen" onchange="filterLeningen()">
+                  <option value="">Alle statussen</option>
+                  <option value="pending">In afwachting</option>
+                  <option value="accepted">Actief</option>
+                  <option value="te_laat">Te laat</option>
+                </select>
+                <div class="tab-bar">
+                  <button class="tab active" onclick="setLeningView('cards', this)">Tegels</button>
+                  <button class="tab" onclick="setLeningView('table', this)">Tabel</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="lening-cards-view" class="active-grid"></div>
+
+            <div id="lening-table-view" style="display:none">
+              <div class="section-card">
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Gereedschap</th>
+                        <th>Eigenaar</th>
+                        <th>Startdatum</th>
+                        <th>Vervaldatum</th>
+                        <th>Borg</th>
+                        <th>Status</th>
+                        <th>Actie</th>
+                      </tr>
+                    </thead>
+                    <tbody id="tbody-leningen"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- GESCHIEDENIS -->
+          <div id="page-geschiedenis" style="display:none">
+            <div class="page-title">
+              <div>
+                <h1>Leen<span>geschiedenis</span></h1>
+                <p class="subtitle">Alle afgeronde leningen</p>
+              </div>
+            </div>
+
+            <div class="section-card">
+              <div class="section-head">
+                <div class="section-title">Alle leningen</div>
+                <div class="controls">
+                  <input class="search-input" type="text" placeholder="Zoek…" id="search-hist" oninput="filterHistorie()" />
+                  <select class="filter-select" id="filter-hist" onchange="filterHistorie()">
+                    <option value="">Alle</option>
+                    <option value="pending">In afwachting</option>
+                    <option value="accepted">Geaccepteerd</option>
+                    <option value="rejected">Geweigerd</option>
+                    <option value="ingeleverd_op_tijd">Op tijd ingeleverd</option>
+                    <option value="ingeleverd_te_laat">Te laat ingeleverd</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Gereedschap</th>
+                      <th>Eigenaar</th>
+                      <th>Startdatum</th>
+                      <th>Vervaldatum</th>
+                      <th>Borg</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-hist">
+                    <tr>
+                      <td colspan="7" style="text-align:center;padding:2rem;color:#6b7280;font-family:'DM Mono',monospace;font-size:12px">Laden…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="pagination" id="pagination-hist"></div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
+  </main>
 
-    <div id="lening-cards-view" class="active-grid"></div>
+  <div id="toast"></div>
 
-    <div id="lening-table-view" style="display:none">
-      <div class="section-card">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Gereedschap</th>
-                <th>Eigenaar</th>
-                <th>Startdatum</th>
-                <th>Vervaldatum</th>
-                <th>Borg</th>
-                <th>Status</th>
-                <th>Actie</th>
-              </tr>
-            </thead>
-            <tbody id="tbody-leningen"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ GESCHIEDENIS ══ -->
-  <div id="page-geschiedenis" style="display:none">
-    <div class="page-title">
-      <div>
-        <h1>Leen<span>geschiedenis</span></h1>
-        <p class="subtitle">Alle afgeronde leningen</p>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-head">
-        <div class="section-title">Alle leningen</div>
-        <div class="controls">
-          <input class="search-input" type="text" placeholder="Zoek…" id="search-hist" oninput="filterHistorie()" />
-          <select class="filter-select" id="filter-hist" onchange="filterHistorie()">
-            <option value="">Alle</option>
-            <option value="pending">In afwachting</option>
-            <option value="accepted">Geaccepteerd</option>
-            <option value="rejected">Geweigerd</option>
-            <option value="ingeleverd_op_tijd">Op tijd ingeleverd</option>
-            <option value="ingeleverd_te_laat">Te laat ingeleverd</option>
-          </select>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>#</th><th>Gereedschap</th><th>Eigenaar</th><th>Startdatum</th><th>Vervaldatum</th><th>Borg</th><th>Status</th></tr>
-          </thead>
-          <tbody id="tbody-hist">
-            <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-subtle);font-family:var(--font-mono);font-size:12px">Laden…</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="pagination" id="pagination-hist"></div>
-    </div>
-  </div>
-
-</div>
-
-<div id="toast"></div>
+  <script src="js/globaal.js"></script>
+  <script src="js/lenerdashboard.js"></script>
 </body>
-<script src="js/lenerdashboard.js"></script>
 </html>
