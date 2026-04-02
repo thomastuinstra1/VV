@@ -465,8 +465,16 @@ app.get('/dashboard/uitleningen', isLoggedIn, async (req, res) => {
       where: {
         Gereedschap: { Account_id: req.session.userId }
       },
-      include: { Account: true, Gereedschap: true }
+      include: { Gereedschap: true }
     });
+
+    // Haal alle unieke lener-IDs op en zoek hun namen in één query
+    const lenerIds = [...new Set(data.map(u => u.Lener_id).filter(Boolean))];
+    const leners = await prisma.account.findMany({
+      where: { Account_id: { in: lenerIds } },
+      select: { Account_id: true, Name: true, E_mail: true }
+    });
+    const lenerMap = Object.fromEntries(leners.map(l => [l.Account_id, l]));
 
     const mapped = data.map(u => ({
       Uitleen_id:      u.Uitleen_id,
@@ -476,8 +484,8 @@ app.get('/dashboard/uitleningen', isLoggedIn, async (req, res) => {
       BorgBedrag:      u.BorgBedrag,
       Account_id:      u.Account_id,
       Gereedschap_id:  u.Gereedschap_id,
-      lenerNaam:       u.Account?.Name || null,
-      lenerEmail:      u.Account?.E_mail || null,
+      lenerNaam:       lenerMap[u.Lener_id]?.Name  || null,   // ← nu de echte lener
+      lenerEmail:      lenerMap[u.Lener_id]?.E_mail || null,
       gereedschapNaam: u.Gereedschap?.Naam || null
     }));
 
