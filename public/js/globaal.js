@@ -43,3 +43,17 @@ async function fetchWithSpinner(url, options, delay = 300) {
         }
     }
 }
+
+function showToast(message, type = 'info', duration = 3000) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+
+  toast.textContent = message;
+
+  toast.classList.remove('success', 'error', 'info');
+  toast.classList.add('show', type);
+
+  setTimeout(() => {
+    toast.classList.remove('show', type);
+  }, duration);
+}
