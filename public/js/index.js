@@ -1,7 +1,12 @@
 // -----------------------
+// GLOBALE VARIABELEN
+// -----------------------
+const MONTHS = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec'];
+
+// -----------------------
 // DOMContentLoaded INIT
 // -----------------------
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     loadFilters();
     loadNewAds();
 
@@ -12,6 +17,40 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 });
+
+// -----------------------
+// SPINNER & TOAST
+// -----------------------
+function showSpinner(show = true) {
+    const spinner = document.getElementById('globalSpinner');
+    if (!spinner) return;
+    spinner.style.display = show ? 'flex' : 'none';
+}
+
+function showToast(msg, type = 'info', ms = 3000) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.className = `show ${type}`;
+    setTimeout(() => el.classList.remove('show'), ms);
+}
+
+// -----------------------
+// FETCH MET SPINNER
+// -----------------------
+async function fetchWithSpinner(url, options) {
+    showSpinner(true);
+    try {
+        const res = await fetch(url, options);
+        return res;
+    } catch (err) {
+        console.error(err);
+        showToast("Er is een netwerkfout opgetreden.", "error");
+        throw err;
+    } finally {
+        showSpinner(false);
+    }
+}
 
 // -----------------------
 // ZOEKFUNCTIE
@@ -38,7 +77,7 @@ function displayResults(results) {
 
     container.innerHTML = "";
 
-    if (!results.length) {
+    if (!Array.isArray(results) || results.length === 0) {
         container.innerHTML = "<p>Geen resultaten gevonden.</p>";
         return;
     }
@@ -77,10 +116,12 @@ async function loadFilters() {
     try {
         const res = await fetchWithSpinner("/categorieen");
         const cats = await res.json();
+        if (!Array.isArray(cats)) throw new Error("Categorieën zijn geen array");
         renderFilters(cats);
     } catch (err) {
         console.error(err);
         container.innerHTML = '<p style="color:#9ca3af;font-size:.85rem">Filters niet beschikbaar.</p>';
+        showToast("Filters konden niet geladen worden.", "error");
     } finally {
         showSpinner(false);
     }
@@ -156,9 +197,10 @@ async function applyFilters() {
     try {
         const res = await fetchWithSpinner(`/gereedschap?${params.toString()}`);
         const tools = await res.json();
-        displayResults(tools);
+        displayResults(Array.isArray(tools) ? tools : []);
     } catch (err) {
         console.error(err);
+        showToast("Gereedschap kon niet geladen worden.", "error");
     } finally {
         showSpinner(false);
     }
@@ -173,11 +215,12 @@ async function loadNewAds() {
 
     showSpinner(true);
     try {
-        const tools = await fetchWithSpinner("/gereedschap");
-        if (tools) displayResults(tools);
+        const res = await fetchWithSpinner("/gereedschap");
+        const tools = await res.json();
 
-        if (!tools || tools.length === 0) {
+        if (!Array.isArray(tools) || tools.length === 0) {
             track.innerHTML = "<p>Geen gereedschap gevonden.</p>";
+            showToast("Geen nieuwe advertenties beschikbaar.", "info");
             return;
         }
 
@@ -204,6 +247,7 @@ async function loadNewAds() {
     } catch (err) {
         console.error("Fout bij laden slider:", err);
         track.innerHTML = "<p>Advertenties laden mislukt.</p>";
+        showToast("Slider laden mislukt.", "error");
     } finally {
         showSpinner(false);
     }
@@ -213,3 +257,4 @@ async function loadNewAds() {
 // NODIG VOOR HTML ONCLICK
 // -----------------------
 window.searchTools = searchTools;
+window.applyFilters = applyFilters;
