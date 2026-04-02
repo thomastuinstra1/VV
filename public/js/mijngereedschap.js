@@ -187,7 +187,7 @@ document.getElementById('bewerkForm').addEventListener('submit', async function 
 
     } catch (err) {
         console.error('Fout bij opslaan:', err);
-        alert('Er ging iets mis bij het opslaan.');
+        showToast('Er ging iets mis bij het opslaan.', 'error');
     }
 });
 
@@ -202,7 +202,7 @@ window.verwijderGereedschap = async function(id) {
         laadMijnGereedschap(); // lijst herladen
     } catch (err) {
         console.error('Fout bij verwijderen:', err);
-        alert('Er ging iets mis bij het verwijderen.');
+        showToast('Er ging iets mis bij het verwijderen.', 'error');
     }
 };
 

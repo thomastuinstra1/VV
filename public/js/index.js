@@ -22,7 +22,7 @@ async function searchTools() {
 
     const input = inputEl.value.trim();
     if (input === "") {
-        alert("Vul een zoekterm in!");
+        showToast("Vul een zoekterm in!", "error");
         return;
     }
 
@@ -75,7 +75,7 @@ async function loadFilters() {
 
     showSpinner(true);
     try {
-        const res = await fetch("/categorieen");
+        const res = await fetchWithSpinner("/categorieen");
         const cats = await res.json();
         renderFilters(cats);
     } catch (err) {
@@ -154,7 +154,7 @@ async function applyFilters() {
     const params = buildFilterParams();
     showSpinner(true);
     try {
-        const res = await fetch(`/gereedschap?${params.toString()}`);
+        const res = await fetchWithSpinner(`/gereedschap?${params.toString()}`);
         const tools = await res.json();
         displayResults(tools);
     } catch (err) {
