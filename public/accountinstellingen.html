@@ -8,29 +8,34 @@
     <link rel="stylesheet" href="css/accountinstellingen.css" />
   </head>
   <body class="account-page-body">
-    <header class="site-header">
+   <header class="site-header">
   <div class="container nav-container">
-    
     <div class="logo">
       <a href="index.html">
         <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
       </a>
     </div>
 
+    <form class="header-search" action="lijst.html" method="get">
+      <input
+        type="text"
+        name="zoek"
+        placeholder="Zoek gereedschap..."
+        aria-label="Zoek gereedschap"
+      />
+      <button type="submit">Zoeken</button>
+    </form>
+
     <nav class="main-nav">
       <ul>
         <li data-auth="true"><a href="lenerdashboard.html">Lenen</a></li>
         <li data-auth="true"><a href="uitlenerdashboard.html">Verhuren</a></li>
         <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
-
         <li data-auth="true"><a href="accountinstellingen.html">Account</a></li>
-
-        <!-- Guest only -->
         <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
         <li data-guest="true"><a href="registreren.html">Registreren</a></li>
       </ul>
     </nav>
-
   </div>
 </header>
 
@@ -142,5 +147,7 @@
     <script src="js/globaal.js"></script>
     <script src="js/accountinstellingen.js" defer></script>
     <script src="js/logincheck.js"></script>
+    <script src="https://gereedschapspunt.student.open-ict.hu/socket.io/socket.io.js"></script>
+    <script src="js/floating-chat.js"></script>
   </body>
 </html>

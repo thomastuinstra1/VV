@@ -349,12 +349,6 @@ section {
   cursor: pointer;
 }
 
-.floating-chat-body {
-  display: grid;
-  grid-template-columns: 130px 1fr;
-  height: calc(100% - 56px);
-}
-
 .floating-chat-sidebar {
   border-right: 1px solid #e5e7eb;
   overflow-y: auto;
@@ -459,6 +453,53 @@ section {
   background: #111827;
   color: white;
   cursor: pointer;
+}
+.nav-container {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 20px;
+    min-height: 72px;
+}
+
+.header-search {
+    display: flex;
+    align-items: center;
+    max-width: 420px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.04);
+}
+
+.header-search input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: var(--text-main);
+}
+
+.header-search input:focus {
+    outline: none;
+}
+
+.header-search button {
+    border: none;
+    background: var(--primary);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.header-search button:hover {
+    background: var(--primary-dark);
 }
 
 @media (max-width: 980px) {
