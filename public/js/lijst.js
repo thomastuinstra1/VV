@@ -302,6 +302,24 @@ async function loadCurrentUser() {
 }
 
 // -----------------------
+// FILTER PANEL TOGGLE
+// -----------------------
+function toggleFilterPanel() {
+  const panel = document.getElementById('filterPanel');
+  const overlay = document.getElementById('filterOverlay');
+  const btn = document.getElementById('filterToggle');
+
+  if (!panel || !overlay || !btn) return;
+
+  const isOpen = panel.classList.toggle('open');
+
+  overlay.classList.toggle('active', isOpen);
+  btn.setAttribute('aria-expanded', isOpen);
+
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+}
+
+// -----------------------
 // INIT
 // -----------------------
 document.addEventListener("DOMContentLoaded", async () => {
@@ -323,3 +341,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     searchInput.value = search;
   }
 });
+
