@@ -23,6 +23,66 @@ async function fetchAndDisplay(url) {
   }
 }
 
+
+
+function updateToolCount(count) {
+  const countEl = document.getElementById("toolCount");
+  if (countEl) countEl.textContent = `${count} items gevonden`;
+}
+
+// -----------------------
+// FILTERS
+// -----------------------
+async function loadFilters() {
+  const container = document.getElementById("filterGroups");
+  if (!container) return;
+
+  try {
+    const res = await fetchWithSpinner("/categorieen");
+    const categorieen = await res.json();
+
+    const parents = categorieen.filter(c => c.Parent_id === null);
+    const children = categorieen.filter(c => c.Parent_id !== null);
+
+    container.innerHTML = "";
+    parents.forEach((parent) => {
+      const groepEl = document.createElement("div");
+      groepEl.classList.add("filter-group");
+
+      const title = document.createElement("div");
+      title.classList.add("filter-group-title");
+      title.textContent = parent.Naam;
+      groepEl.appendChild(title);
+
+      const opties = children.filter(c => c.Parent_id === parent.Categorie_id);
+      opties.forEach((cat) => {
+        const label = document.createElement("label");
+        label.classList.add("filter-option");
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.value = cat.Categorie_id;
+        checkbox.dataset.naam = cat.Naam;
+        checkbox.id = `cat-${cat.Categorie_id}`;
+        checkbox.addEventListener("change", applyFilters);
+
+        label.setAttribute("for", `cat-${cat.Categorie_id}`);
+        label.appendChild(checkbox);
+
+        const span = document.createElement("span");
+        span.textContent = cat.Naam;
+        label.appendChild(span);
+
+        groepEl.appendChild(label);
+      });
+
+      container.appendChild(groepEl);
+    });
+  } catch (err) {
+    container.innerHTML = '<p style="color:#9ca3af;font-size:.85rem">Filters niet beschikbaar.</p>';
+  }
+}
+
 function displayTools(tools) {
   const container = document.getElementById("toolsContainer");
   container.innerHTML = "";
@@ -81,7 +141,7 @@ function displayTools(tools) {
 
 
     if (afstand !== null && maxDistance && afstand > maxDistance) {
-      return; // sla deze tool over
+      return; 
     }
 
     const card = document.createElement("div");
@@ -114,64 +174,6 @@ function displayTools(tools) {
 
 
   updateToolCount(visibleCount);
-}
-
-function updateToolCount(count) {
-  const countEl = document.getElementById("toolCount");
-  if (countEl) countEl.textContent = `${count} items gevonden`;
-}
-
-// -----------------------
-// FILTERS
-// -----------------------
-async function loadFilters() {
-  const container = document.getElementById("filterGroups");
-  if (!container) return;
-
-  try {
-    const res = await fetchWithSpinner("/categorieen");
-    const categorieen = await res.json();
-
-    const parents = categorieen.filter(c => c.Parent_id === null);
-    const children = categorieen.filter(c => c.Parent_id !== null);
-
-    container.innerHTML = "";
-    parents.forEach((parent) => {
-      const groepEl = document.createElement("div");
-      groepEl.classList.add("filter-group");
-
-      const title = document.createElement("div");
-      title.classList.add("filter-group-title");
-      title.textContent = parent.Naam;
-      groepEl.appendChild(title);
-
-      const opties = children.filter(c => c.Parent_id === parent.Categorie_id);
-      opties.forEach((cat) => {
-        const label = document.createElement("label");
-        label.classList.add("filter-option");
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.value = cat.Categorie_id;
-        checkbox.dataset.naam = cat.Naam;
-        checkbox.id = `cat-${cat.Categorie_id}`;
-        checkbox.addEventListener("change", applyFilters);
-
-        label.setAttribute("for", `cat-${cat.Categorie_id}`);
-        label.appendChild(checkbox);
-
-        const span = document.createElement("span");
-        span.textContent = cat.Naam;
-        label.appendChild(span);
-
-        groepEl.appendChild(label);
-      });
-
-      container.appendChild(groepEl);
-    });
-  } catch (err) {
-    container.innerHTML = '<p style="color:#9ca3af;font-size:.85rem">Filters niet beschikbaar.</p>';
-  }
 }
 
 function buildFilterParams() {
