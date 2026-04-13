@@ -2,7 +2,7 @@
 // GLOBALS
 // -----------------------
 let currentUserCoords = null;
-let maxDistance = 50; // standaard 50 km
+let maxDistance = 250; // standaard 250 km
 
 // -----------------------
 // URL SEARCH
@@ -96,8 +96,8 @@ async function loadFilters() {
 
     afstandGroup.innerHTML = `
       <div class="filter-group-title">Afstand</div>
-      <input type="range" id="distanceFilter" min="1" max="50" value="50">
-      <span id="distanceValue">50 km</span>
+      <input type="range" id="distanceFilter" min="1" max="250" value="250">
+      <span id="distanceValue">250 km</span>
     `;
 
     container.appendChild(afstandGroup);
