@@ -226,6 +226,45 @@ async function applyFilters() {
   await fetchAndDisplay(`/gereedschap?${params.toString()}`);
 }
 
+function updateActiveFilterChips() {
+  const container = document.getElementById('activeFilters');
+  const checked = document.querySelectorAll('#filterGroups input[type="checkbox"]:checked');
+
+  if (!container) return;
+
+  if (checked.length === 0) {
+    container.hidden = true;
+    container.innerHTML = '';
+    document.getElementById('resetBtn').hidden = true;
+    return;
+  }
+
+  container.hidden = false;
+  container.innerHTML = '';
+  document.getElementById('resetBtn').hidden = false;
+
+  checked.forEach(cb => {
+    const chip = document.createElement('button');
+    chip.classList.add('filter-chip');
+    chip.innerHTML = `${cb.dataset.naam} <span>×</span>`;
+    chip.addEventListener('click', () => {
+      cb.checked = false;
+      applyFilters();
+    });
+    container.appendChild(chip);
+  });
+}
+
+function updateFilterBadge() {
+  const count = document.querySelectorAll('#filterGroups input[type="checkbox"]:checked').length;
+  const badge = document.getElementById('filterBadge');
+
+  if (badge) {
+    badge.textContent = count;
+    badge.hidden = count === 0;
+  }
+}
+
 // -----------------------
 // HAVERSINE
 // -----------------------
