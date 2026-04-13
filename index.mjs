@@ -142,7 +142,8 @@ app.get('/me', isLoggedIn, async (req, res) => {
   try {
     const account = await prisma.account.findUnique({
       where: { Account_id: req.session.userId },
-      select: { Account_id: true, Name: true, E_mail: true, Postcode: true, BSN: true, Afbeelding: true }
+      // index.mjs
+select: { Account_id: true, Name: true, E_mail: true, Postcode: true, BSN: true, Afbeelding: true, lat: true, lon: true }
     });
     if (!account) return res.status(404).json({ message: 'User not found' });
     res.json(account);
