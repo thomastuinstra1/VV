@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Password.length < 6 || !Password.match(/[0-9]/) || !Password.match(/[A-Z]/)) {
             showToast('Minimaal 6 tekens, 1 cijfer en 1 hoofdletter', 'error');
             return;
-        }
+        }   
 
         // Verstuur naar server
         try {
@@ -28,6 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Name, E_mail, Password, Postcode })
             });
+
+            if (!response) {
+                showToast('Netwerkfout, probeer later opnieuw', 'error');
+                return;
+            }
 
             const data = await response.json();
 
