@@ -89,39 +89,8 @@ function displayTools(tools) {
 
   if (!tools || tools.length === 0) {
     container.innerHTML = "<p>Geen gereedschap beschikbaar.</p>";
-    updateToolCount(0);
     return;
   }
-
-  const maxDistance = document.getElementById("distanceSlider")?.value;
-
-
-  if (currentUserCoords) {
-    tools.sort((a, b) => {
-      if (
-        a.Account?.lat == null || a.Account?.lon == null ||
-        b.Account?.lat == null || b.Account?.lon == null
-      ) return 0;
-
-      const distA = haversine(
-        currentUserCoords.lat,
-        currentUserCoords.lon,
-        a.Account.lat,
-        a.Account.lon
-      );
-
-      const distB = haversine(
-        currentUserCoords.lat,
-        currentUserCoords.lon,
-        b.Account.lat,
-        b.Account.lon
-      );
-
-      return distA - distB;
-    });
-  }
-
-  let visibleCount = 0;
 
   tools.forEach((tool) => {
     let afstand = null;
@@ -150,8 +119,16 @@ function displayTools(tools) {
     const imageUrl = tool.Afbeelding?.trim() || "../images/placeholder.jpg";
 
     let afstandText = "";
-    if (afstand !== null) {
-      afstandText = `<div class="tool-distance">${afstand.toFixed(1)} km</div>`;
+
+    if (currentUserCoords && tool.Account?.lat && tool.Account?.lon) {
+        const afstand = haversine(
+          currentUserCoords.lat,
+          currentUserCoords.lon,
+          tool.Account.lat,
+          tool.Account.lon
+        );
+
+        afstandText = `<div class="tool-distance">${afstand.toFixed(1)} km</div>`;
     }
 
     card.innerHTML = `
@@ -169,11 +146,7 @@ function displayTools(tools) {
     });
 
     container.appendChild(card);
-    visibleCount++;
   });
-
-
-  updateToolCount(visibleCount);
 }
 
 function buildFilterParams() {
@@ -319,7 +292,7 @@ async function loadCurrentUser() {
 // INIT
 // -----------------------
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadCurrentUser();
+  await loadCurrentUser(); // 🔥 BELANGRIJK
 
   loadFilters();
   loadNewAds();
@@ -327,33 +300,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   const search = getSearchFromURL();
 
   let url = "/gereedschap";
+
   if (search) {
     url += `?search=${encodeURIComponent(search)}`;
   }
 
   fetchAndDisplay(url);
-
   const searchInput = document.getElementById("searchInput");
   if (searchInput && search) {
     searchInput.value = search;
-  }
-
-  const slider = document.getElementById("distanceSlider");
-  const valueText = document.getElementById("distanceValue");
-
-  if (slider && valueText) {
-    valueText.textContent = `Tot ${slider.value} km`;
-
-    let timeout;
-
-    slider.addEventListener("input", () => {
-      valueText.textContent = `Tot ${slider.value} km`;
-
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        applyFilters();
-      }, 200);
-    });
   }
 });
 
