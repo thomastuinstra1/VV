@@ -23,51 +23,7 @@ async function fetchAndDisplay(url) {
   }
 }
 
-function displayTools(tools) {
-  const container = document.getElementById("toolsContainer");
-  container.innerHTML = "";
 
-  if (!tools || tools.length === 0) {
-    container.innerHTML = "<p>Geen gereedschap beschikbaar.</p>";
-    return;
-  }
-
-  tools.forEach((tool) => {
-    const card = document.createElement("div");
-    card.classList.add("tool-card");
-
-    const imageUrl = tool.Afbeelding?.trim() || "../images/placeholder.jpg";
-
-    let afstandText = "";
-
-    if (currentUserCoords && tool.Account?.lat && tool.Account?.lon) {
-        const afstand = haversine(
-          currentUserCoords.lat,
-          currentUserCoords.lon,
-          tool.Account.lat,
-          tool.Account.lon
-        );
-
-        afstandText = `<div class="tool-distance">${afstand.toFixed(1)} km</div>`;
-    }
-
-    card.innerHTML = `
-      <img src="${imageUrl}" alt="${tool.Naam}">
-      <div class="tool-card-content">
-        <h3>${tool.Naam}</h3>
-        <p>${tool.Beschrijving || ""}</p>
-        <div class="tool-price">€${tool.BorgBedrag || 0} borg</div>
-        ${afstandText}
-      </div>
-    `;
-
-    card.addEventListener("click", () => {
-      window.location.href = `/gereedschap.html?id=${tool.Gereedschap_id}`;
-    });
-
-    container.appendChild(card);
-  });
-}
 
 function updateToolCount(count) {
   const countEl = document.getElementById("toolCount");
@@ -125,6 +81,72 @@ async function loadFilters() {
   } catch (err) {
     container.innerHTML = '<p style="color:#9ca3af;font-size:.85rem">Filters niet beschikbaar.</p>';
   }
+}
+
+function displayTools(tools) {
+  const container = document.getElementById("toolsContainer");
+  container.innerHTML = "";
+
+  if (!tools || tools.length === 0) {
+    container.innerHTML = "<p>Geen gereedschap beschikbaar.</p>";
+    return;
+  }
+
+  tools.forEach((tool) => {
+    let afstand = null;
+
+    if (
+      currentUserCoords &&
+      tool.Account?.lat != null &&
+      tool.Account?.lon != null
+    ) {
+      afstand = haversine(
+        currentUserCoords.lat,
+        currentUserCoords.lon,
+        tool.Account.lat,
+        tool.Account.lon
+      );
+    }
+
+
+    if (afstand !== null && maxDistance && afstand > maxDistance) {
+      return; 
+    }
+
+    const card = document.createElement("div");
+    card.classList.add("tool-card");
+
+    const imageUrl = tool.Afbeelding?.trim() || "../images/placeholder.jpg";
+
+    let afstandText = "";
+
+    if (currentUserCoords && tool.Account?.lat && tool.Account?.lon) {
+        const afstand = haversine(
+          currentUserCoords.lat,
+          currentUserCoords.lon,
+          tool.Account.lat,
+          tool.Account.lon
+        );
+
+        afstandText = `<div class="tool-distance">${afstand.toFixed(1)} km</div>`;
+    }
+
+    card.innerHTML = `
+      <img src="${imageUrl}" alt="${tool.Naam}">
+      <div class="tool-card-content">
+        <h3>${tool.Naam}</h3>
+        <p>${tool.Beschrijving || ""}</p>
+        <div class="tool-price">€${tool.BorgBedrag || 0} borg</div>
+        ${afstandText}
+      </div>
+    `;
+
+    card.addEventListener("click", () => {
+      window.location.href = `/gereedschap.html?id=${tool.Gereedschap_id}`;
+    });
+
+    container.appendChild(card);
+  });
 }
 
 function buildFilterParams() {
