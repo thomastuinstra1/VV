@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM geladen');
     const form = document.querySelector('form');
+    console.log('Form gevonden:', form);
     
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -28,11 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ Name, E_mail, Password, Postcode })
             });
-
-            if (!response) {
-                showToast('Netwerkfout, probeer later opnieuw', 'error');
-                return;
-            }
 
             const data = await response.json();
 
