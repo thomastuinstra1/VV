@@ -1,8 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM geladen');
-    const form = document.querySelector('form');
-    console.log('Form gevonden:', form);
-    
+    const form = document.getElementById('register-form');
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -12,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmPassword = document.getElementById("confirm-password").value;
         const Postcode = document.getElementById("Postcode").value;
 
-        // Wachtwoord validatie
         if (Password !== confirmPassword) {
             showToast('Wachtwoorden komen niet overeen', 'error');
             return;
@@ -21,9 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (Password.length < 6 || !Password.match(/[0-9]/) || !Password.match(/[A-Z]/)) {
             showToast('Minimaal 6 tekens, 1 cijfer en 1 hoofdletter', 'error');
             return;
-        }   
+        }
 
-        // Verstuur naar server
         try {
             const response = await fetchWithSpinner('/register', {
                 method: 'POST',
@@ -31,15 +27,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ Name, E_mail, Password, Postcode })
             });
 
+            if (!response) {
+                showToast('Netwerkfout, probeer later opnieuw', 'error');
+                return;
+            }
+
             const data = await response.json();
 
             if (response.ok) {
                 showToast('Account aangemaakt!', 'success');
-
                 setTimeout(() => {
                     window.location.href = 'inlog.html';
                 }, 2000);
-
             } else {
                 showToast(data.message || 'Er is iets misgegaan', 'error');
             }
