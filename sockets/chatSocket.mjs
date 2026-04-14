@@ -70,63 +70,66 @@ export function initSocket(io) {
     });
 
     // ── Afspraak versturen ──
-    socket.on("send_appointment", async ({ chatId, startDate, endDate }) => {
-      try {
-        const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
-        if (!chat) return;
+      socket.on("send_appointment", async ({ chatId, startDate, startTime, endDate, endTime, address }) => {
+        try {
+          const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
+          if (!chat) return;
 
-        const toUserId = chat.SenderId === userId ? chat.ReceiverId : chat.SenderId;
+          const toUserId = chat.SenderId === userId ? chat.ReceiverId : chat.SenderId;
 
-        const tool = await prisma.gereedschap.findUnique({
-          where: { Gereedschap_id: chat.Gereedschap_id }
-        });
-
-        const overlap = await prisma.uitleen.findFirst({
-          where: {
-            Gereedschap_id: tool.Gereedschap_id,
-            Status: { in: ['pending', 'accepted'] },
-            StartDatum: { lte: new Date(endDate) },
-            EindDatum:  { gte: new Date(startDate) }
-          }
-        });
-
-        if (overlap) {
-          socket.emit("appointment_error", {
-            message: "Dit gereedschap is al uitgeleend in deze periode."
+          const tool = await prisma.gereedschap.findUnique({
+            where: { Gereedschap_id: chat.Gereedschap_id }
           });
-          return;
+
+          const overlap = await prisma.uitleen.findFirst({
+            where: {
+              Gereedschap_id: tool.Gereedschap_id,
+              Status: { in: ['pending', 'accepted'] },
+              StartDatum: { lte: new Date(endDate) },
+              EindDatum:  { gte: new Date(startDate) }
+            }
+          });
+
+          if (overlap) {
+            socket.emit("appointment_error", {
+              message: "Dit gereedschap is al uitgeleend in deze periode."
+            });
+            return;
+          }
+
+          const lenerId = userId === tool.Account_id ? toUserId : userId;
+
+          const uitleen = await prisma.uitleen.create({
+            data: {
+              Account_id:     tool.Account_id,
+              Lener_id:       lenerId,
+              Gereedschap_id: tool.Gereedschap_id,
+              StartDatum:     new Date(startDate),
+              EindDatum:      new Date(endDate),
+              StartTijd:      startTime,   // nieuw
+              EindTijd:       endTime,     // nieuw
+              Adres:          address,     // nieuw
+              BorgBedrag:     tool.BorgBedrag ?? 0,
+              Status:         "pending"
+            }
+          });
+
+          const message = await prisma.berichten.create({
+            data: {
+              senderId:   userId,
+              receiverId: toUserId,
+              content:    "Afspraak verzoek",
+              type:       "appointment",
+              Chat_id:    chatId,
+              uitleenId:  uitleen.Uitleen_id
+            }
+          });
+
+          io.to(`chat_${chatId}`).emit("receive_message", message);
+        } catch (err) {
+          console.error("Fout bij afspraak:", err);
         }
-
-        const lenerId = userId === tool.Account_id ? toUserId : userId;
-
-        const uitleen = await prisma.uitleen.create({
-          data: {
-            Account_id:     tool.Account_id,
-            Lener_id:       lenerId,
-            Gereedschap_id: tool.Gereedschap_id,
-            StartDatum:     new Date(startDate),
-            EindDatum:      new Date(endDate),
-            BorgBedrag:     tool.BorgBedrag ?? 0,
-            Status:         "pending"
-          }
-        });
-
-        const message = await prisma.berichten.create({
-          data: {
-            senderId:   userId,
-            receiverId: toUserId,
-            content:    "Afspraak verzoek",
-            type:       "appointment",
-            Chat_id:    chatId,
-            uitleenId:  uitleen.Uitleen_id
-          }
-        });
-
-        io.to(`chat_${chatId}`).emit("receive_message", message);
-      } catch (err) {
-        console.error("Fout bij afspraak:", err);
-      }
-    });
+      });
 
     // ── Reageren op afspraak ──
     socket.on("respond_appointment", async ({ uitleenId, action }) => {

@@ -51,7 +51,7 @@ async function addMessageToUI(message) {
     div.textContent = `${isMe ? 'Jij' : 'Partner'}: ${message.content}`;
   }
 
-  if (message.type === "appointment") {
+if (message.type === "appointment") {
   const res = await fetchWithSpinner(`/uitleen/${message.uitleenId}`);
   const uitleen = await res.json();
 
@@ -64,9 +64,9 @@ async function addMessageToUI(message) {
     <div data-uitleen-id="${uitleen.Uitleen_id}" style="border:1px solid #ccc; padding:10px; border-radius:10px;">
       <p><b>📅 Afspraak</b></p>
       <p>Borg: €${uitleen.BorgBedrag}</p>
-      <p>Van: ${fmt(uitleen.StartDatum)}</p>
-      <p>Tot: ${fmt(uitleen.EindDatum)}</p>
-      <p>📍 ${message.address ?? 'Geen adres opgegeven'}</p>
+      <p>Van: ${uitleen.StartDatum.split('T')[0]} ${uitleen.StartTijd ?? ''}</p>
+      <p>Tot: ${uitleen.EindDatum.split('T')[0]} ${uitleen.EindTijd ?? ''}</p>
+      <p>📍 ${uitleen.Adres ?? 'Geen adres opgegeven'}</p>
       ${
         uitleen.Status === "pending" && !isMe
           ? `
@@ -221,8 +221,10 @@ window.sendAppointment = function() {
 
   socket.emit("send_appointment", {
     chatId: CHAT_ID,
-    startDate: `${startDate}T${startTime}`,
-    endDate: `${endDate}T${endTime}`,
+    startDate,
+    startTime,
+    endDate,
+    endTime,
     address
   });
 };
