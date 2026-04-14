@@ -52,27 +52,33 @@ async function addMessageToUI(message) {
   }
 
   if (message.type === "appointment") {
-    const res = await fetchWithSpinner(`/uitleen/${message.uitleenId}`);
-    const uitleen = await res.json();
+  const res = await fetchWithSpinner(`/uitleen/${message.uitleenId}`);
+  const uitleen = await res.json();
 
-    div.innerHTML = `
-      <div data-uitleen-id="${uitleen.Uitleen_id}" style="border:1px solid #ccc; padding:10px; border-radius:10px;">
-        <p><b>📅 Afspraak</b></p>
-        <p>Borg: €${uitleen.BorgBedrag}</p>
-        <p>Van: ${uitleen.StartDatum.split('T')[0]}</p>
-        <p>Tot: ${uitleen.EindDatum.split('T')[0]}</p>
-        ${
-          uitleen.Status === "pending" && !isMe
-            ? `
-              <button onclick="respond(${uitleen.Uitleen_id}, 'accept')">Accepteren</button>
-              <button onclick="respond(${uitleen.Uitleen_id}, 'reject')">Weigeren</button>
-              <p class="afspraak-status"></p>
-            `
-            : `<p class="afspraak-status">Status: ${uitleen.Status}</p>`
-        }
-      </div>
-    `;
-  }
+  // Datum + tijd netjes formatteren
+  const fmt = (iso) => new Date(iso).toLocaleString('nl-NL', {
+    dateStyle: 'short', timeStyle: 'short'
+  });
+
+  div.innerHTML = `
+    <div data-uitleen-id="${uitleen.Uitleen_id}" style="border:1px solid #ccc; padding:10px; border-radius:10px;">
+      <p><b>📅 Afspraak</b></p>
+      <p>Borg: €${uitleen.BorgBedrag}</p>
+      <p>Van: ${fmt(uitleen.StartDatum)}</p>
+      <p>Tot: ${fmt(uitleen.EindDatum)}</p>
+      <p>📍 ${message.address ?? 'Geen adres opgegeven'}</p>
+      ${
+        uitleen.Status === "pending" && !isMe
+          ? `
+            <button onclick="respond(${uitleen.Uitleen_id}, 'accept')">Accepteren</button>
+            <button onclick="respond(${uitleen.Uitleen_id}, 'reject')">Weigeren</button>
+            <p class="afspraak-status"></p>
+          `
+          : `<p class="afspraak-status">Status: ${uitleen.Status}</p>`
+      }
+    </div>
+  `;
+}
 
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
@@ -200,15 +206,23 @@ window.closeModal = function() {
 
 window.sendAppointment = function() {
   const startDate = document.getElementById("startDate").value;
+  const startTime = document.getElementById("startTime").value;
   const endDate = document.getElementById("endDate").value;
+  const endTime = document.getElementById("endTime").value;
+  const address = document.getElementById("appointmentAddress").value.trim();
 
+  if (!startDate || !startTime || !endDate || !endTime) {
+    return showToast("Vul alle datum- en tijdvelden in", "error");
+  }
+  if (!address) {
+    return showToast("Vul een ophaaladres in", "error");
+  }
   if (!CHAT_ID) return showToast("Geen chat geselecteerd", "error");
 
   socket.emit("send_appointment", {
     chatId: CHAT_ID,
-    startDate,
-    endDate
-    // borg wordt nu server-side bepaald
+    startDate: `${startDate}T${startTime}`,
+    endDate: `${endDate}T${endTime}`,
+    address
   });
-
 };

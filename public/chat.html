@@ -26,9 +26,19 @@
       <h3>Afspraak maken</h3>
       
       <p>Borg: €<span id="modal-borg">0</span></p>
-      <input type="date" id="startDate">
-      <input type="date" id="endDate">
 
+      <label>Startdatum:</label>
+      <input type="date" id="startDate">
+      <input type="time" id="startTime">
+
+      <label>Einddatum:</label>
+      <input type="date" id="endDate">
+      <input type="time" id="endTime">
+
+      <label>Ophaaladres:</label>
+      <input type="text" id="appointmentAddress" placeholder="Straat, huisnummer, stad" style="width:100%">
+
+      <br><br>
       <button onclick="sendAppointment()">Verstuur</button>
       <button onclick="closeModal()">Annuleren</button>
     </div>
@@ -38,9 +48,7 @@
   <div id="toast"></div>
 
   <script src="js/globaal.js"></script>
-  <!-- Socket.IO client -->
   <script src="https://gereedschapspunt.student.open-ict.hu/socket.io/socket.io.js"></script>
-  <!-- Chat script -->
   <script type="module" src="js/chat.js"></script>
   <script src="js/floating-chat.js"></script>
 
