@@ -2,7 +2,9 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
-import { upload } from '../middleware/upload.mjs';  // ← import in plaats van eigen configuratie
+import { upload } from '../middleware/upload.mjs';
+import validate from '../middleware/validate.mjs';
+import { updateAccountValidator } from '../validators/accountValidator.mjs';
 
 const router = Router();
 
@@ -18,7 +20,7 @@ router.get('/Account', isLoggedIn, async (req, res) => {
 });
 
 // ── Account bijwerken ──
-router.put('/account', isLoggedIn, async (req, res) => {
+router.put('/account', isLoggedIn, updateAccountValidator, validate, async (req, res) => {
   const { Name, E_mail, Postcode, Password, BSN } = req.body;
   try {
     const data = {};

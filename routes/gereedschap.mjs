@@ -2,17 +2,15 @@ import { Router } from 'express';
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
 import { sendEmail } from '../utils/email.mjs';
-import { upload } from '../middleware/upload.mjs';  // ← import in plaats van eigen configuratie
+import { upload } from '../middleware/upload.mjs';
+import validate from '../middleware/validate.mjs';
+import { gereedschapValidator } from '../validators/gereedschapValidator.mjs';
 
 const router = Router();
 
 // ── Gereedschap aanmaken ──
-router.post('/gereedschap', isLoggedIn, async (req, res) => {
+router.post('/gereedschap', isLoggedIn, gereedschapValidator, validate, async (req, res) => {
   const { Naam, Beschrijving, Begindatum, Einddatum, BorgBedrag, Afbeelding, categorieen } = req.body;
-
-  if (BorgBedrag !== undefined && BorgBedrag !== null && BorgBedrag !== '' && parseFloat(BorgBedrag) < 0) {
-    return res.status(400).json({ error: 'Borg bedrag mag niet negatief zijn' });
-  }
 
   try {
     const tool = await prisma.gereedschap.create({
@@ -114,13 +112,9 @@ router.get('/gereedschap/:id/categorieen', async (req, res) => {
 });
 
 // ── Gereedschap bijwerken ──
-router.put('/gereedschap/:id', isLoggedIn, async (req, res) => {
+router.put('/gereedschap/:id', isLoggedIn, gereedschapValidator, validate, async (req, res) => {
   const id = parseInt(req.params.id);
   const { Naam, Beschrijving, BorgBedrag, Begindatum, Einddatum, categorieen } = req.body;
-
-  if (BorgBedrag !== undefined && BorgBedrag !== null && BorgBedrag !== '' && parseFloat(BorgBedrag) < 0) {
-    return res.status(400).json({ error: 'Borg bedrag mag niet negatief zijn' });
-  }
 
   try {
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
