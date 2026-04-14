@@ -40,6 +40,12 @@ document.getElementById('toggleConfirm').addEventListener('click', () => {
             return;
         }
 
+        const postcodeRegex = /^[1-9][0-9]{3}\s?[A-Za-z]{2}$/;
+        if (!postcodeRegex.test(Postcode)) {
+            showToast('Vul een geldige postcode in (bijv. 1234 AB)', 'error');
+            return;
+        }
+
         try {
             const response = await fetchWithSpinner('/register', {
                 method: 'POST',
