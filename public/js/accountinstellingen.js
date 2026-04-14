@@ -60,6 +60,12 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         const confirmPassword = document.getElementById('confirm-password').value;
         const BSN = document.getElementById('BSN').value.trim();
 
+        const postcodeRegex = /^[1-9][0-9]{3}\s?[A-Za-z]{2}$/;
+        if (Postcode && !postcodeRegex.test(Postcode)) {
+            showToast('Vul een geldige postcode in (bijv. 1234 AB)', 'error');
+            return;
+        }
+
         if (Password && Password !== confirmPassword) {
             showToast('Wachtwoorden komen niet overeen', 'error');
             return;
