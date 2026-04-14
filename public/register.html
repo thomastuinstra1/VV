@@ -68,17 +68,22 @@
 
               <div class="form-group">
                 <label for="Password">Wachtwoord</label>
+                <div class="input-icon-wrapper">
                 <input type="password" id="Password" name="Password" required />
+                <button type="button" id="togglePassword" class="toggle-password" aria-label="Wachtwoord tonen">
+                  <img id="eyeIcon" src="./images/eye.svg" alt="" width="20" height="20"/>
+                </button>
+              </div>
               </div>
 
               <div class="form-group">
                 <label for="confirm-password">Bevestig wachtwoord</label>
-                <input
-                  type="password"
-                  id="confirm-password"
-                  name="confirm-password"
-                  required
-                />
+                <div class="input-icon-wrapper">
+                <input type="password" id="confirm-password" name="confirm-password" required />
+                <button type="button" id="toggleConfirm" class="toggle-password" aria-label="Wachtwoord tonen">
+                  <img id="eyeIconConfirm" src="./images/eye.svg" alt="" width="20" height="20"/>
+                </button>
+                </div>
               </div>
 
               <div class="form-group">
