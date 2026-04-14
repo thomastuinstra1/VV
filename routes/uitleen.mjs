@@ -2,6 +2,8 @@ import { Router } from 'express';
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
 import { sendEmail } from '../utils/email.mjs';
+import validate from '../middleware/validate.mjs';
+import { uitleenValidator } from '../validators/uitleenValidator.mjs';
 
 const router = Router();
 
@@ -218,6 +220,27 @@ router.get('/mijn-leningen', isLoggedIn, async (req, res) => {
   } catch (err) {
     console.error('Mijn leningen error:', err);
     res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Nieuwe uitleen aanmaken ──
+router.post('/uitleen', isLoggedIn, uitleenValidator, validate, async (req, res) => {
+  const { gereedschapId, gebruikerId, startDatum, eindDatum } = req.body;
+  try {
+    const uitleen = await prisma.uitleen.create({
+      data: {
+        Gereedschap_id: gereedschapId,
+        Lener_id:       gebruikerId,
+        Account_id:     req.session.userId,
+        StartDatum:     new Date(startDatum),
+        EindDatum:      new Date(eindDatum),
+        Status:         'pending'
+      }
+    });
+    res.status(201).json({ message: 'Uitleen aangemaakt!', id: uitleen.Uitleen_id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Aanmaken mislukt' });
   }
 });
 

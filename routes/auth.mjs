@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
 import { postcodeNaarCoords } from '../public/js/afstandfilter.js';
+import validate from '../middleware/validate.mjs';
+import { registerValidator, loginValidator } from '../validators/authValidator.mjs';
 
 const router = Router();
 
@@ -12,7 +14,7 @@ router.get('/auth-status', (req, res) => {
 });
 
 // ── Registreren ──
-router.post('/register', async (req, res) => {
+router.post('/register', registerValidator, validate, async (req, res) => {
   const { Name, E_mail, Password, Postcode } = req.body;
   try {
     const bestaand = await prisma.account.findFirst({
@@ -41,7 +43,7 @@ router.post('/register', async (req, res) => {
 });
 
 // ── Inloggen ──
-router.post('/login', async (req, res) => {
+router.post('/login', loginValidator, validate, async (req, res) => {
   const { login, Password } = req.body;
   try {
     const account = await prisma.account.findFirst({
