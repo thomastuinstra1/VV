@@ -1,5 +1,23 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
+// ── Wachtwoord tonen/verbergen ──
+document.getElementById('togglePassword').addEventListener('click', () => {
+  const input = document.getElementById('Password');
+  const icon = document.getElementById('eyeIcon');
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+});
+
+document.getElementById('toggleConfirm').addEventListener('click', () => {
+  const input = document.getElementById('confirm-password');
+  const icon = document.getElementById('eyeIconConfirm');
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+});
+
+
 document.getElementById('logout-btn').addEventListener('click', async () => {
     const response = await fetchWithSpinner('/logout', { method: 'POST' });
     if (response.ok) {
