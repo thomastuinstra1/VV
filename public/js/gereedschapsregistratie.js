@@ -8,6 +8,67 @@ function showMelding(text, kleur = "red") {
 }
 
 // ==============================
+// Borg berekening
+// ==============================
+function berekenBorg(waarde, categorie) {
+    if (isNaN(waarde) || waarde <=0) return 25;
+
+    if (waarde > 200) {
+        return Math.round(waarde * 0.3);
+    }
+
+    const borgPerCategorie = {
+        klein: 15,
+        middel: 50,
+        groot: 100,
+    };
+
+    return borgPerCategorie[categorie] || 25;
+}
+
+const waardeInput = document.getElementById("Waarde");
+const borgInput = document.getElementById("BorgBedrag");
+
+borgInput.title = "Je kunt dit bedrag aanpassen";
+
+borgInput.addEventListener("input", () => {
+    if (borgInput.value === "") {
+        borgInput.dataset.edited = "";
+    } else {
+        borgInput.dataset.edited = "true";
+    }
+});
+
+function updateBorg() {
+    const waarde = Number(waardeInput.value);
+    if (isNaN(waarde)) return;  
+
+    const gewicht = document.querySelector('input[name="Gewicht"]:checked');
+
+    const map = {
+        "17": "klein",
+        "18": "middel",
+        "19": "groot",
+    };
+
+    const categorie = gewicht ? map[gewicht.value] : "middel";
+
+    const aanbevolen = berekenBorg(waarde, categorie);
+
+    if (!borgInput.dataset.edited) {
+        borgInput.value = aanbevolen;
+    }
+
+    borgInput.placeholder = `Aanbevolen: €${aanbevolen}`;
+}
+
+waardeInput.addEventListener("input",updateBorg);
+
+document.querySelectorAll('input[name="Gewicht"]').forEach(el => {
+    el.addEventListener("change", updateBorg);
+});
+
+// ==============================
 // ❌ RESET FOUTEN
 // ==============================
 function clearErrors() {
@@ -206,10 +267,12 @@ if (!alleVerplichtIngevuld) {
 
         if (res.ok) {
             showMelding("Gereedschap succesvol toegevoegd!", "green");
+
             form.reset();
 
             document.getElementById('gereedschap-preview').style.display = 'none';
             document.getElementById('afbeelding-url').value = ""; // reset afbeelding
+            borgInput.value ="";
 
         } else {
             showMelding(result.message || "Er ging iets mis");
