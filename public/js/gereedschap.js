@@ -30,8 +30,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("endDate").textContent = end;
 
         const chatKnop = document.getElementById('reserveBtn');
-        chatKnop.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
-        chatKnop.textContent = '💬 Chat met eigenaar';
+        const aantalRapporten = tool.Account?.Report_Report_GemeldToAccount?.length || 0;
+
+        chatKnop.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (aantalRapporten >= 5) {
+                document.getElementById('reportWarningModal').style.display = 'flex';
+            } else {
+                window.location.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
+            }
+        });
+
+        document.getElementById('warningDoorgaan').addEventListener('click', () => {
+            window.location.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
+        });
+
+        document.getElementById('warningAnnuleren').addEventListener('click', () => {
+            document.getElementById('reportWarningModal').style.display = 'none';
+        });
         
         // Eigenaar info
         const ownerName = document.getElementById("ownerName");

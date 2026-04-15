@@ -67,7 +67,37 @@ router.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), asyn
   }
 });
 
-// ── Publiek profiel ophalen ──
+// ── Account rapporteren ──
+router.post('/account/:id/report', isLoggedIn, async (req, res) => {
+  const gemeldId = parseInt(req.params.id);
+  const melderId = req.session.userId;
+  const { Reden } = req.body;
+
+  if (gemeldId === melderId) {
+    return res.status(400).json({ error: 'Je kunt jezelf niet rapporteren' });
+  }
+
+  try {
+    const bestaand = await prisma.report.findFirst({
+      where: { Melder_id: melderId, Gemelde_id: gemeldId }
+    });
+
+    if (bestaand) {
+      return res.status(400).json({ error: 'Je hebt dit account al gerapporteerd' });
+    }
+
+    await prisma.report.create({
+      data: { Melder_id: melderId, Gemelde_id: gemeldId, Reden }
+    });
+
+    res.json({ message: 'Rapport ingediend!' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Rapporteren mislukt' });
+  }
+});
+
+// ── Publiek profiel ophalen (met rapportcount) ──
 router.get('/account/:id/profiel', async (req, res) => {
   try {
     const account = await prisma.account.findUnique({
@@ -83,7 +113,11 @@ router.get('/account/:id/profiel', async (req, res) => {
 
     if (!account) return res.status(404).json({ error: 'Account niet gevonden' });
 
-    res.json(account);
+    const aantalRapporten = await prisma.report.count({
+      where: { Gemelde_id: parseInt(req.params.id) }
+    });
+
+    res.json({ ...account, aantalRapporten });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ophalen mislukt' });

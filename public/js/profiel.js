@@ -27,4 +27,52 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error(err);
         showToast("Fout bij ophalen profiel", "error");
     }
+
+    const meRes = await fetch('/me');
+if (meRes.ok) {
+    const me = await meRes.json();
+    if (me.id !== parseInt(accountId)) {
+        document.getElementById('profileActions').style.display = 'block';
+    }
+}
+
+document.getElementById('reportBtn').addEventListener('click', () => {
+    document.getElementById('reportModal').style.display = 'flex';
 });
+
+document.getElementById('reportCancel').addEventListener('click', () => {
+    document.getElementById('reportModal').style.display = 'none';
+});
+
+document.getElementById('reportSubmit').addEventListener('click', async () => {
+    const reden = document.getElementById('reportReden').value.trim();
+
+    if (!reden) {
+        showToast("Vul een reden in", "error");
+        return;
+    }
+
+    try {
+        const res = await fetchWithSpinner(`/account/${accountId}/report`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ Reden: reden })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            showToast(data.error || "Rapporteren mislukt", "error");
+            return;
+        }
+
+        showToast("Rapport ingediend!", "success");
+        document.getElementById('reportModal').style.display = 'none';
+        document.getElementById('reportReden').value = '';
+    } catch (err) {
+        console.error(err);
+        showToast("Er is iets misgegaan", "error");
+    }
+});    
+});
+
