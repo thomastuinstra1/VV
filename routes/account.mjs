@@ -77,7 +77,7 @@ router.get('/account/:id/profiel', async (req, res) => {
         Name: true,
         E_mail: true,
         Postcode: true,
-        Profielfoto: true
+        Afbeelding: true
       }
     });
 
