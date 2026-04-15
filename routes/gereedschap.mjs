@@ -5,6 +5,7 @@ import { sendEmail } from '../utils/email.mjs';
 import { upload } from '../middleware/upload.mjs';
 import validate from '../middleware/validate.mjs';
 import { gereedschapValidator } from '../validators/gereedschapValidator.mjs';
+import { idParamValidator } from '../validators/idParamValidator.mjs';
 
 const router = Router();
 
@@ -99,7 +100,7 @@ router.get('/mijn-gereedschap', isLoggedIn, async (req, res) => {
 });
 
 // ── Categorieën van gereedschap ophalen ──
-router.get('/gereedschap/:id/categorieen', async (req, res) => {
+router.get('/gereedschap/:id/categorieen', idParamValidator, validate, async (req, res) => {
   try {
     const koppelingen = await prisma.gereedschap_Categorie.findMany({
       where: { Gereedschap_id: parseInt(req.params.id) }
@@ -112,7 +113,7 @@ router.get('/gereedschap/:id/categorieen', async (req, res) => {
 });
 
 // ── Gereedschap bijwerken ──
-router.put('/gereedschap/:id', isLoggedIn, gereedschapValidator, validate, async (req, res) => {
+router.put('/gereedschap/:id', isLoggedIn, idParamValidator, gereedschapValidator, validate, async (req, res) => {
   const id = parseInt(req.params.id);
   const { Naam, Beschrijving, BorgBedrag, Begindatum, Einddatum, categorieen } = req.body;
 
@@ -159,7 +160,7 @@ router.put('/gereedschap/:id', isLoggedIn, gereedschapValidator, validate, async
 });
 
 // ── Gereedschap verwijderen ──
-router.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
+router.delete('/gereedschap/:id', isLoggedIn, idParamValidator, validate, async (req, res) => {
   const id = parseInt(req.params.id);
   try {
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
@@ -196,7 +197,7 @@ router.delete('/gereedschap/:id', isLoggedIn, async (req, res) => {
 });
 
 // ── Afbeelding uploaden voor gereedschap ──
-router.post('/gereedschap/:id/afbeelding', isLoggedIn, upload.single('afbeelding'), async (req, res) => {
+router.post('/gereedschap/:id/afbeelding', isLoggedIn, idParamValidator, validate, upload.single('afbeelding'), async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });

@@ -3,12 +3,13 @@ import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
 import { sendEmail } from '../utils/email.mjs';
 import validate from '../middleware/validate.mjs';
-import { uitleenValidator } from '../validators/uitleenValidator.mjs';
+import { uitleenValidator, statusUpdateValidator } from '../validators/uitleenValidator.mjs';
+import { idParamValidator } from '../validators/idParamValidator.mjs';
 
 const router = Router();
 
 // ── Uitleen ophalen ──
-router.get('/uitleen/:id', isLoggedIn, async (req, res) => {
+router.get('/uitleen/:id', isLoggedIn, idParamValidator, validate, async (req, res) => {
   try {
     const uitleen = await prisma.uitleen.findUnique({
       where: { Uitleen_id: parseInt(req.params.id) }
@@ -22,14 +23,9 @@ router.get('/uitleen/:id', isLoggedIn, async (req, res) => {
 });
 
 // ── Uitleen status bijwerken ──
-router.patch('/uitleen/:id/status', isLoggedIn, async (req, res) => {
+router.patch('/uitleen/:id/status', isLoggedIn, idParamValidator, statusUpdateValidator, validate, async (req, res) => {
   const uitleenId = parseInt(req.params.id);
   const { status } = req.body;
-
-  const toegestaneStatussen = ['ingeleverd_op_tijd', 'ingeleverd_te_laat', 'te_laat'];
-  if (!toegestaneStatussen.includes(status)) {
-    return res.status(400).json({ error: 'Ongeldige status' });
-  }
 
   try {
     const uitleen = await prisma.uitleen.findUnique({
