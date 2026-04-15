@@ -7,3 +7,4 @@ const idValidator = (paramName) => [
 
 export const chatIdParamValidator = idValidator("chatId");
 export const userIdParamValidator = idValidator("userId");
+export const idParamValidator = idValidator("id");
