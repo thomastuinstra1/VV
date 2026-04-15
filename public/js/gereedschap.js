@@ -32,6 +32,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         const chatKnop = document.getElementById('reserveBtn');
         chatKnop.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
         chatKnop.textContent = '💬 Chat met eigenaar';
+        
+        // Eigenaar info
+        const ownerName = document.getElementById("ownerName");
+        const ownerAvatar = document.getElementById("ownerAvatar");
+
+        ownerName.textContent = tool.Account?.Name || "Onbekende eigenaar";
+        ownerAvatar.src = tool.Account?.Afbeelding || '/images/default-avatar.jpg';
+        ownerAvatar.alt = `Profielfoto van ${tool.Account?.Name || 'eigenaar'}`;
 
     } catch (err) {
         console.error(err);

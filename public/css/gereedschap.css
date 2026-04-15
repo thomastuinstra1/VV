@@ -194,3 +194,38 @@ body {
         height: 260px;
     }
 }
+
+.owner-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e5e5;
+}
+
+.owner-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.owner-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.owner-label {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.owner-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #222;
+}
