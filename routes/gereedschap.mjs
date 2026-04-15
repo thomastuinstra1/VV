@@ -42,17 +42,6 @@ router.post('/gereedschap', isLoggedIn, gereedschapValidator, validate, async (r
   }
 });
 
-// ── Categorieën ophalen ──
-router.get('/categorieen', async (req, res) => {
-  try {
-    const categorieen = await prisma.categorie.findMany();
-    res.json(categorieen);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Categorieën ophalen mislukt" });
-  }
-});
-
 // ── Gereedschap ophalen ──
 router.get('/gereedschap', async (req, res) => {
   try {
@@ -74,7 +63,18 @@ router.get('/gereedschap', async (req, res) => {
 
     const tools = await prisma.gereedschap.findMany({
       where,
-      include: { Account: true },
+      include: {
+        Account: {
+          select: {
+            Account_id: true,
+            Name: true,
+            Afbeelding: true,
+            Report_Report_GemeldToAccount: {
+              select: { Report_id: true }
+            }
+          }
+        }
+      },
       orderBy: { Gereedschap_id: 'desc' }
     });
 
@@ -82,6 +82,17 @@ router.get('/gereedschap', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Ophalen gereedschap mislukt' });
+  }
+});
+
+// ── Categorieën ophalen ──
+router.get('/categorieen', async (req, res) => {
+  try {
+    const categorieen = await prisma.categorie.findMany();
+    res.json(categorieen);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Categorieën ophalen mislukt" });
   }
 });
 
