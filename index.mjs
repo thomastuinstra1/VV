@@ -44,8 +44,8 @@ app.use(uitleenRouter);
 app.use(chatRouter);
 
 // ── 404 – geen route gevonden ──
-app.all('*', (req, res, next) => {
-  next(new AppError(`Route ${req.originalUrl} niet gevonden`, 404));
+app.all('/{*splat}', (req, res, next) => {
+  next(new AppError('Route ${req.originalUrl} niet gevonden', 404));
 });
 
 // ── Centrale errorhandler (altijd als laatste!) ──
