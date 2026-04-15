@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        document.getElementById("profileAvatar").src = account.Profielfoto || '/images/default-avatar.jpg';
+        document.getElementById("profileAvatar").src = account.Afbeelding || '/images/default-avatar.jpg';
         document.getElementById("profileAvatar").alt = `Profielfoto van ${account.Name}`;
         document.getElementById("profileName").textContent = account.Name || "Onbekend";
         document.getElementById("profileEmail").textContent = account.E_mail || "—";

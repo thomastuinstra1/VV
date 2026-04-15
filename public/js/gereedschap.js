@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const ownerAvatar = document.getElementById("ownerAvatar");
 
         ownerName.textContent = tool.Account?.Name || "Onbekende eigenaar";
-        ownerAvatar.src = tool.Account?.Profielfoto || '/images/default-avatar.jpg';
+        ownerAvatar.src = tool.Account?.Afbeelding || '/images/default-avatar.jpg';
         ownerAvatar.alt = `Profielfoto van ${tool.Account?.Name || 'eigenaar'}`;
 
         document.getElementById("ownerCard").addEventListener('click', () => {
