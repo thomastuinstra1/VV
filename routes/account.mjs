@@ -67,4 +67,27 @@ router.post('/account/afbeelding', isLoggedIn, upload.single('afbeelding'), asyn
   }
 });
 
+// ── Publiek profiel ophalen ──
+router.get('/account/:id/profiel', async (req, res) => {
+  try {
+    const account = await prisma.account.findUnique({
+      where: { Account_id: parseInt(req.params.id) },
+      select: {
+        Account_id: true,
+        Name: true,
+        E_mail: true,
+        Postcode: true,
+        Profielfoto: true
+      }
+    });
+
+    if (!account) return res.status(404).json({ error: 'Account niet gevonden' });
+
+    res.json(account);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Ophalen mislukt' });
+  }
+});
+
 export default router;

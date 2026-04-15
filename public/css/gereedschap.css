@@ -229,3 +229,12 @@ body {
   font-size: 1rem;
   color: #222;
 }
+
+#ownerCard {
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+
+#ownerCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
