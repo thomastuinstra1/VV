@@ -1,11 +1,17 @@
 const errorHandler = (err, req, res, next) => {
-  err.statusCode = err.statusCode || 500;
-  err.status     = err.status     || 'error';
-  err.message    = err.message    || 'Er is een onbekende fout opgetreden';
+  const statusCode = err.statusCode || 500;
+  const message    = err.isOperational
+    ? err.message
+    : 'Er is een onverwachte fout opgetreden';
 
-  res.status(err.statusCode).json({
-    status:  err.status,
-    message: err.message,
+  if (process.env.NODE_ENV === 'development') {
+    console.error('[${statusCode}] ${err.message}');
+    console.error(err.stack);
+  }
+
+  res.status(statusCode).json({
+    status:  statusCode < 500 ? 'fail' : 'error',
+    message
   });
 };
 
