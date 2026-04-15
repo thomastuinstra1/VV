@@ -16,4 +16,8 @@ export const updateAccountValidator = [
   body("Password")
     .optional()
     .isLength({ min: 8 }).withMessage("Wachtwoord moet minimaal 8 tekens bevatten."),
+
+  body("BSN")
+    .optional()
+    .matches(/^\d{8,9}$/).withMessage("Voer een geldig BSN in (8 of 9 cijfers)."),
 ];

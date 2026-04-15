@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
+import validate from '../middleware/validate.mjs';
+import { chatStartValidator } from '../validators/chatValidator.mjs';
+import { chatIdParamValidator, userIdParamValidator } from '../validators/idParamValidator.mjs';
 
 const router = Router();
 
@@ -43,7 +46,7 @@ router.get('/mijn-chats', isLoggedIn, async (req, res) => {
 });
 
 // ── Chat starten ──
-router.post('/chat/start', isLoggedIn, async (req, res) => {
+router.post('/chat/start', isLoggedIn, chatStartValidator, validate, async (req, res) => {
   const { partnerId, toolId } = req.body;
   const userId = req.session.userId;
 
@@ -91,9 +94,8 @@ router.post('/chat/start', isLoggedIn, async (req, res) => {
 });
 
 // ── Berichten van een chat ophalen ──
-router.get('/messages/chat/:chatId', isLoggedIn, async (req, res) => {
+router.get('/messages/chat/:chatId', isLoggedIn, chatIdParamValidator, validate, async (req, res) => {
   const chatId = parseInt(req.params.chatId);
-  if (!chatId) return res.status(400).json({ error: 'Ongeldige chat ID' });
 
   try {
     const messages = await prisma.berichten.findMany({
@@ -108,7 +110,7 @@ router.get('/messages/chat/:chatId', isLoggedIn, async (req, res) => {
 });
 
 // ── Chat ophalen op ID ──
-router.get('/chat/:chatId', isLoggedIn, async (req, res) => {
+router.get('/chat/:chatId', isLoggedIn, chatIdParamValidator, validate, async (req, res) => {
   const chatId = parseInt(req.params.chatId);
   try {
     const chat = await prisma.chats.findUnique({ where: { Chat_id: chatId } });
@@ -121,10 +123,9 @@ router.get('/chat/:chatId', isLoggedIn, async (req, res) => {
 });
 
 // ── Berichten tussen twee gebruikers ophalen ──
-router.get('/messages/:userId', isLoggedIn, async (req, res) => {
+router.get('/messages/:userId', isLoggedIn, userIdParamValidator, validate, async (req, res) => {
   const currentUserId = req.session.userId;
   const otherUserId = parseInt(req.params.userId);
-  if (!otherUserId) return res.status(400).json({ error: 'Ongeldige partner ID' });
 
   try {
     const messages = await prisma.berichten.findMany({
@@ -144,7 +145,7 @@ router.get('/messages/:userId', isLoggedIn, async (req, res) => {
 });
 
 // ── Chat verwijderen ──
-router.delete('/chat/:chatId', isLoggedIn, async (req, res) => {
+router.delete('/chat/:chatId', isLoggedIn, chatIdParamValidator, validate, async (req, res) => {
   const chatId = parseInt(req.params.chatId);
   const userId = req.session.userId;
 

@@ -23,3 +23,10 @@ export const uitleenValidator = [
       return true;
     }),
 ];
+
+export const statusUpdateValidator = [
+  body("status")
+    .notEmpty().withMessage("Status is verplicht.")
+    .isIn(["ingeleverd_op_tijd", "ingeleverd_te_laat", "te_laat"])
+    .withMessage("Ongeldige status."),
+];
