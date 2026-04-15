@@ -4,13 +4,16 @@ import session from 'express-session';
 import { Server } from "socket.io";
 import http from "http";
 
-import authRouter       from './routes/auth.mjs';
-import passwordRouter   from './routes/password.mjs';
-import accountRouter    from './routes/account.mjs';
+import authRouter        from './routes/auth.mjs';
+import passwordRouter    from './routes/password.mjs';
+import accountRouter     from './routes/account.mjs';
 import gereedschapRouter from './routes/gereedschap.mjs';
-import uitleenRouter    from './routes/uitleen.mjs';
-import chatRouter       from './routes/chat.mjs';
-import { initSocket }   from './sockets/chatSocket.mjs';
+import uitleenRouter     from './routes/uitleen.mjs';
+import chatRouter        from './routes/chat.mjs';
+import { initSocket }    from './sockets/chatSocket.mjs';
+
+import AppError     from './utils/appError.mjs';
+import errorHandler from './middleware/errorhandler.mjs';
 
 const app = express();
 app.use(express.json());
@@ -39,6 +42,14 @@ app.use(accountRouter);
 app.use(gereedschapRouter);
 app.use(uitleenRouter);
 app.use(chatRouter);
+
+// ── 404 – geen route gevonden ──
+app.all('*', (req, res, next) => {
+  next(new AppError(`Route ${req.originalUrl} niet gevonden`, 404));
+});
+
+// ── Centrale errorhandler (altijd als laatste!) ──
+app.use(errorHandler);
 
 // ── Socket.IO ──
 const server = http.createServer(app);
