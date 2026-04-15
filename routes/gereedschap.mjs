@@ -65,8 +65,19 @@ router.get('/gereedschap', asyncHandler(async (req, res) => {
 
   const tools = await prisma.gereedschap.findMany({
     where,
-    include:   { Account: true },
-    orderBy:   { Gereedschap_id: 'desc' }
+    include: {
+      Account: {
+        select: {
+          Account_id: true,
+          Name: true,
+          Afbeelding: true,
+          Report_Report_GemeldToAccount: {
+            select: { Report_id: true }
+          }
+        }
+      }
+    },
+    orderBy: { Gereedschap_id: 'desc' }
   });
 
   res.json(tools);
@@ -137,8 +148,8 @@ router.delete('/gereedschap/:id', isLoggedIn, idParamValidator, validate, asyncH
     return next(new AppError('Gereedschap niet gevonden of je hebt geen toegang', 403));
   }
 
-  const chats   = await prisma.chats.findMany({ where: { Gereedschap_id: id }, select: { Chat_id: true } });
-  const chatIds  = chats.map(c => c.Chat_id);
+  const chats  = await prisma.chats.findMany({ where: { Gereedschap_id: id }, select: { Chat_id: true } });
+  const chatIds = chats.map(c => c.Chat_id);
 
   if (chatIds.length > 0) {
     await prisma.berichten.deleteMany({ where: { Chat_id: { in: chatIds } } });
