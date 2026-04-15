@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("endDate").textContent = end;
 
         const chatKnop = document.getElementById('reserveBtn');
-        const aantalRapporten = tool.Account?.Report_Report_GemeldToAccount?.length || 0;
+        const aantalRapporten = tool.Account?.Report_Report_Gemelde_idToAccount?.length || 0;
 
         chatKnop.addEventListener('click', (e) => {
             e.preventDefault();
