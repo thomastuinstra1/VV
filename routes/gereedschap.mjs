@@ -71,7 +71,7 @@ router.get('/gereedschap', asyncHandler(async (req, res) => {
           Account_id: true,
           Name: true,
           Afbeelding: true,
-          Report_Report_GemeldToAccount: {
+          Report_Report_Gemelde_idToAccount: {  // ← was: GemeldToAccount
             select: { Report_id: true }
           }
         }
