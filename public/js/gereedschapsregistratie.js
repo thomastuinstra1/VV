@@ -10,9 +10,6 @@ function showMelding(text, kleur = "red") {
 // ==============================
 // Borg berekening
 // ==============================
-// ==============================
-// Borg berekening
-// ==============================
 function berekenBorg(waarde, categorie) {
     if (isNaN(waarde) || waarde <= 0) return 25;
 
@@ -32,25 +29,24 @@ function berekenBorg(waarde, categorie) {
     return Math.round(advies);
 }
 
-// ==============================
-// Inputs ophalen
-// ==============================
 const waardeInput = document.getElementById("Waarde");
 const borgInput   = document.getElementById("BorgBedrag");
 
-// Safety check (voorkomt errors als HTML nog niet geladen is)
 if (waardeInput && borgInput) {
 
     borgInput.title = "Je kunt dit bedrag aanpassen";
 
-    // Detecteer of gebruiker zelf borg heeft aangepast
     borgInput.addEventListener("input", () => {
-        borgInput.dataset.edited = borgInput.value ? "true" : "";
-    });
+    if (borgInput.value === "") {
+        borgInput.dataset.edited = "";
+    } else {
+        borgInput.dataset.edited = "true";
+    }
+});
 
     function updateBorg() {
+        if (!waardeInput.value) return;
         const waarde = Number(waardeInput.value);
-        if (isNaN(waarde)) return;
 
         const gekozen = document.querySelector('input[name="Grootte"]:checked');
         const categorie = gekozen ? gekozen.value : "middel";
@@ -64,39 +60,30 @@ if (waardeInput && borgInput) {
         const r = regels[categorie];
         const aanbevolen = berekenBorg(waarde, categorie);
 
-        // Zet grenzen in input
         borgInput.min = r.min;
         borgInput.max = r.max;
 
-        // Alleen automatisch invullen als user niet zelf heeft aangepast
         if (!borgInput.dataset.edited) {
             borgInput.value = aanbevolen;
         }
 
-        // Placeholder met duidelijke info
-        borgInput.placeholder = `€${r.min} - €${r.max} (advies: €${aanbevolen})`;
+        borgInput.placeholder = `Advies €${aanbevolen} (min €${r.min}, max €${r.max})`;
     }
 
-    // ==============================
-    // Events
-    // ==============================
     waardeInput.addEventListener("input", updateBorg);
 
     document.querySelectorAll('input[name="Grootte"]').forEach(el => {
         el.addEventListener("change", () => {
-            // reset zodat hij opnieuw auto kan invullen
             borgInput.dataset.edited = "";
             updateBorg();
         });
     });
 
-    // Initial run (handig als er al waarde staat)
+    form.reset();
+    borgInput.dataset.edited = "";
     updateBorg();
 }
 
-// ==============================
-// ❌ RESET FOUTEN
-// ==============================
 function clearErrors() {
     document.querySelectorAll(".error").forEach(el => el.classList.remove("error"));
     showMelding("");
