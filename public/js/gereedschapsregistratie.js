@@ -13,17 +13,20 @@ function showMelding(text, kleur = "red") {
 function berekenBorg(waarde, categorie) {
     if (isNaN(waarde) || waarde <=0) return 25;
 
-    if (waarde > 200) {
-        return Math.round(waarde * 0.3);
-    }
-
-    const borgPerCategorie = {
-        klein: 15,
-        middel: 50,
-        groot: 100,
+    const regels = {
+        klein: { min: 10, max: 25, percentage: 0.2},
+        middel: { min: 25, max: 75, percentage: 0.3},
+        groot: { min: 75, max: 200, percentage: 0.4},
     };
 
-    return borgPerCategorie[categorie] || 25;
+    const r = regels[categorie] || regels.middel;
+
+    let advies = waarde * r.percentage;
+
+    if (advies < r.min) advies = r.min;
+    if (advies > r.max) advies = r.max;
+
+    return Math.round(advies);
 }
 
 const waardeInput = document.getElementById("Waarde");
@@ -32,39 +35,38 @@ const borgInput = document.getElementById("BorgBedrag");
 borgInput.title = "Je kunt dit bedrag aanpassen";
 
 borgInput.addEventListener("input", () => {
-    if (borgInput.value === "") {
-        borgInput.dataset.edited = "";
-    } else {
-        borgInput.dataset.edited = "true";
-    }
+    borgInput.dataset.edited = borgInput.value ? "true" : "";
 });
 
 function updateBorg() {
     const waarde = Number(waardeInput.value);
-    if (isNaN(waarde)) return;  
+    if (isNaN(waarde)) return;
 
-    const gewicht = document.querySelector('input[name="Gewicht"]:checked');
+    const gekozen = document.querySelector('input[name="Grootte"]:checked');
+    const categorie = gekozen ? gekozen.value : "middel";
 
-    const map = {
-        "17": "klein",
-        "18": "middel",
-        "19": "groot",
-    };
+   const regels = {
+    klein: { min: 10, max: 25 },
+    middel: { min: 25, max: 75 },
+    groot: { min: 75, max: 200 },
+   };
 
-    const categorie = gewicht ? map[gewicht.value] : "middel";
+   const r = regels[categorie];
+   const aanbevolen = berekenBorg(waarde, categorie);
 
-    const aanbevolen = berekenBorg(waarde, categorie);
+   borgInput.min = r.min;
+   borgInput.max = r.max;
 
-    if (!borgInput.dataset.edited) {
+   if (!borgInput.dataset.edited) {
         borgInput.value = aanbevolen;
-    }
+   }
 
-    borgInput.placeholder = `Aanbevolen: €${aanbevolen}`;
+   borgInput.placeholder = `€${r.min} - €${r.max} (advies: €${aanbevolen})`;
 }
 
 waardeInput.addEventListener("input",updateBorg);
 
-document.querySelectorAll('input[name="Gewicht"]').forEach(el => {
+document.querySelectorAll('input[name="Grootte"]').forEach(el => {
     el.addEventListener("change", updateBorg);
 });
 
