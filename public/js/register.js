@@ -1,6 +1,26 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const form = document.querySelector('form');
+
+// ── Wachtwoord tonen/verbergen ──
+document.getElementById('togglePassword').addEventListener('click', () => {
+  const input = document.getElementById('Password');
+  const icon = document.getElementById('eyeIcon');
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+});
+
+document.getElementById('toggleConfirm').addEventListener('click', () => {
+  const input = document.getElementById('confirm-password');
+  const icon = document.getElementById('eyeIconConfirm');
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+});
     
+// ── Registratie formulier ──
+
+    const form = document.getElementById('register-form');
+
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -10,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const confirmPassword = document.getElementById("confirm-password").value;
         const Postcode = document.getElementById("Postcode").value;
 
-        // Wachtwoord validatie
         if (Password !== confirmPassword) {
             showToast('Wachtwoorden komen niet overeen', 'error');
             return;
@@ -21,7 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Verstuur naar server
+        const postcodeRegex = /^[1-9][0-9]{3}\s?[A-Za-z]{2}$/;
+        if (!postcodeRegex.test(Postcode)) {
+            showToast('Vul een geldige postcode in (bijv. 1234 AB)', 'error');
+            return;
+        }
+
         try {
             const response = await fetchWithSpinner('/register', {
                 method: 'POST',
@@ -29,15 +53,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ Name, E_mail, Password, Postcode })
             });
 
+            if (!response) {
+                showToast('Netwerkfout, probeer later opnieuw', 'error');
+                return;
+            }
+
             const data = await response.json();
 
             if (response.ok) {
                 showToast('Account aangemaakt!', 'success');
-
                 setTimeout(() => {
                     window.location.href = 'inlog.html';
                 }, 2000);
-
             } else {
                 showToast(data.message || 'Er is iets misgegaan', 'error');
             }

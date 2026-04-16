@@ -30,8 +30,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("endDate").textContent = end;
 
         const chatKnop = document.getElementById('reserveBtn');
-        chatKnop.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
-        chatKnop.textContent = '💬 Chat met eigenaar';
+        const aantalRapporten = tool.Account?.Report_Report_Gemelde_idToAccount?.length || 0;
+
+        chatKnop.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (aantalRapporten >= 5) {
+                document.getElementById('reportWarningModal').style.display = 'flex';
+            } else {
+                window.location.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
+            }
+        });
+
+        document.getElementById('warningDoorgaan').addEventListener('click', () => {
+            window.location.href = `chat.html?partner=${tool.Account_id}&tool=${tool.Gereedschap_id}`;
+        });
+
+        document.getElementById('warningAnnuleren').addEventListener('click', () => {
+            document.getElementById('reportWarningModal').style.display = 'none';
+        });
+        
+        // Eigenaar info
+        const ownerName = document.getElementById("ownerName");
+        const ownerAvatar = document.getElementById("ownerAvatar");
+
+        ownerName.textContent = tool.Account?.Name || "Onbekende eigenaar";
+        ownerAvatar.src = tool.Account?.Afbeelding || `https://ui-avatars.com/api/?name=${tool.Account?.Name}&background=random`;
+        ownerAvatar.alt = `Profielfoto van ${tool.Account?.Name || 'eigenaar'}`;
+
+        document.getElementById("ownerCard").addEventListener('click', () => {
+            window.location.href = `profiel.html?id=${tool.Account_id}`;
+        });
 
     } catch (err) {
         console.error(err);

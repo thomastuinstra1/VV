@@ -1,5 +1,23 @@
 document.addEventListener('DOMContentLoaded', async () => {
 
+// ── Wachtwoord tonen/verbergen ──
+document.getElementById('togglePassword').addEventListener('click', () => {
+  const input = document.getElementById('Password');
+  const icon = document.getElementById('eyeIcon');
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+});
+
+document.getElementById('toggleConfirm').addEventListener('click', () => {
+  const input = document.getElementById('confirm-password');
+  const icon = document.getElementById('eyeIconConfirm');
+  const isPassword = input.type === 'password';
+  input.type = isPassword ? 'text' : 'password';
+  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+});
+
+
 document.getElementById('logout-btn').addEventListener('click', async () => {
     const response = await fetchWithSpinner('/logout', { method: 'POST' });
     if (response.ok) {
@@ -41,6 +59,12 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         const Password = document.getElementById('Password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
         const BSN = document.getElementById('BSN').value.trim();
+
+        const postcodeRegex = /^[1-9][0-9]{3}\s?[A-Za-z]{2}$/;
+        if (Postcode && !postcodeRegex.test(Postcode)) {
+            showToast('Vul een geldige postcode in (bijv. 1234 AB)', 'error');
+            return;
+        }
 
         if (Password && Password !== confirmPassword) {
             showToast('Wachtwoorden komen niet overeen', 'error');

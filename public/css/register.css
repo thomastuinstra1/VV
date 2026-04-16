@@ -132,3 +132,34 @@
 .site-footer {
     display: none !important;
 }
+
+.input-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-wrapper input {
+  width: 100%;
+  padding-right: 2.5rem;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 0.75rem;
+  background: none !important;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  width: auto !important;
+  box-shadow: none !important;
+  transform: none !important;
+  margin-top: 0 !important;
+}
+
+.toggle-password:hover {
+  color: #333;
+}

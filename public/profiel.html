@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profiel - Gereedschapspunt</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/profiel.css" />
+  </head>
+  <body>
+    <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+      <div class="spinner"></div>
+    </div>
+    <div id="toast"></div>
+
+    <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
+
+    <header class="site-header">
+  <div class="container nav-container">
+    <div class="logo">
+      <a href="index.html">
+        <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+      </a>
+    </div>
+
+    <form class="header-search" action="lijst.html" method="get">
+      <input
+        type="text"
+        name="zoek"
+        placeholder="Zoek gereedschap..."
+        aria-label="Zoek gereedschap"
+      />
+      <button type="submit">Zoeken</button>
+    </form>
+
+    <nav class="main-nav">
+      <ul>
+        <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+        <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+        <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+        <li data-auth="true"><a href="accountinstellingen.html">Account</a></li>
+        <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+         <li data-guest="true"><a href="register.html">Registreren</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+    <main id="main-content">
+      <section class="profile-section">
+        <div class="container">
+          <div class="profile-card">
+            <img id="profileAvatar" src="/images/default-avatar.jpg" alt="Profielfoto" class="profile-avatar" />
+            <div class="profile-details">
+              <h1 id="profileName">Naam</h1>
+              <div class="profile-info-row">
+                <span class="profile-label">📧 E-mail</span>
+                <span id="profileEmail">—</span>
+              </div>
+              <div class="profile-info-row">
+                <span class="profile-label">📍 Postcode</span>
+                <span id="profilePostcode">—</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-actions" id="profileActions" style="display:none;">
+            <button class="btn-report" id="reportBtn">⚠️ Rapporteer gebruiker</button>
+          </div>
+
+          <div class="modal-overlay" id="reportModal" style="display:none;">
+            <div class="modal">
+              <h2>Rapporteer gebruiker</h2>
+              <p>Geef een reden op voor je rapport:</p>
+              <textarea id="reportReden" rows="4" placeholder="Beschrijf het probleem..."></textarea>
+              <div class="modal-actions">
+                <button class="btn-submit" id="reportSubmit">Verstuur rapport</button>
+                <button class="btn-cancel" id="reportCancel">Annuleren</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+
+    <script src="js/globaal.js"></script>
+    <script src="js/profiel.js"></script>
+    <script src="js/logincheck.js"></script>
+  </body>
+</html>

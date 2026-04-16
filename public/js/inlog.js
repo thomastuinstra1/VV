@@ -1,5 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+    
+// ── Wachtwoord tonen/verbergen ──
+const toggleBtn = document.getElementById('togglePassword');
+const passwordInput = document.getElementById('Password');
+const eyeIcon = document.getElementById('eyeIcon');
 
+toggleBtn.addEventListener('click', () => {
+  const isPassword = passwordInput.type === 'password';
+  passwordInput.type = isPassword ? 'text' : 'password';
+  eyeIcon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+  toggleBtn.setAttribute('aria-label', isPassword ? 'Wachtwoord verbergen' : 'Wachtwoord tonen');
+});
     // ── Login form ──
     const form = document.getElementById('loginForm');
 

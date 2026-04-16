@@ -28,8 +28,8 @@
 
     <nav class="main-nav">
       <ul>
-        <li data-auth="true"><a href="lenerdashboard.html">Lenen</a></li>
-        <li data-auth="true"><a href="uitlenerdashboard.html">Verhuren</a></li>
+        <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+        <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
         <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
         <li data-auth="true"><a href="accountinstellingen.html">Account</a></li>
         <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
@@ -95,18 +95,23 @@
 
                 <div class="form-group">
                   <label for="Password">Nieuw wachtwoord</label>
+                  <div class="input-icon-wrapper">
                   <input type="password" id="Password" name="Password" />
+                  <button type="button" id="togglePassword" class="toggle-password" aria-label="Wachtwoord tonen">
+                    <img id="eyeIcon" src="./images/eye.svg" alt="" width="20" height="20"/>
+                  </button>
+                  </div>
                 </div>
 
                 <div class="form-group">
                   <label for="confirm-password">Bevestig wachtwoord</label>
-                  <input
-                    type="password"
-                    id="confirm-password"
-                    name="confirm-password"
-                  />
+                    <div class="input-icon-wrapper">
+                    <input type="password" id="confirm-password" name="confirm-password" />
+                    <button type="button" id="toggleConfirm" class="toggle-password" aria-label="Wachtwoord tonen">
+                      <img id="eyeIconConfirm" src="./images/eye.svg" alt="" width="20" height="20"/>
+                    </button>
+                  </div>
                 </div>
-              </div>
 
               <div class="account-actions">
                 <button type="submit" class="primary-btn">Opslaan</button>
