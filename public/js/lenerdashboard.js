@@ -55,6 +55,7 @@ function buildDashboard() {
 // ── Lening cards ──────────────────────────────────────────────────────────
 function cardHtml(u, now) {
   const eind     = u.EindDatum ? new Date(u.EindDatum) : null;
+    if (eind) eind.setHours(0, 0, 0, 0); // ← dit toevoegen
   const diffDays = eind ? Math.ceil((eind - now) / 86400000) : null;
   const cardCls  = !eind ? '' : diffDays < 0 ? 'te-laat-card' : diffDays <= 3 ? 'bijna-card' : '';
   const cdCls    = !eind ? '' : diffDays < 0 ? 'overdue' : diffDays <= 3 ? 'soon' : 'ok';
@@ -111,6 +112,7 @@ function renderTimeline(items, now) {
   }
   tl.innerHTML = sorted.map(u => {
     const eind  = new Date(u.EindDatum);
+    eind.setHours(0, 0, 0, 0); // ← dit toevoegen
     const diff  = Math.ceil((eind - now) / 86400000);
     const cls   = diff < 0 ? 'overdue' : diff <= 3 ? 'soon' : 'ok';
     const label = diff < 0  ? `${Math.abs(diff)}d te laat`

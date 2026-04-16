@@ -171,8 +171,19 @@ function renderActief(rows) {
     .map((u) => {
       const start = u.StartDatum ? new Date(u.StartDatum) : null;
       const eind = u.EindDatum ? new Date(u.EindDatum) : null;
-      const bezig = start && eind && start <= now && eind >= now;
-      const typeLabel = bezig ? 'Bezig' : 'Komend';
+
+      let typeLabel;
+      if (start && eind) {
+        if (now > eind) {
+          typeLabel = 'Verlopen';
+        } else if (start <= now && eind >= now) {
+          typeLabel = 'Bezig';
+        } else {
+          typeLabel = 'Komend';
+        }
+      } else {
+        typeLabel = 'Komend';
+      }
       const name = u.lenerNaam || `Account #${u.Account_id}`;
 
       return `
@@ -210,9 +221,11 @@ function filterActief() {
 
     const start = u.StartDatum ? new Date(u.StartDatum) : null;
     const eind = u.EindDatum ? new Date(u.EindDatum) : null;
-    const bezig = start && eind && start <= now && eind >= now;
 
-    return s === 'Bezig' ? bezig : !bezig;
+    if (s === 'Bezig') return start && eind && start <= now && eind >= now;
+    if (s === 'Komend') return start && start > now;
+    if (s === 'Verlopen') return eind && now > eind;
+    return false;
   });
 
   renderActief(rows);
@@ -692,6 +705,7 @@ function badge(status) {
     Teruggegeven: { cls: 'teruggegeven', label: 'Teruggegeven' },
     Bezig: { cls: 'uitgeleend', label: 'Bezig' },
     Komend: { cls: 'beschikbaar', label: 'Komend' },
+    Verlopen: { cls: 'te-laat', label: 'Verlopen' },
   };
 
   const s = map[status] || { cls: 'teruggegeven', label: status || '—' };
