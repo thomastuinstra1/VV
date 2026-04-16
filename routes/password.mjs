@@ -7,58 +7,110 @@ import { wachtwoordVergetenValidator, wachtwoordResetValidator } from '../valida
 import asyncHandler from '../middleware/asyncHandler.mjs';
 import AppError from '../utils/appError.mjs';
 
+import {
+  toForgotPasswordDTO,
+  toResetPasswordDTO,
+} from '../dto/password.dto.mjs';
+
+import {
+  toMessageResponseDTO
+} from '../dto/common.dto.mjs';
+
 const router = Router();
 
-// ── Wachtwoord vergeten ──
-router.post('/forgot-password', wachtwoordVergetenValidator, validate, asyncHandler(async (req, res) => {
-  const { email } = req.body;
 
-  const account = await prisma.account.findFirst({ where: { E_mail: email } });
+// ── WACHTWOORD VERGETEN ──
+router.post(
+  '/forgot-password',
+  wachtwoordVergetenValidator,
+  validate,
+  asyncHandler(async (req, res) => {
 
-  // Bewust geen foutmelding als e-mail onbekend is (voorkomt e-mail enumeration)
-  if (!account) return res.json({ message: 'Als dit e-mailadres bekend is, ontvang je een link.' });
+    const dto = toForgotPasswordDTO(req.body);
 
-  const token  = crypto.randomBytes(32).toString('hex');
-  const expiry = new Date(Date.now() + 1000 * 60 * 60);
+    const account = await prisma.account.findFirst({
+      where: { E_mail: dto.email }
+    });
 
-  await prisma.account.update({
-    where: { Account_id: account.Account_id },
-    data:  { resetToken: token, resetTokenExpiry: expiry }
-  });
+    // bewust geen onderscheid maken (security)
+    if (!account) {
+      return res.json(
+        toMessageResponseDTO(
+          'Als dit e-mailadres bekend is, ontvang je een link.'
+        )
+      );
+    }
 
-  const resetUrl = `${process.env.RESET_URL}?token=${token}`;
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiry = new Date(Date.now() + 1000 * 60 * 60);
 
-  await fetch(process.env.APPS_SCRIPT_URL, {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      type:      'password_reset',
-      userEmail: account.E_mail,
-      userName:  account.Name,
-      resetUrl
-    })
-  });
+    await prisma.account.update({
+      where: { Account_id: account.Account_id },
+      data: {
+        resetToken: token,
+        resetTokenExpiry: expiry
+      }
+    });
 
-  res.json({ message: 'Als dit e-mailadres bekend is, ontvang je een link.' });
-}));
+    const resetUrl = `${process.env.RESET_URL}?token=${token}`;
 
-// ── Wachtwoord resetten ──
-router.post('/reset-password', wachtwoordResetValidator, validate, asyncHandler(async (req, res, next) => {
-  const { token, password } = req.body;
+    await fetch(process.env.APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'password_reset',
+        userEmail: account.E_mail,
+        userName: account.Name,
+        resetUrl
+      })
+    });
 
-  const account = await prisma.account.findFirst({
-    where: { resetToken: token, resetTokenExpiry: { gt: new Date() } }
-  });
-  if (!account) return next(new AppError('Deze resetlink is ongeldig of verlopen', 400));
+    res.json(
+      toMessageResponseDTO(
+        'Als dit e-mailadres bekend is, ontvang je een link.'
+      )
+    );
+  })
+);
 
-  const hash = await bcrypt.hash(password, 10);
 
-  await prisma.account.update({
-    where: { Account_id: account.Account_id },
-    data:  { Password: hash, resetToken: null, resetTokenExpiry: null }
-  });
+// ── RESET PASSWORD ──
+router.post(
+  '/reset-password',
+  wachtwoordResetValidator,
+  validate,
+  asyncHandler(async (req, res, next) => {
 
-  res.json({ message: 'Wachtwoord succesvol gewijzigd!' });
-}));
+    const dto = toResetPasswordDTO(req.body);
+
+    const account = await prisma.account.findFirst({
+      where: {
+        resetToken: dto.token,
+        resetTokenExpiry: { gt: new Date() }
+      }
+    });
+
+    if (!account) {
+      return next(
+        new AppError('Deze resetlink is ongeldig of verlopen', 400)
+      );
+    }
+
+    const hash = await bcrypt.hash(dto.password, 10);
+
+    await prisma.account.update({
+      where: { Account_id: account.Account_id },
+      data: {
+        Password: hash,
+        resetToken: null,
+        resetTokenExpiry: null
+      }
+    });
+
+    res.json(
+      toMessageResponseDTO('Wachtwoord succesvol gewijzigd!')
+    );
+  })
+);
 
 export default router;
