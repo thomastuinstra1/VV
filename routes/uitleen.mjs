@@ -233,7 +233,7 @@ router.post(
 );
 
 // ✅ Ingeleverd → borg terug
-router.post('/:id/borg/terugstorten', isLoggedIn, asyncHandler(async (req, res) => {
+router.post('/uitleen/:id/borg/terugstorten', isLoggedIn, asyncHandler(async (req, res) => {
   const uitleenId = parseInt(req.params.id);
 
   const uitleen = await prisma.uitleen.findUnique({
@@ -253,7 +253,7 @@ router.post('/:id/borg/terugstorten', isLoggedIn, asyncHandler(async (req, res) 
 }));
 
 // ❌ Niet ingeleverd → borg incasseren
-router.post('/:id/borg/incasseren', isLoggedIn, asyncHandler(async (req, res) => {
+router.post('/uitleen/:id/borg/incasseren', isLoggedIn, asyncHandler(async (req, res) => {
   const uitleenId = parseInt(req.params.id);
 
   const uitleen = await prisma.uitleen.findUnique({
@@ -273,7 +273,7 @@ router.post('/:id/borg/incasseren', isLoggedIn, asyncHandler(async (req, res) =>
 }));
 
 // Maak PaymentIntent aan voor borg
-router.post('/:id/borg/betalen', isLoggedIn, asyncHandler(async (req, res) => {
+router.post('/uitleen/:id/borg/betalen', isLoggedIn, asyncHandler(async (req, res) => {
   const uitleenId = parseInt(req.params.id);
 
   const uitleen = await prisma.uitleen.findUnique({
