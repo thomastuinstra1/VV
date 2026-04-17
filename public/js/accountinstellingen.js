@@ -42,7 +42,6 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         document.getElementById('Name').value = data.Name || '';
         document.getElementById('E_mail').value = data.E_mail || '';
         document.getElementById('Postcode').value = data.Postcode || '';
-        document.getElementById('BSN').value = data.BSN || '';
 
     } catch (error) {
         console.error(error);
@@ -58,7 +57,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         const Postcode = document.getElementById('Postcode').value;
         const Password = document.getElementById('Password').value;
         const confirmPassword = document.getElementById('confirm-password').value;
-        const BSN = document.getElementById('BSN').value.trim();
+
 
         const postcodeRegex = /^[1-9][0-9]{3}\s?[A-Za-z]{2}$/;
         if (Postcode && !postcodeRegex.test(Postcode)) {
@@ -81,7 +80,7 @@ document.getElementById('logout-btn').addEventListener('click', async () => {
         if (E_mail) body.E_mail = E_mail;
         if (Postcode) body.Postcode = Postcode;
         if (Password) body.Password = Password;
-        if (BSN !== '') body.BSN = BSN;
+
 
         // ✅ afbeelding toevoegen
         const afbeeldingUrl = document.getElementById('afbeelding-url').value;
