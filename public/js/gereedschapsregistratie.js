@@ -86,7 +86,6 @@ if (waardeInput && borgInput) {
         });
     });
 
-    form.reset();
     borgInput.dataset.edited = "";
     updateBorg();
 
