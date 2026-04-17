@@ -17,6 +17,7 @@ import {
 } from '../dto/gereedschap.dto.mjs';
 
 import {
+  toMessageResponseDTO,
   toUploadAfbeeldingResponseDTO
 } from '../dto/common.dto.mjs';
 
@@ -35,16 +36,13 @@ router.post(
 
     const tool = await prisma.gereedschap.create({
       data: {
-        Naam: dto.name,
+        Naam:        dto.name,
         Beschrijving: dto.description,
-        Begindatum: dto.startDate ? new Date(dto.startDate) : null,
-        Einddatum: dto.endDate ? new Date(dto.endDate) : null,
-        BorgBedrag:
-          dto.deposit && dto.deposit !== ''
-            ? parseFloat(dto.deposit)
-            : null,
-        Afbeelding: dto.image,
-        Account_id: req.session.userId
+        Begindatum:  dto.startDate ? new Date(dto.startDate) : null,
+        Einddatum:   dto.endDate   ? new Date(dto.endDate)   : null,
+        BorgBedrag:  dto.deposit && dto.deposit !== '' ? parseFloat(dto.deposit) : null,
+        Afbeelding:  dto.image,
+        Account_id:  req.session.userId
       }
     });
 
@@ -52,7 +50,7 @@ router.post(
       await prisma.gereedschap_Categorie.createMany({
         data: dto.categories.map(cat => ({
           Gereedschap_id: tool.Gereedschap_id,
-          Categorie_id: cat
+          Categorie_id:   cat
         }))
       });
     }
@@ -62,12 +60,13 @@ router.post(
 );
 
 
-// ── CATEGORIEEN ──
+// ── CATEGORIEËN ──
 router.get(
   '/categorieen',
   asyncHandler(async (req, res) => {
+    // Geen gevoelige data, pass-through is hier prima
     const categorieen = await prisma.categorie.findMany();
-    res.json(toCategorieResponseDTO(categorieen));
+    res.json(categorieen);
   })
 );
 
@@ -87,15 +86,9 @@ router.get(
     }
 
     if (categorieen) {
-      const catIds = categorieen
-        .split(',')
-        .map(Number)
-        .filter(Boolean);
-
+      const catIds = categorieen.split(',').map(Number).filter(Boolean);
       if (catIds.length > 0) {
-        where.Gereedschap_Categorie = {
-          some: { Categorie_id: { in: catIds } }
-        };
+        where.Gereedschap_Categorie = { some: { Categorie_id: { in: catIds } } };
       }
     }
 
@@ -105,7 +98,7 @@ router.get(
         Account: {
           select: {
             Account_id: true,
-            Name: true,
+            Name:       true,
             Afbeelding: true,
             Report_Report_Gemelde_idToAccount: {
               select: { Report_id: true }
@@ -128,7 +121,7 @@ router.get(
   asyncHandler(async (req, res) => {
 
     const tools = await prisma.gereedschap.findMany({
-      where: { Account_id: req.session.userId },
+      where:   { Account_id: req.session.userId },
       orderBy: { Gereedschap_id: 'desc' }
     });
 
@@ -137,7 +130,7 @@ router.get(
 );
 
 
-// ── CATEGORIEEN VAN GEREEDSCHAP ──
+// ── CATEGORIEËN VAN GEREEDSCHAP ──
 router.get(
   '/gereedschap/:id/categorieen',
   idParamValidator,
@@ -162,7 +155,7 @@ router.put(
   validate,
   asyncHandler(async (req, res, next) => {
 
-    const id = parseInt(req.params.id);
+    const id  = parseInt(req.params.id);
     const dto = toGereedschapCreateDTO(req.body);
 
     const tool = await prisma.gereedschap.findUnique({
@@ -176,37 +169,35 @@ router.put(
     await prisma.gereedschap.update({
       where: { Gereedschap_id: id },
       data: {
-        Naam: dto.name,
+        Naam:        dto.name,
         Beschrijving: dto.description,
-        BorgBedrag: dto.deposit ? parseFloat(dto.deposit) : null,
-        Begindatum: dto.startDate ? new Date(dto.startDate) : null,
-        Einddatum: dto.endDate ? new Date(dto.endDate) : null
+        BorgBedrag:  dto.deposit   ? parseFloat(dto.deposit)   : null,
+        Begindatum:  dto.startDate ? new Date(dto.startDate)   : null,
+        Einddatum:   dto.endDate   ? new Date(dto.endDate)     : null
       }
     });
 
     if (dto.categories !== undefined) {
-      await prisma.gereedschap_Categorie.deleteMany({
-        where: { Gereedschap_id: id }
-      });
+      await prisma.gereedschap_Categorie.deleteMany({ where: { Gereedschap_id: id } });
 
       if (dto.categories.length > 0) {
         await prisma.gereedschap_Categorie.createMany({
           data: dto.categories.map(catId => ({
             Gereedschap_id: id,
-            Categorie_id: catId
+            Categorie_id:   catId
           }))
         });
       }
     }
 
     const account = await prisma.account.findUnique({
-      where: { Account_id: req.session.userId },
+      where:  { Account_id: req.session.userId },
       select: { E_mail: true, Name: true }
     });
 
     await sendEmail('tool_updated', account.E_mail, account.Name, tool.Naam);
 
-    res.json({ message: 'Gereedschap bijgewerkt!' });
+    res.json(toMessageResponseDTO('Gereedschap bijgewerkt!'));
   })
 );
 
@@ -229,46 +220,27 @@ router.delete(
       return next(new AppError('Gereedschap niet gevonden of je hebt geen toegang', 403));
     }
 
-    const chats = await prisma.chats.findMany({
-      where: { Gereedschap_id: id },
-      select: { Chat_id: true }
-    });
-
+    const chats   = await prisma.chats.findMany({ where: { Gereedschap_id: id }, select: { Chat_id: true } });
     const chatIds = chats.map(c => c.Chat_id);
 
     if (chatIds.length > 0) {
-      await prisma.berichten.deleteMany({
-        where: { Chat_id: { in: chatIds } }
-      });
-
-      await prisma.chats.deleteMany({
-        where: { Chat_id: { in: chatIds } }
-      });
+      await prisma.berichten.deleteMany({ where: { Chat_id: { in: chatIds } } });
+      await prisma.chats.deleteMany({ where: { Chat_id: { in: chatIds } } });
     }
 
-    await prisma.uitleen.deleteMany({
-      where: { Gereedschap_id: id }
-    });
-
-    await prisma.gereedschap_Categorie.deleteMany({
-      where: { Gereedschap_id: id }
-    });
-
-    await prisma.gereedschap.delete({
-      where: { Gereedschap_id: id }
-    });
+    await prisma.uitleen.deleteMany({ where: { Gereedschap_id: id } });
+    await prisma.gereedschap_Categorie.deleteMany({ where: { Gereedschap_id: id } });
+    await prisma.gereedschap.delete({ where: { Gereedschap_id: id } });
 
     const account = await prisma.account.findUnique({
-      where: { Account_id: req.session.userId },
+      where:  { Account_id: req.session.userId },
       select: { E_mail: true, Name: true }
     });
 
     sendEmail('tool_deleted', account.E_mail, account.Name, tool.Naam)
-      .catch(err =>
-        console.error('E-mailnotificatie voor verwijdering mislukt:', err)
-      );
+      .catch(err => console.error('E-mailnotificatie voor verwijdering mislukt:', err));
 
-    res.json({ message: 'Gereedschap verwijderd!' });
+    res.json(toMessageResponseDTO('Gereedschap verwijderd!'));
   })
 );
 
@@ -282,16 +254,12 @@ router.post(
   upload.single('afbeelding'),
   asyncHandler(async (req, res, next) => {
 
-    const id = parseInt(req.params.id);
-
-    const tool = await prisma.gereedschap.findUnique({
-      where: { Gereedschap_id: id }
-    });
+    const id   = parseInt(req.params.id);
+    const tool = await prisma.gereedschap.findUnique({ where: { Gereedschap_id: id } });
 
     if (!tool || tool.Account_id !== req.session.userId) {
       return next(new AppError('Gereedschap niet gevonden of je hebt geen toegang', 403));
     }
-
     if (!req.file) {
       return next(new AppError('Geen geldig afbeeldingsbestand ontvangen', 400));
     }
@@ -300,7 +268,7 @@ router.post(
 
     await prisma.gereedschap.update({
       where: { Gereedschap_id: id },
-      data: { Afbeelding: afbeeldingUrl }
+      data:  { Afbeelding: afbeeldingUrl }
     });
 
     res.json(toUploadAfbeeldingResponseDTO(afbeeldingUrl));
