@@ -37,10 +37,12 @@ if (waardeInput && borgInput) {
 
     borgInput.title = "Je kunt dit bedrag aanpassen";
 
-    // 👇 USER OVERRIDE DETECT (belangrijk)
     borgInput.addEventListener("input", () => {
         borgInput.dataset.edited = borgInput.value ? "true" : "";
     });
+
+    borgInput.addEventListener("input", clampBorg);
+    borgInput.addEventListener("blur", clampBorg);
 
     function updateBorg() {
         const waarde = Number(waardeInput.value);
@@ -61,10 +63,11 @@ if (waardeInput && borgInput) {
         borgInput.min = r.min;
         borgInput.max = r.max;
 
-        // alleen auto invullen als user niet heeft getypt
         if (!borgInput.dataset.edited) {
             borgInput.value = aanbevolen;
         }
+
+        clampBorg();
 
         borgInput.placeholder = `Advies €${aanbevolen} (min €${r.min}, max €${r.max})`;
     }
@@ -73,12 +76,25 @@ if (waardeInput && borgInput) {
 
     document.querySelectorAll('input[name="Grootte"]').forEach(el => {
         el.addEventListener("change", () => {
-            borgInput.dataset.edited = ""; // 👈 RESET OVERRIDE HIER
+            borgInput.dataset.edited = "";
             updateBorg();
         });
     });
 
     updateBorg();
+
+    function clampBorg() {
+        let value = parseFloat(borgInput.value);
+        if (isNaN(value)) return;
+
+        const min = parseFloat(borgInput.min);
+        const max = parseFloat(borgInput.max);
+
+        if (value < min) value = min;
+        if (value > max) value = max;
+
+        borgInput.value = value;
+    }
 }
 
 // ==============================
