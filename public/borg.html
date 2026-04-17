@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Borgbetaling</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <h2>Borgbetaling</h2>
+
+  <div id="borg-info">
+    <p>Uitleen #<span id="uitleen-id"></span></p>
+    <p>Borgbedrag: €<span id="borg-bedrag">...</span></p>
+  </div>
+
+  <div id="betaal-sectie" style="display:none">
+    <div id="card-element"></div>
+    <p id="card-error" style="color:red"></p>
+    <button id="betaal-btn">Borg betalen</button>
+  </div>
+
+  <p id="status-bericht"></p>
+
+  <script src="js/globaal.js"></script>
+  <script type="module" src="js/borg.js"></script>
+</body>
+</html>

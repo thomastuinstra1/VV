@@ -122,8 +122,12 @@ function initSocket() {
 
   socket.on("appointment_error", ({ message }) => {
     closeModal();
-    alert(message); 
-});
+    alert(message);
+  }); // ← accolade sluiten hier
+
+  socket.on("redirect_to_borg", ({ uitleenId }) => {
+    window.location.href = `/borg.html?uitleenId=${uitleenId}`;
+  });
 
   socket.on("appointment_updated", (uitleen) => {
   const allDivs = document.querySelectorAll('#chat-box > div');

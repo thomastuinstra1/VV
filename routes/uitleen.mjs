@@ -7,6 +7,7 @@ import { uitleenValidator, statusUpdateValidator } from '../validators/uitleenVa
 import { idParamValidator } from '../validators/idParamValidator.mjs';
 import asyncHandler from '../middleware/asyncHandler.mjs';
 import AppError from '../utils/appError.mjs';
+import stripe from '../utils/stripe.mjs';
 
 import {
   toUitleenResponseDTO,
@@ -230,5 +231,77 @@ router.post(
     res.status(201).json(toUitleenCreateResponseDTO(uitleen));
   })
 );
+
+// ✅ Ingeleverd → borg terug
+router.post('/:id/borg/terugstorten', isLoggedIn, asyncHandler(async (req, res) => {
+  const uitleenId = parseInt(req.params.id);
+
+  const uitleen = await prisma.uitleen.findUnique({
+    where: { Uitleen_id: uitleenId }
+  });
+
+  if (!uitleen?.PaymentIntentId) throw new AppError('Geen borg gevonden', 404);
+
+  const cancelled = await stripe.paymentIntents.cancel(uitleen.PaymentIntentId);
+
+  await prisma.uitleen.update({
+    where: { Uitleen_id: uitleenId },
+    data: { BorgStatus: 'TERUGGESTORT' }
+  });
+
+  res.json({ success: true, status: cancelled.status });
+}));
+
+// ❌ Niet ingeleverd → borg incasseren
+router.post('/:id/borg/incasseren', isLoggedIn, asyncHandler(async (req, res) => {
+  const uitleenId = parseInt(req.params.id);
+
+  const uitleen = await prisma.uitleen.findUnique({
+    where: { Uitleen_id: uitleenId }
+  });
+
+  if (!uitleen?.PaymentIntentId) throw new AppError('Geen borg gevonden', 404);
+
+  const captured = await stripe.paymentIntents.capture(uitleen.PaymentIntentId);
+
+  await prisma.uitleen.update({
+    where: { Uitleen_id: uitleenId },
+    data: { BorgStatus: 'GEINCASSEERD' }
+  });
+
+  res.json({ success: true, status: captured.status });
+}));
+
+// Maak PaymentIntent aan voor borg
+router.post('/:id/borg/betalen', isLoggedIn, asyncHandler(async (req, res) => {
+  const uitleenId = parseInt(req.params.id);
+
+  const uitleen = await prisma.uitleen.findUnique({
+    where: { Uitleen_id: uitleenId }
+  });
+
+  if (!uitleen) throw new AppError('Uitleen niet gevonden', 404);
+  if (uitleen.Lener_id !== req.session.userId) {
+    throw new AppError('Geen toegang', 403);
+  }
+  if (uitleen.BorgBedrag <= 0) {
+    throw new AppError('Geen borg vereist voor deze uitleen', 400);
+  }
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: Math.round(uitleen.BorgBedrag * 100), // in centen
+    currency: 'eur',
+    capture_method: 'manual', // reserveer, niet direct afboeken
+    metadata: { uitleenId: uitleenId.toString() }
+  });
+
+  // Sla paymentIntentId op in database
+  await prisma.uitleen.update({
+    where: { Uitleen_id: uitleenId },
+    data: { PaymentIntentId: paymentIntent.id, BorgStatus: 'OPEN' }
+  });
+
+  res.json({ clientSecret: paymentIntent.client_secret });
+}));
 
 export default router;
