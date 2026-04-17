@@ -13,6 +13,42 @@
   </style>
 </head>
 <body>
+     <header class="site-header">
+  <div class="container nav-container">
+    <div class="logo">
+      <a href="index.html">
+        <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+      </a>
+    </div>
+
+    <form class="header-search" action="lijst.html" method="get">
+      <input
+        type="text"
+        name="zoek"
+        placeholder="Zoek gereedschap..."
+        aria-label="Zoek gereedschap"
+      />
+      <button type="submit">Zoeken</button>
+    </form>
+
+    <nav class="main-nav">
+      <ul>
+        <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+        <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+        <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+        <li data-auth="true">
+          <a href="accountinstellingen.html">
+            <div id="navAvatar">
+              <span id="navAvatarInitials">?</span>
+            </div>
+          </a>
+        </li>
+        <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+        <li data-guest="true"><a href="register.html">Registreren</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
   <h2>Chat</h2>
 
