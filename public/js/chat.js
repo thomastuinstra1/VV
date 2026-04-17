@@ -2,6 +2,7 @@ let CURRENT_USER_ID;
 let CHAT_ID;
 let socket;
 let TOOL_BORG = 0;
+let IS_OWNER = false; // ← nieuw
 
 async function getCurrentUserId() {
   try {
@@ -34,6 +35,9 @@ async function getChatInfo() {
       const toolRes = await fetchWithSpinner(`/gereedschap?id=${toolId}`);
       const tools = await toolRes.json();
       TOOL_BORG = tools[0]?.BorgBedrag ?? 0;
+
+      // ✅ Controleer of huidige gebruiker de eigenaar is
+      IS_OWNER = tools[0]?.Account_id === CURRENT_USER_ID;
     }
 
   } catch (err) {
@@ -176,6 +180,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const sendBtn = document.getElementById("send-btn");
   const input = document.getElementById("chat-input");
+
+  const afspraakBtn = document.getElementById("afspraak-btn");
+  if (afspraakBtn) {
+    afspraakBtn.style.display = IS_OWNER ? "inline-block" : "none";
+  }
 
   sendBtn.addEventListener("click", () => {
     const content = input.value.trim();
