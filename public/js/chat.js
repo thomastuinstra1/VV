@@ -36,6 +36,9 @@ async function getChatInfo() {
       const tools = await toolRes.json();
       TOOL_BORG = tools[0]?.BorgBedrag ?? 0;
 
+      console.log('Tool response:', tools);
+      console.log('Tool[0] keys:', tools[0] ? Object.keys(tools[0]) : 'geen data');
+
       const toolOwnerId = tools[0]?.Account_id;
 
       // ✅ Forceer beide naar number voor vergelijking
