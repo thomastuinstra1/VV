@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("endDate").textContent = end;
 
         const chatKnop = document.getElementById('reserveBtn');
-        const aantalRapporten = tool.Account?.Report_Report_Gemelde_idToAccount?.length || 0;
+        const aantalRapporten = tool.eigenaar?.aantalRapporten || 0;
 
         chatKnop.addEventListener('click', (e) => {
             e.preventDefault();
@@ -53,9 +53,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const ownerName = document.getElementById("ownerName");
         const ownerAvatar = document.getElementById("ownerAvatar");
 
-        ownerName.textContent = tool.Account?.Name || "Onbekende eigenaar";
-        ownerAvatar.src = tool.Account?.Afbeelding || `https://ui-avatars.com/api/?name=${tool.Account?.Name}&background=random`;
-        ownerAvatar.alt = `Profielfoto van ${tool.Account?.Name || 'eigenaar'}`;
+        ownerName.textContent = tool.eigenaar?.Name || "Onbekende eigenaar";
+
+        ownerAvatar.src = tool.eigenaar?.Afbeelding || `https://ui-avatars.com/api/?name=${tool.eigenaar?.Name}&background=random`;
+        ownerAvatar.alt = `Profielfoto van ${tool.eigenaar?.Name || 'eigenaar'}`;
 
         document.getElementById("ownerCard").addEventListener('click', () => {
             window.location.href = `profiel.html?id=${tool.Account_id}`;
