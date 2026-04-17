@@ -36,8 +36,15 @@ async function getChatInfo() {
       const tools = await toolRes.json();
       TOOL_BORG = tools[0]?.BorgBedrag ?? 0;
 
-      // ✅ Controleer of huidige gebruiker de eigenaar is
-      IS_OWNER = tools[0]?.Account_id === CURRENT_USER_ID;
+      const toolOwnerId = tools[0]?.Account_id;
+
+      // ✅ Forceer beide naar number voor vergelijking
+      IS_OWNER = Number(toolOwnerId) === Number(CURRENT_USER_ID);
+
+      // 🔍 Debug — verwijder dit als het werkt
+      console.log('Tool owner ID:', toolOwnerId, typeof toolOwnerId);
+      console.log('Current user ID:', CURRENT_USER_ID, typeof CURRENT_USER_ID);
+      console.log('IS_OWNER:', IS_OWNER);
     }
 
   } catch (err) {
