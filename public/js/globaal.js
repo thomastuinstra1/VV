@@ -45,6 +45,21 @@ function showToast(message, type = 'info', duration = 3000) {
     }, duration);
 }
 
+function updateNavAvatar(gebruiker) {
+  const avatar = document.getElementById('navAvatar');
+  if (!avatar || !gebruiker) return;
+
+  if (gebruiker.Afbeelding) {
+    avatar.innerHTML = `<img src="${gebruiker.Afbeelding}" alt="Profielfoto" style="width:100%;height:100%;object-fit:cover;" />`;
+  } else if (gebruiker.Name) {
+    const delen = gebruiker.Name.trim().split(' ');
+    const initialen = delen.length > 1
+      ? delen[0][0] + delen[delen.length - 1][0]
+      : delen[0].substring(0, 2);
+    avatar.innerHTML = `<span style="font-size:13px;font-weight:500;color:#534AB7;">${initialen.toUpperCase()}</span>`;
+  }
+}
+
 function injectFloatingChatHTML() {
     if (document.getElementById('floating-chat-root')) return;
 

@@ -9,4 +9,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.querySelectorAll("[data-guest='true']").forEach((el) => {
     el.style.display = ingelogd ? "none" : "";
   });
+  // NIEUW: profielfoto ophalen
+  if (ingelogd) {
+    const meRes = await fetch('/me');
+    if (meRes.ok) {
+      const gebruiker = await meRes.json();
+      updateNavAvatar(gebruiker);
+    }
+  }
 });
