@@ -31,24 +31,12 @@ async function getChatInfo() {
     const chat = await res.json();
     CHAT_ID = chat.Chat_id;
 
-    if (toolId) {
-      const toolRes = await fetchWithSpinner(`/gereedschap?id=${toolId}`);
-      const tools = await toolRes.json();
-      TOOL_BORG = tools[0]?.BorgBedrag ?? 0;
+    // ✅ Alles uit de chat response — geen aparte tool fetch meer nodig
+    IS_OWNER = Number(chat.Tool_owner_id) === Number(CURRENT_USER_ID);
+    TOOL_BORG = chat.BorgBedrag ?? 0;
 
-      console.log('Tool response:', tools);
-      console.log('Tool[0] keys:', tools[0] ? Object.keys(tools[0]) : 'geen data');
-
-      const toolOwnerId = tools[0]?.Account_id;
-
-      // ✅ Forceer beide naar number voor vergelijking
-      IS_OWNER = Number(toolOwnerId) === Number(CURRENT_USER_ID);
-
-      // 🔍 Debug — verwijder dit als het werkt
-      console.log('Tool owner ID:', toolOwnerId, typeof toolOwnerId);
-      console.log('Current user ID:', CURRENT_USER_ID, typeof CURRENT_USER_ID);
-      console.log('IS_OWNER:', IS_OWNER);
-    }
+    console.log('Tool owner ID:', chat.Tool_owner_id);
+    console.log('IS_OWNER:', IS_OWNER);
 
   } catch (err) {
     console.error('Chat starten mislukt:', err);

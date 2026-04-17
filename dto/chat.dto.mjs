@@ -30,6 +30,7 @@ export const toChatStartResponseDTO = (chat, isNew) => ({
   SenderId: chat.SenderId,
   ReceiverId: chat.ReceiverId,
   Gereedschap_id: chat.Gereedschap_id,
+  Tool_owner_id: chat.Gereedschap?.Account_id,  // ✅ eigenaar meesturen
   CreatedAt: chat.CreatedAt,
   isNew
 });

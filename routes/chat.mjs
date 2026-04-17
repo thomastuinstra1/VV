@@ -62,7 +62,8 @@ router.post(
           { SenderId: userId, ReceiverId: partnerId },
           { SenderId: partnerId, ReceiverId: userId }
         ]
-      }
+      },
+      include: { Gereedschap: true },  // ✅ toevoegen
     });
 
     let isNew = false;
@@ -73,7 +74,8 @@ router.post(
           SenderId: userId,
           ReceiverId: partnerId,
           Gereedschap_id: toolId
-        }
+        },
+        include: { Gereedschap: true }
       });
 
       isNew = true;
