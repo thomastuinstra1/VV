@@ -147,6 +147,12 @@ export function initSocket(io) {
         if (bericht) {
           io.to(`chat_${bericht.Chat_id}`).emit("appointment_updated", updated);
         }
+
+        // ← Nieuw: stuur de accepterende gebruiker naar borgpagina
+        if (action === "accept") {
+          socket.emit("redirect_to_borg", { uitleenId });
+        }
+
       } catch (err) {
         console.error("Fout bij reageren op afspraak:", err);
       }
