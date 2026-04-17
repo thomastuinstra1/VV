@@ -44,6 +44,9 @@ if (waardeInput && borgInput) {
     }
 });
 
+    borgInput.addEventListener("input", clampBorg);
+    borgInput.addEventListener("blur", clampBorg);
+
     function updateBorg() {
         if (!waardeInput.value) return;
         const waarde = Number(waardeInput.value);
@@ -58,7 +61,9 @@ if (waardeInput && borgInput) {
         };
 
         const r = regels[categorie];
-        const aanbevolen = berekenBorg(waarde, categorie);
+        const aanbevolen = (!waarde || isNaN(waarde))
+            ? r.min
+            : berekenBorg(waarde, categorie);
 
         borgInput.min = r.min;
         borgInput.max = r.max;
@@ -66,6 +71,8 @@ if (waardeInput && borgInput) {
         if (!borgInput.dataset.edited) {
             borgInput.value = aanbevolen;
         }
+
+        clampBorg();
 
         borgInput.placeholder = `Advies €${aanbevolen} (min €${r.min}, max €${r.max})`;
     }
@@ -82,6 +89,19 @@ if (waardeInput && borgInput) {
     form.reset();
     borgInput.dataset.edited = "";
     updateBorg();
+
+    function clampBorg() {
+        let value = parseFloat(borgInput.value);
+        if (isNaN(value)) return;
+
+        const min = parseFloat(borgInput.min);
+        const max = parseFloat(borgInput.max);
+
+        if (value < min) value = min;
+        if (value > max) value = max;
+
+        borgInput.value = value;
+    }
 }
 
 function clearErrors() {
