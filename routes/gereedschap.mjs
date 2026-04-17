@@ -64,7 +64,6 @@ router.post(
 router.get(
   '/categorieen',
   asyncHandler(async (req, res) => {
-    // Geen gevoelige data, pass-through is hier prima
     const categorieen = await prisma.categorie.findMany();
     res.json(categorieen);
   })
@@ -90,6 +89,11 @@ router.get(
       if (catIds.length > 0) {
         where.Gereedschap_Categorie = { some: { Categorie_id: { in: catIds } } };
       }
+    }
+
+    // Sluit eigen gereedschap uit als de gebruiker is ingelogd
+    if (req.session?.userId) {
+      where.Account_id = { not: req.session.userId };
     }
 
     const tools = await prisma.gereedschap.findMany({
