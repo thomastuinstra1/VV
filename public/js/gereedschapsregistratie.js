@@ -202,18 +202,21 @@ document.getElementById("toolForm").addEventListener("submit", async (e) => {
     // ✅ Haal geselecteerde categorieën
 
 
-    const groepen = ["Type", "Werkwijze", "Gewicht", "Staat"];
+    const groepen = ["Type", "Werkwijze", "Staat"];
     let categorieen = [];
 
         // Eén selectie per groep
         groepen.forEach(group => {
-            const selected = document.querySelector(`input[name="${group}"]:checked`);
-            if (selected) categorieen.push(parseInt(selected.value));
-    });
+    const selected = document.querySelector(`input[name="${group}"]:checked`);
+    if (selected && selected.value !== "") {
+        categorieen.push(parseInt(selected.value));
+    }
+});
 
-// Materiaal apart: meerdere mogelijk
 document.querySelectorAll('input[name="Materiaal"]:checked').forEach(cb => {
-    categorieen.push(parseInt(cb.value));
+    if (cb.value !== "") {
+        categorieen.push(parseInt(cb.value));
+    }
 });
 
     // ==============================
@@ -255,7 +258,7 @@ document.querySelectorAll('input[name="Materiaal"]:checked').forEach(cb => {
     return;
 }
 
-    const verplichtGroepen = ["Type", "Werkwijze", "Gewicht", "Staat"]; // Materiaal optioneel of meerdere
+    const verplichtGroepen = ["Grootte", "Staat"]; // Materiaal optioneel of meerdere
 const alleVerplichtIngevuld = verplichtGroepen.every(group =>
     document.querySelector(`input[name="${group}"]:checked`)
 );
