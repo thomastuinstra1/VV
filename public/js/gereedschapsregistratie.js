@@ -37,18 +37,14 @@ if (waardeInput && borgInput) {
     borgInput.title = "Je kunt dit bedrag aanpassen";
 
     borgInput.addEventListener("input", () => {
-    if (borgInput.value === "") {
-        borgInput.dataset.edited = "";
-    } else {
-        borgInput.dataset.edited = "true";
-    }
-});
+        borgInput.dataset.edited = borgInput.value ? "true" : "";
+    });
 
-    borgInput.addEventListener("input", clampBorg);
     borgInput.addEventListener("blur", clampBorg);
 
     function updateBorg() {
         if (!waardeInput.value) return;
+
         const waarde = Number(waardeInput.value);
 
         const gekozen = document.querySelector('input[name="Grootte"]:checked');
@@ -61,18 +57,21 @@ if (waardeInput && borgInput) {
         };
 
         const r = regels[categorie];
-        const aanbevolen = (!waarde || isNaN(waarde))
-            ? r.min
-            : berekenBorg(waarde, categorie);
+        const aanbevolen = berekenBorg(waarde, categorie);
 
         borgInput.min = r.min;
         borgInput.max = r.max;
 
-        if (!borgInput.dataset.edited) {
+        const huidige = Number(borgInput.value);
+
+        if (
+            !borgInput.dataset.edited ||
+            huidige < r.min ||
+            huidige > r.max ||
+            isNaN(huidige)
+        ) {
             borgInput.value = aanbevolen;
         }
-
-        clampBorg();
 
         borgInput.placeholder = `Advies €${aanbevolen} (min €${r.min}, max €${r.max})`;
     }
@@ -101,11 +100,6 @@ if (waardeInput && borgInput) {
 
         borgInput.value = value;
     }
-}
-
-function clearErrors() {
-    document.querySelectorAll(".error").forEach(el => el.classList.remove("error"));
-    showMelding("");
 }
 
 // ==============================
