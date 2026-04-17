@@ -46,7 +46,6 @@ if (waardeInput && borgInput) {
 
     function updateBorg() {
         const waarde = Number(waardeInput.value);
-        if (!waarde || isNaN(waarde)) return;
 
         const gekozen = document.querySelector('input[name="Grootte"]:checked');
         const categorie = gekozen ? gekozen.value : "middel";
@@ -58,7 +57,9 @@ if (waardeInput && borgInput) {
         };
 
         const r = regels[categorie];
-        const aanbevolen = berekenBorg(waarde, categorie);
+        const aanbevolen = (!waarde || isNaN(waarde))
+            ? r.min
+            : berekenBorg(waarde, categorie);
 
         borgInput.min = r.min;
         borgInput.max = r.max;
