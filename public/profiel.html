@@ -16,76 +16,113 @@
     <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
 
     <header class="site-header">
-  <div class="container nav-container">
-    <div class="logo">
-      <a href="index.html">
-        <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
-      </a>
-    </div>
-
-    <form class="header-search" action="lijst.html" method="get">
-      <input
-        type="text"
-        name="zoek"
-        placeholder="Zoek gereedschap..."
-        aria-label="Zoek gereedschap"
-      />
-      <button type="submit">Zoeken</button>
-    </form>
-
-    <nav class="main-nav">
-      <ul>
-        <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
-        <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
-        <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
-        <li data-auth="true">
-          <a href="accountinstellingen.html">
-            <div id="navAvatar">
-              <span id="navAvatarInitials">?</span>
-            </div>
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
           </a>
-        </li>
-        <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
-         <li data-guest="true"><a href="register.html">Registreren</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
+        </div>
 
-    <main id="main-content">
+        <form class="header-search" action="lijst.html" method="get">
+          <input
+            type="text"
+            name="zoek"
+            placeholder="Zoek gereedschap..."
+            aria-label="Zoek gereedschap"
+          />
+          <button type="submit">Zoeken</button>
+        </form>
+
+        <nav class="main-nav">
+          <ul>
+            <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+            <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+            <li data-auth="true">
+              <a href="accountinstellingen.html">
+                <div id="navAvatar">
+                  <span id="navAvatarInitials">?</span>
+                </div>
+              </a>
+            </li>
+            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+            <li data-guest="true"><a href="register.html">Registreren</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="profile-page">
       <section class="profile-section">
         <div class="container">
-          <div class="profile-card">
-            <img id="profileAvatar" src="/images/default-avatar.jpg" alt="Profielfoto" class="profile-avatar" />
-            <div class="profile-details">
-              <h1 id="profileName">Naam</h1>
-              <div class="profile-info-row">
-                <span class="profile-label">📧 E-mail</span>
-                <span id="profileEmail">—</span>
+          <div class="profile-shell">
+            <div class="profile-card">
+              <div class="profile-avatar-wrap">
+                <img id="profileAvatar" src="/images/default-avatar.jpg" alt="Profielfoto" class="profile-avatar" />
+                <div id="profileAvatarFallback" class="profile-avatar-fallback" style="display:none;">?</div>
               </div>
-              <div class="profile-info-row">
-                <span class="profile-label">📍 Postcode</span>
-                <span id="profilePostcode">—</span>
+
+              <div class="profile-details">
+                <p class="profile-kicker">Profiel</p>
+                <h1 id="profileName">Naam</h1>
+
+                <div class="profile-meta">
+                  <div class="profile-info-row">
+                    <span class="profile-label">📧 E-mail</span>
+                    <span id="profileEmail">—</span>
+                  </div>
+
+                  <div class="profile-info-row">
+                    <span class="profile-label">📍 Postcode</span>
+                    <span id="profilePostcode">—</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="profile-actions" id="profileActions" style="display:none;">
-            <button class="btn-report" id="reportBtn">⚠️ Rapporteer gebruiker</button>
+            <div class="profile-actions" id="profileActions" style="display:none;">
+              <button class="btn-report" id="reportBtn">Rapporteer gebruiker</button>
+            </div>
+
+            <section class="profile-listings-card">
+              <div class="section-heading profile-section-heading">
+                <div>
+                  <p class="section-kicker">Advertenties</p>
+                  <h2>Gereedschap van deze gebruiker</h2>
+                </div>
+              </div>
+
+              <div id="userListings" class="user-listings-grid">
+                <div class="empty-state">
+                  <div class="empty-icon">🛠️</div>
+                  <div class="empty-title">Advertenties laden</div>
+                  <div class="empty-text">Het gereedschap van deze gebruiker wordt opgehaald…</div>
+                </div>
+              </div>
+            </section>
           </div>
 
           <div class="modal-overlay" id="reportModal" style="display:none;">
             <div class="modal">
-              <h2>Rapporteer gebruiker</h2>
-              <p>Geef een reden op voor je rapport:</p>
-              <textarea id="reportReden" rows="4" placeholder="Beschrijf het probleem..."></textarea>
+              <div class="modal-header">
+                <h2>Rapporteer gebruiker</h2>
+                <button class="modal-close" id="reportCancelTop" aria-label="Sluiten">&times;</button>
+              </div>
+
+              <p class="modal-text">Geef een reden op voor je rapport.</p>
+
+              <textarea
+                id="reportReden"
+                rows="5"
+                placeholder="Beschrijf het probleem..."
+              ></textarea>
+
               <div class="modal-actions">
-                <button class="btn-submit" id="reportSubmit">Verstuur rapport</button>
                 <button class="btn-cancel" id="reportCancel">Annuleren</button>
+                <button class="btn-submit" id="reportSubmit">Verstuur rapport</button>
               </div>
             </div>
           </div>
-
         </div>
       </section>
     </main>
