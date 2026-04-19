@@ -43,36 +43,41 @@
     </div>
   </header>
 
-  <main class="chat-page">
-    <div class="container">
-      <section class="chat-shell">
-        <div class="chat-header">
-          <div>
-            <h1>Chat</h1>
-            <p class="chat-subtitle">Bespreek eenvoudig het lenen, ophalen en terugbrengen van gereedschap.</p>
-          </div>
-
-          <button id="afspraak-btn" class="appointment-btn" onclick="openModal()" style="display:none;">
-            Maak afspraak
-          </button>
-        </div>
-
-        <div class="chat-card">
-          <div class="chat-status">
-            <span class="status-dot"></span>
-            <span>Gesprek actief</span>
-          </div>
-
-          <div id="chat-box" class="chat-box"></div>
-
-          <div class="chat-composer">
-            <input type="text" id="chat-input" placeholder="Typ je bericht..." />
-            <button id="send-btn">Verstuur</button>
+ <main class="chat-page">
+  <div class="container">
+    <section class="chat-shell">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <div class="chat-partner-row">
+            <div class="chat-avatar-fallback" id="chat-partner-initial">?</div>
+            <div>
+              <h1 id="chat-partner-name">Chat</h1>
+              <p class="chat-subtitle" id="chat-tool-name">Gereedschap laden...</p>
+            </div>
           </div>
         </div>
-      </section>
-    </div>
-  </main>
+
+        <button id="afspraak-btn" class="appointment-btn" onclick="openModal()" style="display:none;">
+          Maak afspraak
+        </button>
+      </div>
+
+      <div class="chat-card">
+        <div class="chat-status">
+          <span class="status-dot"></span>
+          <span id="chat-status-text">Gesprek actief</span>
+        </div>
+
+        <div id="chat-box" class="chat-box"></div>
+
+        <div class="chat-composer">
+          <input type="text" id="chat-input" placeholder="Typ je bericht..." />
+          <button id="send-btn">Verstuur</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
 
   <div id="modal" class="modal-overlay">
     <div class="modal-card">

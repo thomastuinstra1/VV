@@ -28,15 +28,33 @@ async function getChatInfo() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ partnerId, toolId })
     });
+
     const chat = await res.json();
     CHAT_ID = chat.Chat_id;
 
-    // ✅ Alles uit de chat response — geen aparte tool fetch meer nodig
+    // 🔥 ADD THIS PART HERE
+    const partnerNameEl = document.getElementById('chat-partner-name');
+    const toolNameEl = document.getElementById('chat-tool-name');
+    const partnerInitialEl = document.getElementById('chat-partner-initial');
+
+    if (partnerNameEl) {
+      const naam = chat.Partner_name || 'Gebruiker';
+      partnerNameEl.textContent = naam;
+
+      if (partnerInitialEl) {
+        partnerInitialEl.textContent = naam.trim().charAt(0).toUpperCase() || '?';
+      }
+    }
+
+    if (toolNameEl) {
+      toolNameEl.textContent = chat.Gereedschap_naam
+        ? `Over: ${chat.Gereedschap_naam}`
+        : 'Geen gereedschap geselecteerd';
+    }
+
+    // existing logic
     IS_OWNER = Number(chat.Tool_owner_id) === Number(CURRENT_USER_ID);
     TOOL_BORG = chat.BorgBedrag ?? 0;
-
-    console.log('Tool owner ID:', chat.Tool_owner_id);
-    console.log('IS_OWNER:', IS_OWNER);
 
   } catch (err) {
     console.error('Chat starten mislukt:', err);
