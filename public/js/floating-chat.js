@@ -21,7 +21,12 @@ async function initFloatingChat() {
         }
 
         const me = await meRes.json();
-        FC_CURRENT_USER_ID = me.Account_id;
+        FC_CURRENT_USER_ID = me.Account_id ?? me.id ?? null;
+
+        if (!FC_CURRENT_USER_ID) {
+            root.classList.add('hidden');
+            return;
+        }
 
         root.classList.remove('hidden');
 
@@ -56,6 +61,8 @@ async function loadFloatingChats() {
         if (!res || !res.ok) throw new Error('Chats laden mislukt');
 
         FC_CHATS = await res.json();
+        if (!Array.isArray(FC_CHATS)) FC_CHATS = [];
+
         renderFloatingChats(FC_CHATS);
         updateFloatingCounter(FC_CHATS);
     } catch (err) {
@@ -76,17 +83,33 @@ function renderFloatingChats(chats) {
 
     chats.forEach(chat => {
         const item = document.createElement('div');
-        item.className = 'floating-chat-contact' + (chat.Chat_id === FC_SELECTED_CHAT_ID ? ' active' : '');
+        item.className =
+            'floating-chat-contact' +
+            (Number(chat.Chat_id) === Number(FC_SELECTED_CHAT_ID) ? ' active' : '');
 
         const unread = Number(chat.unreadCount || 0);
+        const naam = chat.Name || 'Onbekend';
+        const gereedschapNaam = chat.Gereedschap_naam || '';
+        const partnerId = encodeURIComponent(chat.Account_id || '');
+        const toolId = encodeURIComponent(chat.Gereedschap_id || '');
 
         item.innerHTML = `
-            <div class="floating-chat-contact-name">${chat.Name || 'Onbekend'}</div>
-            <div class="floating-chat-contact-last">${chat.Gereedschap_naam || ''}</div>
-            ${unread > 0 ? `<span class="floating-chat-contact-badge">${unread}</span>` : ''}
+            <div class="floating-chat-contact-top">
+                <a
+                    class="floating-chat-contact-name"
+                    href="chat.html?partner=${partnerId}&tool=${toolId}"
+                    title="Open volledige chat"
+                >
+                    ${escapeHtml(naam)}
+                </a>
+                ${unread > 0 ? `<span class="floating-chat-contact-badge">${unread}</span>` : ''}
+            </div>
+            <div class="floating-chat-contact-last">${escapeHtml(gereedschapNaam)}</div>
         `;
 
-        item.addEventListener('click', async () => {
+        item.addEventListener('click', async (e) => {
+            if (e.target.closest('.floating-chat-contact-name')) return;
+
             FC_SELECTED_CHAT_ID = chat.Chat_id;
             renderFloatingChats(FC_CHATS);
 
@@ -105,14 +128,20 @@ function updateFloatingCounter(chats) {
     const countEl = document.getElementById('floating-chat-count');
     if (!countEl) return;
 
-    const unreadTotal = chats.reduce((sum, chat) => sum + Number(chat.unreadCount || 0), 0);
+    const unreadTotal = chats.reduce((sum, chat) => {
+        return sum + Number(chat.unreadCount || 0);
+    }, 0);
 
     if (unreadTotal > 0) {
         countEl.style.display = 'flex';
-        countEl.textContent = unreadTotal;
+        countEl.textContent = String(unreadTotal);
+        countEl.classList.add('ping');
+        countEl.setAttribute('aria-label', `${unreadTotal} ongelezen berichten`);
     } else {
         countEl.style.display = 'none';
         countEl.textContent = '0';
+        countEl.classList.remove('ping');
+        countEl.removeAttribute('aria-label');
     }
 }
 
@@ -147,7 +176,9 @@ async function addFloatingMessageToUI(message) {
     if (!box) return;
 
     const div = document.createElement('div');
-    const isMe = message.senderId === FC_CURRENT_USER_ID || message.Sender_id === FC_CURRENT_USER_ID;
+    const senderId = message.senderId ?? message.Sender_id ?? null;
+    const isMe = Number(senderId) === Number(FC_CURRENT_USER_ID);
+
     div.className = `floating-chat-message ${isMe ? 'me' : 'them'}`;
 
     if (!message.type || message.type === 'text') {
@@ -198,7 +229,9 @@ function initFloatingSocket() {
     });
 
     FC_SOCKET.on('receive_message', async (message) => {
-        if (message.Chat_id === FC_SELECTED_CHAT_ID || message.chatId === FC_SELECTED_CHAT_ID) {
+        const incomingChatId = message.Chat_id ?? message.chatId ?? null;
+
+        if (Number(incomingChatId) === Number(FC_SELECTED_CHAT_ID)) {
             await addFloatingMessageToUI(message);
         }
 
@@ -210,7 +243,19 @@ function initFloatingSocket() {
     });
 }
 
-// ── Alleen initialiseren op pagina's die niet inlog/registratie zijn ──
+function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, (match) => {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return map[match];
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname.toLowerCase();
     if (path.includes('inlog') || path.includes('registre')) return;
