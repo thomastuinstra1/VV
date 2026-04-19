@@ -49,15 +49,39 @@ function updateNavAvatar(gebruiker) {
   const avatar = document.getElementById('navAvatar');
   if (!avatar || !gebruiker) return;
 
-  if (gebruiker.Afbeelding) {
-    avatar.innerHTML = `<img src="${gebruiker.Afbeelding}" alt="Profielfoto" style="width:100%;height:100%;object-fit:cover;" />`;
-  } else if (gebruiker.Name) {
-    const delen = gebruiker.Name.trim().split(' ');
-    const initialen = delen.length > 1
-      ? delen[0][0] + delen[delen.length - 1][0]
-      : delen[0].substring(0, 2);
+  const naam = gebruiker.Name || 'Gebruiker';
+  const afbeelding = gebruiker.Afbeelding && String(gebruiker.Afbeelding).trim() !== ''
+    ? String(gebruiker.Afbeelding).trim()
+    : null;
 
-    avatar.innerHTML = `<span style="font-size:13px;font-weight:500;color:#534AB7;">${initialen.toUpperCase()}</span>`;
+  const delen = naam.trim().split(' ').filter(Boolean);
+  const initialen = delen.length > 1
+    ? (delen[0][0] + delen[delen.length - 1][0]).toUpperCase()
+    : (delen[0]?.substring(0, 2) || '?').toUpperCase();
+
+  if (afbeelding) {
+    avatar.innerHTML = `
+      <img
+        src="${afbeelding}"
+        alt="Profielfoto"
+        style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"
+      />
+    `;
+
+    const img = avatar.querySelector('img');
+    img.onerror = function () {
+      avatar.innerHTML = `
+        <span style="font-size:13px;font-weight:500;color:#534AB7;">
+          ${initialen}
+        </span>
+      `;
+    };
+  } else {
+    avatar.innerHTML = `
+      <span style="font-size:13px;font-weight:500;color:#534AB7;">
+        ${initialen}
+      </span>
+    `;
   }
 }
 
