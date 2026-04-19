@@ -335,20 +335,35 @@
 
 /* APPOINTMENT BUTTON */
 .appointment-btn {
-  border: none;
-  background: var(--accent);
-  color: white;
-  padding: 14px 18px;
-  border-radius: 14px;
-  font-weight: 700;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 12px 22px rgba(249, 115, 22, 0.25);
-  transition: 0.25s ease;
+  transition: 0.2s ease;
+  background: white;
 }
 
-.appointment-btn:hover {
-  background: #ea580c;
-  transform: translateY(-1px);
+/* Accept (subtle green) */
+.accept-btn {
+  color: #065f46;
+  border-color: #a7f3d0;
+  background: #ecfdf5;
+}
+
+.accept-btn:hover {
+  background: #d1fae5;
+}
+
+/* Reject (subtle red) */
+.reject-btn {
+  color: #7f1d1d;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.reject-btn:hover {
+  background: #fee2e2;
 }
 
 /* MODAL */
@@ -447,11 +462,24 @@
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
 }
 
-.modal-actions {
+#modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  width: 320px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
 }
 
 .btn {
