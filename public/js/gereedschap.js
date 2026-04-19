@@ -23,20 +23,22 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("toolName").textContent = tool.Naam || "Onbekend gereedschap";
         document.getElementById("toolDescription").textContent = tool.Beschrijving || "";
         document.getElementById("toolBorg").textContent = `Borg: €${tool.BorgBedrag || 0}`;
-        document.getElementById("toolWaarde").textContent =
-    tool.Waarde != null ? `€${tool.Waarde}` : "—";
+       document.getElementById("toolType").textContent =
+    tool.Type || "—";
 
-    document.getElementById("toolGrootte").textContent =
-    tool.Grootte || "—";
-
-    document.getElementById("toolStaat").textContent =
-    tool.Staat || "—";
-
-    document.getElementById("toolWerkwijze").textContent =
+document.getElementById("toolWerkwijze").textContent =
     tool.Werkwijze || "—";
 
-    document.getElementById("toolType").textContent =
-    tool.Type || "—";
+document.getElementById("toolMateriaal").textContent =
+    Array.isArray(tool.Materiaal)
+        ? tool.Materiaal.join(", ")
+        : (tool.Materiaal || "—");
+
+document.getElementById("toolGrootte").textContent =
+    tool.Grootte || "—";
+
+document.getElementById("toolStaat").textContent =
+    tool.Staat || "—";
 
     document.getElementById("toolMateriaal").textContent =
     Array.isArray(tool.Materiaal)
