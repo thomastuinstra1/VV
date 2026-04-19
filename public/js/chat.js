@@ -80,24 +80,28 @@ if (message.type === "appointment") {
     dateStyle: 'short', timeStyle: 'short'
   });
 
-  div.innerHTML = `
-    <div data-uitleen-id="${uitleen.Uitleen_id}" style="border:1px solid #ccc; padding:10px; border-radius:10px;">
-      <p><b>📅 Afspraak</b></p>
-      <p>Borg: €${uitleen.BorgBedrag}</p>
-      <p>Van: ${uitleen.StartDatum.split('T')[0]} ${uitleen.StartTijd ?? ''}</p>
-      <p>Tot: ${uitleen.EindDatum.split('T')[0]} ${uitleen.EindTijd ?? ''}</p>
-      <p>📍 ${uitleen.Adres ?? 'Geen adres opgegeven'}</p>
-      ${
-        uitleen.Status === "pending" && !isMe
-          ? `
-            <button onclick="respond(${uitleen.Uitleen_id}, 'accept')">Accepteren</button>
-            <button onclick="respond(${uitleen.Uitleen_id}, 'reject')">Weigeren</button>
-            <p class="afspraak-status"></p>
-          `
-          : `<p class="afspraak-status">Status: ${uitleen.Status}</p>`
-      }
-    </div>
-  `;
+ div.innerHTML = `
+  <div class="appointment-card" data-uitleen-id="${uitleen.Uitleen_id}">
+    <div class="appointment-title">📅 Afspraak</div>
+
+    <div class="appointment-row"><strong>Borg:</strong> €${uitleen.BorgBedrag}</div>
+    <div class="appointment-row"><strong>Van:</strong> ${uitleen.StartDatum.split('T')[0]} ${uitleen.StartTijd ?? ''}</div>
+    <div class="appointment-row"><strong>Tot:</strong> ${uitleen.EindDatum.split('T')[0]} ${uitleen.EindTijd ?? ''}</div>
+    <div class="appointment-row"><strong>📍</strong> ${uitleen.Adres ?? 'Geen adres opgegeven'}</div>
+
+    ${
+      uitleen.Status === "pending" && !isMe
+        ? `
+          <div class="appointment-actions">
+            <button class="appointment-btn accept-btn" onclick="respond(${uitleen.Uitleen_id}, 'accept')">Accepteren</button>
+            <button class="appointment-btn reject-btn" onclick="respond(${uitleen.Uitleen_id}, 'reject')">Weigeren</button>
+          </div>
+          <p class="afspraak-status"></p>
+        `
+        : `<p class="afspraak-status">Status: ${uitleen.Status}</p>`
+    }
+  </div>
+`;
 }
 
   box.appendChild(div);

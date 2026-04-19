@@ -131,6 +131,76 @@
   box-shadow: 0 8px 18px rgba(249, 115, 22, 0.22);
 }
 
+.appointment-card {
+  margin-top: 4px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(4px);
+}
+
+.their-message .appointment-card {
+  background: #f8fafc;
+  border: 1px solid #dbe3ea;
+}
+
+.my-message .appointment-card {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.appointment-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.appointment-row {
+  margin-bottom: 6px;
+  line-height: 1.45;
+}
+
+.afspraak-status {
+  margin: 10px 0 0;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.appointment-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.appointment-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.accept-btn {
+  background: #16a34a;
+  color: white;
+}
+
+.accept-btn:hover {
+  background: #15803d;
+}
+
+.reject-btn {
+  background: #dc2626;
+  color: white;
+}
+
+.reject-btn:hover {
+  background: #b91c1c;
+}
+
 @media (max-width: 640px) {
   .chat-header {
     flex-direction: column;
