@@ -356,45 +356,89 @@
 
               <!-- STEP 4 -->
               <div class="form-slide" data-step="4">
-                <h2>Afbeelding</h2>
-                <p class="slide-sub">
-                  Upload een duidelijke foto en maak je advertentie aan.
-                </p>
+  <h2>Afbeelding</h2>
+  <p class="slide-sub">
+    Upload een duidelijke foto en bekijk hoe je advertentie eruit zal zien.
+  </p>
 
-                <div class="upload-area">
-                  <img id="gereedschap-preview" alt="Afbeelding preview" />
+  <div class="upload-area">
+    <img id="gereedschap-preview" alt="Afbeelding preview" />
 
-                  <div class="upload-actions">
-                    <label for="afbeelding-input" class="upload-btn"
-                      >Kies afbeelding</label
-                    >
-                    <input
-                      type="file"
-                      id="afbeelding-input"
-                      accept="image/*"
-                      hidden
-                    />
-                  </div>
-                </div>
+    <div class="upload-actions">
+      <label for="afbeelding-input" class="upload-btn">Kies afbeelding</label>
+      <input
+        type="file"
+        id="afbeelding-input"
+        accept="image/*"
+        hidden
+      />
+    </div>
+  </div>
 
-                <input type="hidden" id="afbeelding-url" name="Afbeelding" />
-              </div>
+  <input type="hidden" id="afbeelding-url" name="Afbeelding" />
 
-              <div class="wizard-actions">
-                <button type="button" class="secondary-btn" id="prevBtn">
-                  Vorige
-                </button>
-                <button type="button" class="primary-btn" id="nextBtn">
-                  Volgende
-                </button>
-                <button type="submit" class="primary-btn" id="submitBtn">
-                  Aanmaken
-                </button>
-              </div>
-            </form>
-          </div>
-        </section>
+  <div class="preview-section">
+    <h3>Voorbeeld van je advertentie</h3>
+    <p class="slide-sub">
+      Zo ziet je advertentie er ongeveer uit voor andere gebruikers.
+    </p>
+
+    <div class="tool-detail-container preview-container">
+      <div class="tool-images">
+        <img
+          id="previewToolImage"
+          src="/images/default.jpg"
+          alt="Preview gereedschap afbeelding"
+        />
       </div>
+
+      <div class="tool-info">
+        <span class="detail-tag">Beschikbaar in jouw buurt</span>
+        <h1 id="previewToolName">Gereedschap Naam</h1>
+        <p id="previewToolDescription">Beschrijving gereedschap</p>
+
+        <div class="tool-meta-card">
+          <div class="tool-price" id="previewToolBorg">Borg: €0</div>
+
+          <div class="availability" id="previewToolAvailability">
+            Beschikbaar van <span id="previewStartDate">--</span> tot
+            <span id="previewEndDate">--</span>
+          </div>
+        </div>
+
+        <div class="owner-card">
+          <img
+            id="previewOwnerAvatar"
+            src="/images/default-avatar.jpg"
+            alt="Profielfoto eigenaar"
+            class="owner-avatar"
+          />
+          <div class="owner-info">
+            <span class="owner-label">Aangeboden door</span>
+            <span class="owner-name">Jij</span>
+          </div>
+        </div>
+
+        <div class="detail-actions">
+          <span class="btn-reserve preview-disabled">Reserveer nu</span>
+          <span class="btn-back preview-disabled secondary-preview-btn">Terug naar aanbod</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wizard-actions">
+  <button type="button" class="secondary-btn" id="prevBtn">
+    Vorige
+  </button>
+  <button type="button" class="primary-btn" id="nextBtn">
+    Volgende
+  </button>
+  <button type="submit" class="primary-btn" id="submitBtn">
+    Aanmaken
+  </button>
+</div>
     </main>
 
     <footer class="site-footer">
@@ -448,12 +492,14 @@
     prevBtn.style.visibility = step === 1 ? "hidden" : "visible";
     nextBtn.style.display = step === slides.length ? "none" : "inline-flex";
     submitBtn.style.display = step === slides.length ? "inline-flex" : "none";
+
+    if (step === 4 && typeof updatePreview === "function") {
+      updatePreview();
+    }
   }
 
   function validateStep(step) {
-    const currentSlide = document.querySelector(
-      `.form-slide[data-step="${step}"]`,
-    );
+    const currentSlide = document.querySelector(`.form-slide[data-step="${step}"]`);
     const requiredFields = currentSlide.querySelectorAll("[required]");
     let valid = true;
 
