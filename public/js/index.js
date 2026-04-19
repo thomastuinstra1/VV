@@ -209,49 +209,66 @@ async function applyFilters() {
 // -----------------------
 // SLIDER (Nieuwste Gereedschap)
 // -----------------------
-async function loadNewAds() {
-    const track = document.getElementById("newAdsTrack");
-    if (!track) return;
+async function loadNewestAds() {
+  const track = document.getElementById('newAdsTrack');
+  if (!track) return;
 
-    showSpinner(true);
-    try {
-        const res = await fetchWithSpinner("/gereedschap");
-        const tools = await res.json();
+  try {
+    const res = await fetch('/gereedschappen/nieuw'); 
+    if (!res.ok) throw new Error('Kon nieuwste advertenties niet ophalen');
 
-        if (!Array.isArray(tools) || tools.length === 0) {
-            track.innerHTML = "<p>Geen gereedschap gevonden.</p>";
-            showToast("Geen nieuwe advertenties beschikbaar.", "info");
-            return;
-        }
+    const ads = await res.json();
 
-        const nieuwsteTools = tools.slice(0, 6);
-        const sliderTools = [...nieuwsteTools, ...nieuwsteTools];
+    const latestAds = Array.isArray(ads) ? ads.slice(0, 10) : [];
 
-        track.innerHTML = sliderTools.map(tool => {
-            const afbeelding = tool.Afbeelding?.trim() || "../images/placeholder.jpg";
-            const titel = tool.Naam || "Gereedschap";
-            const beschrijving = tool.Beschrijving || "Nieuw geplaatst op Gereedschapspunt.";
-
-            return `
-                <article class="ad-card">
-                    <img src="${afbeelding}" alt="${titel}" class="ad-image">
-                    <div class="ad-content">
-                        <span class="ad-label">Nieuw</span>
-                        <h3>${titel}</h3>
-                        <p>${beschrijving}</p>
-                    </div>
-                </article>
-            `;
-        }).join("");
-
-    } catch (err) {
-        console.error("Fout bij laden slider:", err);
-        track.innerHTML = "<p>Advertenties laden mislukt.</p>";
-        showToast("Slider laden mislukt.", "error");
-    } finally {
-        showSpinner(false);
+    if (!latestAds.length) {
+      track.innerHTML = '<p>Er zijn nog geen advertenties.</p>';
+      return;
     }
+
+    // duplicate for smooth infinite scroll
+    const renderSet = [...latestAds, ...latestAds];
+
+    track.innerHTML = renderSet.map(ad => {
+      const afbeelding = ad.Afbeelding || '/images/default-tool.jpg';
+      const titel = escapeHtml(ad.Naam || ad.Titel || 'Gereedschap');
+      const beschrijving = escapeHtml(ad.Beschrijving || 'Bekijk deze advertentie');
+      const plaats = escapeHtml(ad.Plaats || '');
+      const id = encodeURIComponent(ad.Gereedschap_id);
+
+      return `
+        <a class="ad-card" href="advertentie.html?id=${id}">
+          <img class="ad-image" src="${afbeelding}" alt="${titel}">
+          <div class="ad-content">
+            <span class="ad-label">${plaats || 'Nieuw'}</span>
+            <h3>${titel}</h3>
+            <p>${beschrijving}</p>
+          </div>
+        </a>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error(err);
+    track.innerHTML = '<p>Kon advertenties niet laden.</p>';
+  }
 }
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (match) => {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    };
+    return map[match];
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadNewestAds();
+});
 
 // -----------------------
 // NODIG VOOR HTML ONCLICK

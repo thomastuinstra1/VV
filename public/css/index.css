@@ -287,14 +287,17 @@
 }
 
 .ad-card {
-    flex-shrink: 0;           /* voorkomt dat kaarten kleiner worden */
-    width: 280px;
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    overflow: hidden;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
+  flex-shrink: 0;
+  width: 280px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .ad-card:hover {
