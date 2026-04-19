@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  const lijst = document.getElementById('chats-lijst');
+
   try {
     const res = await fetchWithSpinner('/mijn-chats');
 
@@ -7,10 +9,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       return;
     }
 
-    const chats = await res.json();
-    const lijst = document.getElementById('chats-lijst');
+    if (!res.ok) {
+      throw new Error('Chats konden niet worden geladen.');
+    }
 
-    if (!chats.length) {
+    const chats = await res.json();
+
+    if (!Array.isArray(chats) || chats.length === 0) {
       lijst.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">💬</div>
@@ -27,17 +32,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       const item = document.createElement('div');
       item.className = 'chat-item';
 
-      const chatLink = `chat.html?partner=${chat.Account_id}&tool=${chat.Gereedschap_id}`;
-      const afbeelding = chat.Afbeelding || '/images/default.jpg';
-      const naam = chat.Name || 'Onbekende gebruiker';
+      const chatLink = `chat.html?partner=${encodeURIComponent(chat.Account_id)}&tool=${encodeURIComponent(chat.Gereedschap_id)}`;
+      const naam = (chat.Name || 'Onbekende gebruiker').trim();
+      const initial = naam.charAt(0).toUpperCase() || '?';
       const gereedschapNaam = chat.Gereedschap_naam || 'Geen gereedschap';
       const tijd = formatChatTime(chat.Laatst_bijgewerkt || chat.updated_at || chat.created_at);
 
       item.innerHTML = `
         <div class="chat-left">
-          <div class="chat-avatar-wrap">
-            <img src="${afbeelding}" alt="${naam}" class="chat-avatar">
-          </div>
+          <div class="chat-avatar-fallback">${escapeHtml(initial)}</div>
 
           <div class="chat-info">
             <div class="chat-name">${escapeHtml(naam)}</div>
@@ -46,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         </div>
 
         <div class="chat-right">
-          <div class="chat-meta">${tijd}</div>
+          <div class="chat-meta">${escapeHtml(tijd)}</div>
           <button class="chat-delete-btn" type="button" aria-label="Verwijder chat">🗑️</button>
         </div>
       `;
@@ -64,10 +67,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       lijst.appendChild(item);
     });
-
   } catch (err) {
     console.error(err);
-    const lijst = document.getElementById('chats-lijst');
     lijst.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">⚠️</div>
@@ -83,7 +84,10 @@ async function verwijderChat(chatId, itemElement) {
 
   try {
     const res = await fetchWithSpinner(`/chat/${chatId}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Verwijderen mislukt');
+
+    if (!res.ok) {
+      throw new Error('Verwijderen mislukt');
+    }
 
     itemElement.remove();
 
