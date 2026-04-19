@@ -135,6 +135,139 @@
     display: none;
 }
 
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 2000;
+}
+
+.modal-box {
+    width: 100%;
+    max-width: 460px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 28px;
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.18);
+    position: relative;
+    animation: modalPop 0.2s ease;
+}
+
+.modal-box h2 {
+    margin: 0 0 10px;
+    font-size: 1.6rem;
+    color: #1f2937;
+}
+
+.modal-box p {
+    margin: 0 0 18px;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 12px;
+    background: #f3f4f6;
+    color: #374151;
+    font-size: 1.4rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #e5e7eb;
+    transform: rotate(90deg);
+}
+
+.modal-box .form-group {
+    margin-bottom: 18px;
+}
+
+.modal-box input[type="email"] {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #dbe1ea;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-box input[type="email"]:focus {
+    outline: none;
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.08);
+}
+
+.modal-box button:not(.modal-close) {
+    width: 100%;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 10px 22px rgba(249, 115, 22, 0.22);
+}
+
+.modal-box button:not(.modal-close):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 24px rgba(249, 115, 22, 0.28);
+}
+
+#resetFeedback {
+    display: none;
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #ecfdf5;
+    border: 1px solid #bbf7d0;
+    color: #166534 !important;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+@keyframes modalPop {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 700px) {
+    .modal-box {
+        padding: 22px 18px;
+        border-radius: 18px;
+    }
+
+    .modal-box h2 {
+        font-size: 1.35rem;
+    }
+}
+
 
 @media (max-width: 980px) {
     .login-shell {
