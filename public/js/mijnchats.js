@@ -38,9 +38,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       const gereedschapNaam = chat.Gereedschap_naam || 'Geen gereedschap';
       const tijd = formatChatTime(chat.Laatst_bijgewerkt || chat.updated_at || chat.created_at);
 
+      const afbeelding = chat.Afbeelding && chat.Afbeelding.trim() !== ''
+        ? chat.Afbeelding
+        : null;
+
+      const avatarHtml = afbeelding
+        ? `<img src="${escapeHtml(afbeelding)}" alt="${escapeHtml(naam)}" class="chat-avatar" />`
+        : `<div class="chat-avatar-fallback">${escapeHtml(initial)}</div>`;
+
       item.innerHTML = `
         <div class="chat-left">
-          <div class="chat-avatar-fallback">${escapeHtml(initial)}</div>
+          ${avatarHtml}
 
           <div class="chat-info">
             <div class="chat-name">${escapeHtml(naam)}</div>
@@ -53,6 +61,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           <button class="chat-delete-btn" type="button" aria-label="Verwijder chat">🗑️</button>
         </div>
       `;
+
+      const avatarImg = item.querySelector('.chat-avatar');
+      if (avatarImg) {
+        avatarImg.addEventListener('error', () => {
+          avatarImg.outerHTML = `<div class="chat-avatar-fallback">${escapeHtml(initial)}</div>`;
+        });
+      }
 
       item.addEventListener('click', (e) => {
         if (e.target.closest('.chat-delete-btn')) return;
@@ -67,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       lijst.appendChild(item);
     });
+
   } catch (err) {
     console.error(err);
     lijst.innerHTML = `
