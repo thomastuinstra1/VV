@@ -2,7 +2,7 @@ let CURRENT_USER_ID;
 let CHAT_ID;
 let socket;
 let TOOL_BORG = 0;
-let IS_OWNER = false; // ← nieuw
+let IS_OWNER = false;
 
 async function getCurrentUserId() {
   try {
@@ -20,7 +20,10 @@ async function getChatInfo() {
   const partnerId = parseInt(params.get('partner'));
   const toolId = parseInt(params.get('tool')) || null;
 
-  if (!partnerId) return console.error('Geen partner ID in URL');
+  if (!partnerId) {
+    console.error('Geen partner ID in URL');
+    return;
+  }
 
   try {
     const res = await fetchWithSpinner('/chat/start', {
@@ -29,21 +32,23 @@ async function getChatInfo() {
       body: JSON.stringify({ partnerId, toolId })
     });
 
+    if (!res.ok) throw new Error('Chat starten mislukt');
+
     const chat = await res.json();
     CHAT_ID = chat.Chat_id;
 
-    // 🔥 ADD THIS PART HERE
     const partnerNameEl = document.getElementById('chat-partner-name');
     const toolNameEl = document.getElementById('chat-tool-name');
     const partnerInitialEl = document.getElementById('chat-partner-initial');
 
-    if (partnerNameEl) {
-      const naam = chat.Partner_name || 'Gebruiker';
-      partnerNameEl.textContent = naam;
+    const naam = chat.Partner_name || 'Gebruiker';
 
-      if (partnerInitialEl) {
-        partnerInitialEl.textContent = naam.trim().charAt(0).toUpperCase() || '?';
-      }
+    if (partnerNameEl) {
+      partnerNameEl.textContent = naam;
+    }
+
+    if (partnerInitialEl) {
+      partnerInitialEl.textContent = naam.trim().charAt(0).toUpperCase() || '?';
     }
 
     if (toolNameEl) {
@@ -52,57 +57,51 @@ async function getChatInfo() {
         : 'Geen gereedschap geselecteerd';
     }
 
-    // existing logic
     IS_OWNER = Number(chat.Tool_owner_id) === Number(CURRENT_USER_ID);
     TOOL_BORG = chat.BorgBedrag ?? 0;
-
   } catch (err) {
-    console.error('Chat starten mislukt:', err);
+    console.error('Chat info laden mislukt:', err);
   }
 }
 
 async function addMessageToUI(message) {
-  const box = document.getElementById("chat-box");
-  const div = document.createElement("div");
-  const isMe = message.senderId === CURRENT_USER_ID;
+  const box = document.getElementById('chat-box');
+  const div = document.createElement('div');
+  const isMe = Number(message.senderId) === Number(CURRENT_USER_ID);
+
   div.className = isMe ? 'my-message' : 'their-message';
 
-  if (!message.type || message.type === "text") {
-    div.textContent = `${isMe ? 'Jij' : 'Partner'}: ${message.content}`;
+  if (!message.type || message.type === 'text') {
+    div.textContent = message.content;
   }
 
-if (message.type === "appointment") {
-  const res = await fetchWithSpinner(`/uitleen/${message.uitleenId}`);
-  const uitleen = await res.json();
+  if (message.type === 'appointment') {
+    const res = await fetchWithSpinner(`/uitleen/${message.uitleenId}`);
+    const uitleen = await res.json();
 
-  // Datum + tijd netjes formatteren
-  const fmt = (iso) => new Date(iso).toLocaleString('nl-NL', {
-    dateStyle: 'short', timeStyle: 'short'
-  });
+    div.innerHTML = `
+      <div class="appointment-card" data-uitleen-id="${uitleen.Uitleen_id}">
+        <div class="appointment-title">📅 Afspraak</div>
 
- div.innerHTML = `
-  <div class="appointment-card" data-uitleen-id="${uitleen.Uitleen_id}">
-    <div class="appointment-title">📅 Afspraak</div>
+        <div class="appointment-row"><strong>Borg:</strong> €${uitleen.BorgBedrag}</div>
+        <div class="appointment-row"><strong>Van:</strong> ${uitleen.StartDatum.split('T')[0]} ${uitleen.StartTijd ?? ''}</div>
+        <div class="appointment-row"><strong>Tot:</strong> ${uitleen.EindDatum.split('T')[0]} ${uitleen.EindTijd ?? ''}</div>
+        <div class="appointment-row"><strong>📍</strong> ${uitleen.Adres ?? 'Geen adres opgegeven'}</div>
 
-    <div class="appointment-row"><strong>Borg:</strong> €${uitleen.BorgBedrag}</div>
-    <div class="appointment-row"><strong>Van:</strong> ${uitleen.StartDatum.split('T')[0]} ${uitleen.StartTijd ?? ''}</div>
-    <div class="appointment-row"><strong>Tot:</strong> ${uitleen.EindDatum.split('T')[0]} ${uitleen.EindTijd ?? ''}</div>
-    <div class="appointment-row"><strong>📍</strong> ${uitleen.Adres ?? 'Geen adres opgegeven'}</div>
-
-    ${
-      uitleen.Status === "pending" && !isMe
-        ? `
-          <div class="appointment-actions">
-            <button class="appointment-btn accept-btn" onclick="respond(${uitleen.Uitleen_id}, 'accept')">Accepteren</button>
-            <button class="appointment-btn reject-btn" onclick="respond(${uitleen.Uitleen_id}, 'reject')">Weigeren</button>
-          </div>
-          <p class="afspraak-status"></p>
-        `
-        : `<p class="afspraak-status">Status: ${uitleen.Status}</p>`
-    }
-  </div>
-`;
-}
+        ${
+          uitleen.Status === 'pending' && !isMe
+            ? `
+              <div class="appointment-actions">
+                <button class="appointment-btn accept-btn" onclick="respond(${uitleen.Uitleen_id}, 'accept')">Accepteren</button>
+                <button class="appointment-btn reject-btn" onclick="respond(${uitleen.Uitleen_id}, 'reject')">Weigeren</button>
+              </div>
+              <p class="afspraak-status"></p>
+            `
+            : `<p class="afspraak-status">Status: ${uitleen.Status}</p>`
+        }
+      </div>
+    `;
+  }
 
   box.appendChild(div);
   box.scrollTop = box.scrollHeight;
@@ -110,15 +109,15 @@ if (message.type === "appointment") {
 
 function sendMessage(content) {
   if (!socket || !CHAT_ID || !content) return;
-  socket.emit("send_message", { chatId: CHAT_ID, content });
+  socket.emit('send_message', { chatId: CHAT_ID, content });
 }
 
 async function loadMessages() {
   try {
     const res = await fetchWithSpinner(`/messages/chat/${CHAT_ID}`);
     if (!res.ok) throw new Error('Kon berichten niet ophalen');
+
     const messages = await res.json();
-    
     for (const msg of messages) {
       await addMessageToUI(msg);
     }
@@ -128,41 +127,38 @@ async function loadMessages() {
 }
 
 function initSocket() {
-  socket = io("https://gereedschapspunt.student.open-ict.hu", {
+  socket = io('https://gereedschapspunt.student.open-ict.hu', {
     auth: { userId: CURRENT_USER_ID }
   });
 
-  socket.on("connect", () => {
+  socket.on('connect', () => {
     console.log(`Verbonden met Socket.IO als user ${CURRENT_USER_ID}`);
-    socket.emit("join_chat", { chatId: CHAT_ID });
+    socket.emit('join_chat', { chatId: CHAT_ID });
   });
 
-  socket.on("receive_message", (message) => {
+  socket.on('receive_message', (message) => {
     if (message.Chat_id === CHAT_ID) {
-      if (message.type === "appointment") closeModal();
+      if (message.type === 'appointment') closeModal();
       addMessageToUI(message);
     }
   });
 
-  socket.on("appointment_error", ({ message }) => {
+  socket.on('appointment_error', ({ message }) => {
     closeModal();
     alert(message);
-  }); // ← accolade sluiten hier
+  });
 
-  socket.on("redirect_to_borg", ({ uitleenId }) => {
+  socket.on('redirect_to_borg', ({ uitleenId }) => {
     window.location.href = `/borg.html?uitleenId=${uitleenId}`;
   });
 
-  socket.on("appointment_updated", (uitleen) => {
-  const allDivs = document.querySelectorAll('#chat-box > div');
+  socket.on('appointment_updated', (uitleen) => {
+    const allDivs = document.querySelectorAll('#chat-box > div');
 
     for (const div of allDivs) {
-      // Voor de ontvanger: zoek via de knoppen
       const acceptBtn = div.querySelector(`button[onclick="respond(${uitleen.Uitleen_id}, 'accept')"]`);
       const rejectBtn = div.querySelector(`button[onclick="respond(${uitleen.Uitleen_id}, 'reject')"]`);
-
-      // Voor de verzender: zoek via data-attribuut
-      const isAppointmentDiv = div.querySelector(`[data-uitleen-id="${uitleen.Uitleen_id}"]`);
+      const appointmentDiv = div.querySelector(`[data-uitleen-id="${uitleen.Uitleen_id}"]`);
 
       if (acceptBtn || rejectBtn) {
         const statusEl = div.querySelector('.afspraak-status');
@@ -172,7 +168,7 @@ function initSocket() {
         break;
       }
 
-      if (isAppointmentDiv) {
+      if (appointmentDiv) {
         const statusEl = div.querySelector('.afspraak-status');
         if (statusEl) statusEl.textContent = `Status: ${uitleen.Status}`;
         break;
@@ -180,15 +176,14 @@ function initSocket() {
     }
   });
 
-  socket.on("disconnect", () => console.log("Socket.IO verbinding verbroken"));
+  socket.on('disconnect', () => {
+    console.log('Socket.IO verbinding verbroken');
+  });
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener('DOMContentLoaded', async () => {
   await getCurrentUserId();
   await getChatInfo();
-
-  console.log('CURRENT_USER_ID:', CURRENT_USER_ID);
-  console.log('CHAT_ID:', CHAT_ID);
 
   if (!CURRENT_USER_ID || !CHAT_ID) {
     console.error('Initialisatie mislukt: gebruiker of chat ontbreekt');
@@ -198,22 +193,22 @@ document.addEventListener("DOMContentLoaded", async () => {
   initSocket();
   await loadMessages();
 
-  const sendBtn = document.getElementById("send-btn");
-  const input = document.getElementById("chat-input");
+  const sendBtn = document.getElementById('send-btn');
+  const input = document.getElementById('chat-input');
+  const afspraakBtn = document.getElementById('afspraak-btn');
 
-  const afspraakBtn = document.getElementById("afspraak-btn");
   if (afspraakBtn) {
-    afspraakBtn.style.display = IS_OWNER ? "inline-block" : "none";
+    afspraakBtn.style.display = IS_OWNER ? 'inline-flex' : 'none';
   }
 
-  sendBtn.addEventListener("click", () => {
+  sendBtn.addEventListener('click', () => {
     const content = input.value.trim();
     if (!content) return;
     sendMessage(content);
     input.value = '';
   });
 
-  input.addEventListener("keydown", (e) => {
+  input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       const content = input.value.trim();
@@ -224,35 +219,48 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 });
 
+document.addEventListener('click', (e) => {
+  const modal = document.getElementById('modal');
+  if (e.target === modal) {
+    closeModal();
+  }
+});
+
 window.respond = function(uitleenId, action) {
-  socket.emit("respond_appointment", { uitleenId, action });
+  socket.emit('respond_appointment', { uitleenId, action });
 };
 
 window.openModal = function() {
-  document.getElementById("modal-borg").textContent = TOOL_BORG ?? 0;
-  document.getElementById("modal").style.display = "block";
+  document.getElementById('modal-borg').textContent = TOOL_BORG ?? 0;
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('modal').setAttribute('aria-hidden', 'false');
 };
 
 window.closeModal = function() {
-  document.getElementById("modal").style.display = "none";
+  document.getElementById('modal').classList.remove('show');
+  document.getElementById('modal').setAttribute('aria-hidden', 'true');
 };
 
 window.sendAppointment = function() {
-  const startDate = document.getElementById("startDate").value;
-  const startTime = document.getElementById("startTime").value;
-  const endDate = document.getElementById("endDate").value;
-  const endTime = document.getElementById("endTime").value;
-  const address = document.getElementById("appointmentAddress").value.trim();
+  const startDate = document.getElementById('startDate').value;
+  const startTime = document.getElementById('startTime').value;
+  const endDate = document.getElementById('endDate').value;
+  const endTime = document.getElementById('endTime').value;
+  const address = document.getElementById('appointmentAddress').value.trim();
 
   if (!startDate || !startTime || !endDate || !endTime) {
-    return showToast("Vul alle datum- en tijdvelden in", "error");
+    return showToast('Vul alle datum- en tijdvelden in', 'error');
   }
-  if (!address) {
-    return showToast("Vul een ophaaladres in", "error");
-  }
-  if (!CHAT_ID) return showToast("Geen chat geselecteerd", "error");
 
-  socket.emit("send_appointment", {
+  if (!address) {
+    return showToast('Vul een ophaaladres in', 'error');
+  }
+
+  if (!CHAT_ID) {
+    return showToast('Geen chat geselecteerd', 'error');
+  }
+
+  socket.emit('send_appointment', {
     chatId: CHAT_ID,
     startDate,
     startTime,
