@@ -1,3 +1,5 @@
+let isLoading = false;
+
 function escapeHtml(str) {
   return String(str ?? '').replace(/[&<>"']/g, (match) => {
     const map = {
@@ -12,8 +14,14 @@ function escapeHtml(str) {
 }
 
 async function loadNewAds() {
+  if (isLoading) return;
+  isLoading = true;
+
   const track = document.getElementById('newAdsTrack');
-  if (!track) return;
+  if (!track) {
+    isLoading = false;
+    return;
+  }
 
   try {
     const res = await fetch('/gereedschappen/nieuw', { cache: 'no-store' });
@@ -50,7 +58,6 @@ async function loadNewAds() {
       `;
     }).join('');
 
-    // Wacht tot alle afbeeldingen geladen zijn, dan pas animatie starten
     const images = track.querySelectorAll('img');
     const total = images.length;
 
@@ -63,17 +70,13 @@ async function loadNewAds() {
     images.forEach((img) => {
       const done = () => {
         loaded++;
-        console.log(`Afbeelding ${loaded}/${total} geladen`);
         if (loaded >= total) {
-          console.log('Alle afbeeldingen geladen, animatie starten...');
           requestAnimationFrame(() => {
             track.classList.add('is-loaded');
-            console.log('Classes op track:', track.className);
           });
         }
       };
       if (img.complete) {
-        console.log('Al compleet (cache):', img.src);
         done();
       } else {
         img.addEventListener('load', done);
@@ -84,6 +87,8 @@ async function loadNewAds() {
   } catch (err) {
     console.error('Slider ads laden mislukt:', err);
     track.innerHTML = '<p>Kon advertenties niet laden.</p>';
+  } finally {
+    isLoading = false;
   }
 }
 
