@@ -47,7 +47,7 @@ async function loadNewAds() {
       const afbeelding = ad.Afbeelding || '/images/default-tool.jpg';
 
       return `
-        <a class="ad-card" href="advertentie.html?id=${id}">
+        <a class="ad-card" href="gereedschap.html?id=${id}">
           <img class="ad-image" src="${afbeelding}" alt="${titel}">
           <div class="ad-content">
             <span class="ad-label">${plaats}</span>
