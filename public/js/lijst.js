@@ -29,14 +29,14 @@ async function fetchAndDisplay(url) {
 
       if (
         currentUserCoords &&
-        tool.Account?.lat != null &&
-        tool.Account?.lon != null
-      ) {
+        tool.eigenaar?.lat != null &&
+        tool.eigenaar?.lon != null
+        ) {
         afstand = haversine(
           currentUserCoords.lat,
           currentUserCoords.lon,
-          tool.Account.lat,
-          tool.Account.lon
+          tool.eigenaar.lat,
+          tool.eigenaar.lon
         );
       }
 
