@@ -104,6 +104,8 @@ router.get(
             Account_id: true,
             Name:       true,
             Afbeelding: true,
+            lat:        true,
+            lon:        true,
             Report_Report_Gemelde_idToAccount: {
               select: { Report_id: true }
             }
