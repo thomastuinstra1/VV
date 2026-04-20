@@ -26,11 +26,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         
         const specs = tool.specs || {};
 
-        document.getElementById("toolType").textContent      = specs["Type"]?.join(", ")      || "—";
-        document.getElementById("toolWerkwijze").textContent = specs["Werkwijze"]?.join(", ") || "—";
-        document.getElementById("toolMateriaal").textContent = specs["Materiaal"]?.join(", ") || "—";
-        document.getElementById("toolGrootte").textContent   = specs["Grootte"]?.join(", ")   || "—";
-        document.getElementById("toolStaat").textContent     = specs["Staat"]?.join(", ")     || "—";
+        document.getElementById("toolType").textContent      = specs["Type"]?.join(", ")      || "n.v.t.";
+        document.getElementById("toolWerkwijze").textContent = specs["Werkwijze"]?.join(", ") || "n.v.t.";
+        document.getElementById("toolMateriaal").textContent = specs["Materiaal"]?.join(", ") || "n.v.t.";
+        document.getElementById("toolGrootte").textContent   = specs["Grootte"]?.join(", ")   || "n.v.t.";
+        document.getElementById("toolStaat").textContent     = specs["Staat"]?.join(", ")     || "n.v.t.";
 
         const start = tool.Begindatum ? new Date(tool.Begindatum).toLocaleDateString() : "--";
         const end = tool.Einddatum ? new Date(tool.Einddatum).toLocaleDateString() : "--";
