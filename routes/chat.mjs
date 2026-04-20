@@ -25,20 +25,20 @@ router.get('/mijn-chats', isLoggedIn, asyncHandler(async (req, res) => {
 
   const userId = req.session.userId;
 
-  const chats = await prisma.chats.findMany({
-    where: {
-      OR: [
-        { SenderId: userId },
-        { ReceiverId: userId }
-      ]
-    },
-    include: {
-      Account_Chats_SenderIdToAccount: true,
-      Account_Chats_ReceiverIdToAccount: true,
-      Gereedschap: true
-    },
-    orderBy: { CreatedAt: 'desc' }
-  });
+    const chats = await prisma.chats.findMany({
+      where: {
+        OR: [{ SenderId: userId }, { ReceiverId: userId }]
+      },
+      include: {
+        Account_Chats_SenderIdToAccount:   true,
+        Account_Chats_ReceiverIdToAccount: true,
+        Gereedschap:                       true,
+        Berichten: {                              // ← nieuw
+          select: { receiverId: true, isRead: true }
+        }
+      },
+      orderBy: { CreatedAt: 'desc' }
+    });
 
   res.json(toMijnChatsResponseDTO(chats, userId));
 }));
@@ -111,14 +111,19 @@ router.post(
 
 
 // ── Berichten van chat ──
-router.get(
-  '/messages/chat/:chatId',
-  isLoggedIn,
-  chatIdParamValidator,
-  validate,
+router.get('/messages/chat/:chatId', isLoggedIn, chatIdParamValidator, validate,
   asyncHandler(async (req, res) => {
-
     const chatId = parseInt(req.params.chatId);
+
+    // Markeer berichten van de ander als gelezen
+    await prisma.berichten.updateMany({
+      where: {
+        Chat_id: chatId,
+        receiverId: req.session.userId,
+        isRead: false
+      },
+      data: { isRead: true }
+    });
 
     const messages = await prisma.berichten.findMany({
       where: { Chat_id: chatId },

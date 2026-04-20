@@ -7,13 +7,18 @@ export const toMijnChatsResponseDTO = (chats, userId) => {
         ? chat.Account_Chats_ReceiverIdToAccount
         : chat.Account_Chats_SenderIdToAccount;
 
+    const unreadCount = (chat.Berichten ?? []).filter(
+      b => b.receiverId === userId && !b.isRead
+    ).length;
+
     return {
-      Chat_id: chat.Chat_id,
-      Account_id: partner.Account_id,
-      Name: partner.Name,
-      Afbeelding: partner.Afbeelding,
-      Gereedschap_id: chat.Gereedschap_id,
-      Gereedschap_naam: chat.Gereedschap?.Naam || ''
+      Chat_id:          chat.Chat_id,
+      Account_id:       partner.Account_id,
+      Name:             partner.Name,
+      Afbeelding:       partner.Afbeelding,
+      Gereedschap_id:   chat.Gereedschap_id,
+      Gereedschap_naam: chat.Gereedschap?.Naam || '',
+      unreadCount                               // ← nieuw
     };
   });
 };
