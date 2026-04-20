@@ -355,7 +355,11 @@
 .ad-slider-track {
     display: flex;
     gap: 22px;
-    width: max-content;       /* breed genoeg voor duplicatie */
+    width: max-content;
+    /* geen animatie standaard */
+}
+
+.ad-slider-track.is-loaded {
     animation: adScroll 40s linear infinite;
 }
 

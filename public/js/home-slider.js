@@ -47,6 +47,7 @@ async function loadNewAds() {
         </a>
       `;
     }).join('');
+    track.classList.add('is-loaded');
   } catch (err) {
     console.error('Slider ads laden mislukt:', err);
     track.innerHTML = '<p>Kon advertenties niet laden.</p>';
