@@ -1,29 +1,71 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Borgbetaling</title>
-  <link rel="stylesheet" href="css/style.css">
-  <script src="https://js.stripe.com/v3/"></script>
-</head>
-<body>
-  <h2>Borgbetaling</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Borgbetaling</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://js.stripe.com/v3/"></script>
+  </head>
+  <body>
+    <h2>Borgbetaling</h2>
 
-  <div id="borg-info">
-    <p>Uitleen #<span id="uitleen-id"></span></p>
-    <p>Borgbedrag: €<span id="borg-bedrag">...</span></p>
-  </div>
+    <div id="borg-info">
+      <p>Uitleen #<span id="uitleen-id"></span></p>
+      <p>Borgbedrag: €<span id="borg-bedrag">...</span></p>
+      <p class="borg-uitleg">
+        Het borgbedrag wordt gereserveerd en alleen afgeschreven als het
+        gereedschap niet (op tijd) wordt ingeleverd. Bij tijdige inlevering
+        wordt de reservering automatisch vrijgegeven.
+      </p>
+    </div>
 
-  <div id="betaal-sectie" style="display:none">
-    <div id="card-element"></div>
-    <p id="card-error" style="color:red"></p>
-    <button id="betaal-btn">Borg betalen</button>
-  </div>
+    <!-- Stap 1: kies betaalmethode -->
+    <div id="methode-keuze">
+      <h3>Kies je betaalmethode</h3>
+      <div class="methode-opties">
+        <button
+          class="methode-btn"
+          id="kies-card"
+          onclick="kiesMethode('card')"
+        >
+          💳 Creditcard / Debitcard
+          <small
+            >Borg wordt gereserveerd, pas afgeschreven bij te laat
+            inleveren</small
+          >
+        </button>
+        <button
+          class="methode-btn"
+          id="kies-ideal"
+          onclick="kiesMethode('ideal')"
+        >
+          🏦 iDEAL
+          <small
+            >Borg wordt direct afgeschreven, bij op tijd inleveren
+            teruggestort</small
+          >
+        </button>
+      </div>
+    </div>
 
-  <p id="status-bericht"></p>
+    <!-- Stap 2: betaalformulier (verschijnt na methode-keuze) -->
+    <div id="betaal-sectie" style="display: none">
+      <div id="payment-element"></div>
+      <p id="card-error" style="color: red; margin-top: 0.5rem"></p>
+      <button id="betaal-btn">Borg betalen</button>
+      <button
+        id="terug-btn"
+        onclick="resetMethode()"
+        style="margin-left: 0.5rem"
+      >
+        ← Andere methode
+      </button>
+    </div>
 
-  <script src="js/globaal.js"></script>
-  <script type="module" src="js/borg.js"></script>
-</body>
+    <p id="status-bericht"></p>
+
+    <script src="js/globaal.js"></script>
+    <script type="module" src="js/borg.js"></script>
+  </body>
 </html>

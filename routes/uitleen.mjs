@@ -21,7 +21,55 @@ import {
 const router = Router();
 
 
-// ── UITLEEN OPHALEN ──
+// ── HULPFUNCTIE: borg afhandelen op basis van betaalmethode ──────────────
+//
+// card  → capture_method: 'manual'
+//   • Op tijd:   paymentIntents.cancel()   → reservering vrijgeven, niets afgeschreven
+//   • Te laat:   paymentIntents.capture()  → bedrag incasseren
+//
+// ideal → capture_method: 'automatic' (direct afgeschreven bij betaling)
+//   • Op tijd:   refunds.create()          → volledig terugstorten naar lener
+//   • Te laat:   niets doen               → geld staat al op Stripe-account
+//
+async function verwerkBorg(uitleen, nieuweStatus) {
+  if (!uitleen.PaymentIntentId) return; // geen borg betaald, niets te doen
+
+  const pi      = await stripe.paymentIntents.retrieve(uitleen.PaymentIntentId);
+  const methode = pi.payment_method_types?.[0]; // 'card' of 'ideal'
+
+  if (nieuweStatus === 'ingeleverd_op_tijd') {
+    if (methode === 'card') {
+      // Reservering annuleren → lener betaalt niets
+      await stripe.paymentIntents.cancel(uitleen.PaymentIntentId);
+    } else if (methode === 'ideal') {
+      // iDEAL is al afgeschreven → volledig terugstorten
+      await stripe.refunds.create({
+        payment_intent: uitleen.PaymentIntentId,
+        reason:         'requested_by_customer'
+      });
+    }
+
+    await prisma.uitleen.update({
+      where: { Uitleen_id: uitleen.Uitleen_id },
+      data:  { BorgStatus: 'TERUGGESTORT' }
+    });
+
+  } else if (nieuweStatus === 'ingeleverd_te_laat' || nieuweStatus === 'te_laat') {
+    if (methode === 'card') {
+      // Reservering daadwerkelijk afschrijven
+      await stripe.paymentIntents.capture(uitleen.PaymentIntentId);
+    }
+    // iDEAL: geld is al afgeschreven bij betaling, niets extra nodig
+
+    await prisma.uitleen.update({
+      where: { Uitleen_id: uitleen.Uitleen_id },
+      data:  { BorgStatus: 'GEINCASSEERD' }
+    });
+  }
+}
+
+
+// ── UITLEEN OPHALEN ──────────────────────────────────────────────────────
 router.get(
   '/uitleen/:id',
   isLoggedIn,
@@ -42,7 +90,7 @@ router.get(
 );
 
 
-// ── STATUS BIJWERKEN ──
+// ── STATUS BIJWERKEN ─────────────────────────────────────────────────────
 router.patch(
   '/uitleen/:id/status',
   isLoggedIn,
@@ -72,6 +120,13 @@ router.patch(
       data:  { Status: status }
     });
 
+    // Borg automatisch afhandelen — fout hier mag de statuswijziging niet breken
+    try {
+      await verwerkBorg(uitleen, status);
+    } catch (borgErr) {
+      console.error('Borg afhandeling mislukt:', borgErr.message);
+    }
+
     if (uitleen.Account?.E_mail) {
       await sendEmail(status, uitleen.Account.E_mail, uitleen.Account.Name, uitleen.Gereedschap.Naam);
     }
@@ -81,7 +136,7 @@ router.patch(
 );
 
 
-// ── DASHBOARD: UITLENINGEN VAN MIJN GEREEDSCHAP ──
+// ── DASHBOARD: UITLENINGEN VAN MIJN GEREEDSCHAP ──────────────────────────
 router.get(
   '/dashboard/uitleningen',
   isLoggedIn,
@@ -106,7 +161,7 @@ router.get(
 );
 
 
-// ── DASHBOARD: MIJN GEREEDSCHAP ──
+// ── DASHBOARD: MIJN GEREEDSCHAP ──────────────────────────────────────────
 router.get(
   '/dashboard/gereedschap',
   isLoggedIn,
@@ -156,8 +211,6 @@ router.get(
         lenerEmail = actieveUitleen.Account?.E_mail ?? null;
       }
 
-      // Geef een pre-mapped object mee zodat toDashboardGereedschapDTO
-      // de juiste velden verwacht (statusberekening blijft in de route)
       return toDashboardGereedschapDTO({
         Gereedschap_id:  g.Gereedschap_id,
         Naam:            g.Naam,
@@ -177,7 +230,7 @@ router.get(
 );
 
 
-// ── MIJN LENINGEN ──
+// ── MIJN LENINGEN ────────────────────────────────────────────────────────
 router.get(
   '/mijn-leningen',
   isLoggedIn,
@@ -207,7 +260,7 @@ router.get(
 );
 
 
-// ── NIEUWE UITLEEN ──
+// ── NIEUWE UITLEEN ───────────────────────────────────────────────────────
 router.post(
   '/uitleen',
   isLoggedIn,
@@ -232,7 +285,48 @@ router.post(
   })
 );
 
-// ✅ Ingeleverd → borg terug
+
+// ── BORG BETALEN: maak PaymentIntent aan ─────────────────────────────────
+//
+// De frontend stuurt de gekozen betaalmethode mee ('card' of 'ideal').
+// Op basis daarvan kiezen we de juiste capture_method:
+//   card  → manual    (reserveer nu, incasseer alleen als nodig)
+//   ideal → automatic (iDEAL schrijft altijd direct af)
+//
+router.post('/uitleen/:id/borg/betalen', isLoggedIn, asyncHandler(async (req, res) => {
+  const uitleenId  = parseInt(req.params.id);
+  const { methode } = req.body; // 'card' of 'ideal', verstuurd vanuit borg.js
+
+  const uitleen = await prisma.uitleen.findUnique({
+    where: { Uitleen_id: uitleenId }
+  });
+
+  if (!uitleen)                                throw new AppError('Uitleen niet gevonden', 404);
+  if (uitleen.Lener_id !== req.session.userId) throw new AppError('Geen toegang', 403);
+  if (uitleen.BorgBedrag <= 0)                 throw new AppError('Geen borg vereist voor deze uitleen', 400);
+
+  const isIdeal            = methode === 'ideal';
+  const captureMethod      = isIdeal ? 'automatic' : 'manual';
+  const paymentMethodTypes = isIdeal ? ['ideal'] : ['card'];
+
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount:               Math.round(uitleen.BorgBedrag * 100),
+    currency:             'eur',
+    capture_method:       captureMethod,
+    payment_method_types: paymentMethodTypes,
+    metadata:             { uitleenId: uitleenId.toString(), methode: methode ?? 'card' }
+  });
+
+  await prisma.uitleen.update({
+    where: { Uitleen_id: uitleenId },
+    data:  { PaymentIntentId: paymentIntent.id, BorgStatus: 'OPEN' }
+  });
+
+  res.json({ clientSecret: paymentIntent.client_secret });
+}));
+
+
+// ── BORG HANDMATIG TERUGSTORTEN (reserveknop, optioneel gebruik) ─────────
 router.post('/uitleen/:id/borg/terugstorten', isLoggedIn, asyncHandler(async (req, res) => {
   const uitleenId = parseInt(req.params.id);
 
@@ -242,17 +336,13 @@ router.post('/uitleen/:id/borg/terugstorten', isLoggedIn, asyncHandler(async (re
 
   if (!uitleen?.PaymentIntentId) throw new AppError('Geen borg gevonden', 404);
 
-  const cancelled = await stripe.paymentIntents.cancel(uitleen.PaymentIntentId);
+  await verwerkBorg(uitleen, 'ingeleverd_op_tijd');
 
-  await prisma.uitleen.update({
-    where: { Uitleen_id: uitleenId },
-    data: { BorgStatus: 'TERUGGESTORT' }
-  });
-
-  res.json({ success: true, status: cancelled.status });
+  res.json({ success: true });
 }));
 
-// ❌ Niet ingeleverd → borg incasseren
+
+// ── BORG HANDMATIG INCASSEREN (reserveknop, optioneel gebruik) ───────────
 router.post('/uitleen/:id/borg/incasseren', isLoggedIn, asyncHandler(async (req, res) => {
   const uitleenId = parseInt(req.params.id);
 
@@ -262,46 +352,9 @@ router.post('/uitleen/:id/borg/incasseren', isLoggedIn, asyncHandler(async (req,
 
   if (!uitleen?.PaymentIntentId) throw new AppError('Geen borg gevonden', 404);
 
-  const captured = await stripe.paymentIntents.capture(uitleen.PaymentIntentId);
+  await verwerkBorg(uitleen, 'te_laat');
 
-  await prisma.uitleen.update({
-    where: { Uitleen_id: uitleenId },
-    data: { BorgStatus: 'GEINCASSEERD' }
-  });
-
-  res.json({ success: true, status: captured.status });
-}));
-
-// Maak PaymentIntent aan voor borg
-router.post('/uitleen/:id/borg/betalen', isLoggedIn, asyncHandler(async (req, res) => {
-  const uitleenId = parseInt(req.params.id);
-
-  const uitleen = await prisma.uitleen.findUnique({
-    where: { Uitleen_id: uitleenId }
-  });
-
-  if (!uitleen) throw new AppError('Uitleen niet gevonden', 404);
-  if (uitleen.Lener_id !== req.session.userId) {
-    throw new AppError('Geen toegang', 403);
-  }
-  if (uitleen.BorgBedrag <= 0) {
-    throw new AppError('Geen borg vereist voor deze uitleen', 400);
-  }
-
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: Math.round(uitleen.BorgBedrag * 100), // in centen
-    currency: 'eur',
-    capture_method: 'manual', // reserveer, niet direct afboeken
-    metadata: { uitleenId: uitleenId.toString() }
-  });
-
-  // Sla paymentIntentId op in database
-  await prisma.uitleen.update({
-    where: { Uitleen_id: uitleenId },
-    data: { PaymentIntentId: paymentIntent.id, BorgStatus: 'OPEN' }
-  });
-
-  res.json({ clientSecret: paymentIntent.client_secret });
+  res.json({ success: true });
 }));
 
 export default router;

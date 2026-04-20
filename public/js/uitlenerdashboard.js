@@ -519,8 +519,16 @@ async function markeerIngeleverd(uitleenId, status, btn) {
 
     if (!res || !res.ok) throw new Error('Status bijwerken mislukt');
 
-    const label = status === 'ingeleverd_op_tijd' ? 'Op tijd ingeleverd' : 'Te laat ingeleverd';
-    showToast(label, 'success');
+    // Toon de juiste melding inclusief wat er met de borg gebeurt
+    if (status === 'ingeleverd_op_tijd') {
+      showToast('✓ Op tijd ingeleverd — borg wordt teruggestort naar de lener', 'success');
+    } else if (status === 'ingeleverd_te_laat') {
+      showToast('Op tijd ingeleverd (te laat) — borg wordt geïncasseerd', 'success');
+    } else if (status === 'te_laat') {
+      showToast('Gemarkeerd als te laat — borg wordt geïncasseerd', 'success');
+    } else {
+      showToast('Status bijgewerkt', 'success');
+    }
 
     await loadData();
     buildDashboard();

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Borgbetaling bevestigd</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="https://js.stripe.com/v3/"></script>
+  </head>
+  <body>
+    <div id="bevestiging-wrapper">
+      <div id="bevestiging-card">
+        <div id="bevestiging-icon">⏳</div>
+        <h2 id="bevestiging-titel">Betaling controleren...</h2>
+        <p id="bevestiging-tekst"></p>
+        <div id="borg-details" style="display: none">
+          <p>Uitleen #<span id="uitleen-id"></span></p>
+          <p>Borgbedrag: €<span id="borg-bedrag"></span></p>
+        </div>
+        <a id="terug-btn" href="#" style="display: none">← Terug naar chat</a>
+      </div>
+    </div>
+
+    <script src="js/globaal.js"></script>
+    <script type="module" src="js/borg-bevestiging.js"></script>
+  </body>
+</html>
