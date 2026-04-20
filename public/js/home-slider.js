@@ -11,7 +11,7 @@ function escapeHtml(str) {
   });
 }
 
-async function loadNewestAds() {
+async function loadNewAds() {
   const track = document.getElementById('newAdsTrack');
   if (!track) return;
 
@@ -54,6 +54,6 @@ async function loadNewestAds() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadNewestAds();
-  setInterval(loadNewestAds, 30000);
+  loadNewAds();
+  setInterval(loadNewAds, 30000);
 });
