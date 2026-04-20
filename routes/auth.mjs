@@ -2,7 +2,6 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
-import { postcodeNaarCoords } from '../public/js/afstandfilter.js';
 import validate from '../middleware/validate.mjs';
 import { registerValidator, loginValidator } from '../validators/authValidator.mjs';
 import asyncHandler from '../middleware/asyncHandler.mjs';
@@ -20,6 +19,15 @@ import {
 import {
   toMessageResponseDTO
 } from '../dto/common.dto.mjs';
+
+// ── Lokale helper (geen frontend-koppeling meer) ──
+async function postcodeNaarCoords(postcode) {
+  const url = `https://nominatim.openstreetmap.org/search?postalcode=${postcode}&country=NL&format=json&limit=1`;
+  const res = await fetch(url, { headers: { "User-Agent": "GereedschapspuntApp" } });
+  const data = await res.json();
+  if (!data.length) throw new Error("Postcode niet gevonden");
+  return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+}
 
 const router = Router();
 
@@ -65,8 +73,8 @@ router.post(
         E_mail: dto.email,
         Password: hash,
         Postcode: dto.postcode,
-        lat: dto.coords.lat,
-        lon: dto.coords.lon
+        lat: coords.lat,  // ✅ fix
+        lon: coords.lon   // ✅ fix
       }
     });
 
