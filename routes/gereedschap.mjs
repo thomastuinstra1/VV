@@ -94,6 +94,33 @@ router.get(
   })
 );
 
+// ── GEREEDSCHAP VAN EEN GEBRUIKER (publiek profiel) ──
+router.get(
+  '/gereedschap/gebruiker/:id',
+  idParamValidator,
+  validate,
+  asyncHandler(async (req, res) => {
+
+    const accountId = parseInt(req.params.id);
+
+    const tools = await prisma.gereedschap.findMany({
+      where:   { Account_id: accountId },
+      orderBy: { Gereedschap_id: 'desc' },
+      include: {
+        Gereedschap_Categorie: {
+          include: {
+            Categorie: {
+              include: { Categorie: true }
+            }
+          }
+        }
+      }
+    });
+
+    res.json(toGereedschapResponseDTO(tools));
+  })
+);
+
 // ── CATEGORIEËN ──
 router.get(
   '/categorieen',
