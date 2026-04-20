@@ -367,6 +367,19 @@
     animation-play-state: paused; /* pauzeert scroll bij hover */
 }
 
+.ad-slider-wrapper {
+    overflow: visible !important;
+    border: 2px solid red !important;
+}
+
+.ad-slider-track {
+    border: 2px solid blue !important;
+}
+
+.ad-card {
+    border: 2px solid green !important;
+}
+
 .ad-card {
   flex-shrink: 0;
   width: 280px;
