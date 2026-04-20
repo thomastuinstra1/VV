@@ -63,13 +63,17 @@ async function loadNewAds() {
     images.forEach((img) => {
       const done = () => {
         loaded++;
+        console.log(`Afbeelding ${loaded}/${total} geladen`);
         if (loaded >= total) {
+          console.log('Alle afbeeldingen geladen, animatie starten...');
           requestAnimationFrame(() => {
             track.classList.add('is-loaded');
+            console.log('Classes op track:', track.className);
           });
         }
       };
       if (img.complete) {
+        console.log('Al compleet (cache):', img.src);
         done();
       } else {
         img.addEventListener('load', done);
