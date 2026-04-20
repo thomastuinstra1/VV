@@ -65,8 +65,8 @@ router.post(
         E_mail: dto.email,
         Password: hash,
         Postcode: dto.postcode,
-        lat: coords.lat,
-        lon: coords.lon
+        lat: dto.coords.lat,
+        lon: dto.coords.lon
       }
     });
 
