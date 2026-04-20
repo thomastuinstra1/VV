@@ -367,51 +367,18 @@
     animation-play-state: paused; /* pauzeert scroll bij hover */
 }
 
-.ad-slider-wrapper {
-    overflow: visible !important;
-    border: 2px solid red !important;
-}
-
-.ad-slider-track {
-    border: 2px solid blue !important;
-}
-
 .ad-card {
-    border: 2px solid green !important;
-}
-
-.ad-slider-track {
-    border: 2px solid blue !important;
-    min-height: 50px !important;
-    background: yellow !important;
-}
-
-.ad-slider-track {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    width: max-content !important;
-    min-width: 100% !important;
-}
-
-.ad-card {
-    flex-shrink: 0 !important;
-    width: 280px !important;
+    flex-shrink: 0;
+    width: 280px;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+    text-decoration: none;
+    color: inherit;
     display: block !important;
-}
-
-.ad-card {
-  flex-shrink: 0;
-  width: 280px;
-  background-color: #f9fafb;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
-  text-decoration: none;
-  color: inherit;
-  display: block;
 }
 
 .ad-card:hover {
