@@ -45,6 +45,7 @@ router.get('/mijn-chats', isLoggedIn, asyncHandler(async (req, res) => {
 
 
 // ── Chat starten ──
+// ── Chat starten ──
 router.post(
   '/chat/start',
   isLoggedIn,
@@ -63,10 +64,16 @@ router.post(
           { SenderId: partnerId, ReceiverId: userId }
         ]
       },
-      include: { Gereedschap: true },  // ✅ toevoegen
+      include: { Gereedschap: true },
     });
 
     let isNew = false;
+
+    // ✅ Partner altijd ophalen, niet alleen bij nieuwe chat
+    const partner = await prisma.account.findUnique({
+      where: { Account_id: partnerId },
+      select: { Name: true, E_mail: true }
+    });
 
     if (!chat) {
       chat = await prisma.chats.create({
@@ -80,24 +87,18 @@ router.post(
 
       isNew = true;
 
-      const [sender, receiver] = await Promise.all([
-        prisma.account.findUnique({
-          where: { Account_id: userId },
-          select: { Name: true }
-        }),
-        prisma.account.findUnique({
-          where: { Account_id: partnerId },
-          select: { Name: true, E_mail: true }
-        })
-      ]);
+      const sender = await prisma.account.findUnique({
+        where: { Account_id: userId },
+        select: { Name: true }
+      });
 
       fetch(process.env.APPS_SCRIPT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'new_chat',
-          receiverEmail: receiver.E_mail,
-          receiverName: receiver.Name,
+          receiverEmail: partner.E_mail,
+          receiverName: partner.Name,
           senderName: sender.Name
         })
       }).catch(err =>
@@ -105,7 +106,8 @@ router.post(
       );
     }
 
-    res.json(toChatStartResponseDTO(chat, isNew));
+    // ✅ Partner meegeven aan DTO
+    res.json(toChatStartResponseDTO(chat, isNew, { partner }));
   })
 );
 

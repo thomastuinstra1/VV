@@ -30,13 +30,16 @@ export const toChatStartDTO = (body) => ({
   toolId: body.toolId
 });
 
-export const toChatStartResponseDTO = (chat, isNew) => ({
-  Chat_id: chat.Chat_id,
-  SenderId: chat.SenderId,
-  ReceiverId: chat.ReceiverId,
-  Gereedschap_id: chat.Gereedschap_id,
-  Tool_owner_id: chat.Gereedschap?.Account_id,  // ✅ eigenaar meesturen
-  CreatedAt: chat.CreatedAt,
+export const toChatStartResponseDTO = (chat, isNew, { partner }) => ({
+  Chat_id:          chat.Chat_id,
+  SenderId:         chat.SenderId,
+  ReceiverId:       chat.ReceiverId,
+  Gereedschap_id:   chat.Gereedschap_id,
+  Gereedschap_naam: chat.Gereedschap?.Naam || null,
+  Tool_owner_id:    chat.Gereedschap?.Account_id,
+  BorgBedrag:       chat.Gereedschap?.BorgBedrag ?? 0,
+  Partner_name:     partner?.Name || null,
+  CreatedAt:        chat.CreatedAt,
   isNew
 });
 
