@@ -237,7 +237,7 @@ async function loadNewestAds() {
       const id = encodeURIComponent(ad.Gereedschap_id);
 
       return `
-        <a class="ad-card" href="advertentie.html?id=${id}">
+        <a class="ad-card" href="gereedschap.html?id=${id}">
           <img class="ad-image" src="${afbeelding}" alt="${titel}">
           <div class="ad-content">
             <span class="ad-label">${plaats || 'Nieuw'}</span>
