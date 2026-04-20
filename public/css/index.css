@@ -386,6 +386,20 @@
     background: yellow !important;
 }
 
+.ad-slider-track {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    width: max-content !important;
+    min-width: 100% !important;
+}
+
+.ad-card {
+    flex-shrink: 0 !important;
+    width: 280px !important;
+    display: block !important;
+}
+
 .ad-card {
   flex-shrink: 0;
   width: 280px;
