@@ -24,7 +24,7 @@ async function loadNewAds() {
   }
 
   try {
-    const res = await fetch('/gereedschappen/nieuw', { cache: 'no-store' });
+    const res = await fetch('../gereedschappen/nieuw', { cache: 'no-store' });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const ads = await res.json();
@@ -44,7 +44,7 @@ async function loadNewAds() {
       const titel = escapeHtml(ad.Naam || ad.Titel || 'Gereedschap');
       const beschrijving = escapeHtml(ad.Beschrijving || 'Bekijk deze advertentie');
       const plaats = escapeHtml(ad.eigenaar?.Name || 'Nieuw');
-      const afbeelding = ad.Afbeelding || '/images/default-tool.jpg';
+      const afbeelding = ad.Afbeelding || '../images/default-tool.jpg';
 
       return `
         <a class="ad-card" href="gereedschap.html?id=${id}">
