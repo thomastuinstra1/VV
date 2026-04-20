@@ -17,8 +17,6 @@ async function loadNewAds() {
   if (isLoading) return;
   isLoading = true;
 
-  console.log('loadNewAds gestart');
-
   const track = document.getElementById('newAdsTrack');
   if (!track) {
     isLoading = false;
@@ -40,7 +38,6 @@ async function loadNewAds() {
     const doubledAds = [...latestAds, ...latestAds];
 
     track.classList.remove('is-loaded');
-    console.log('is-loaded verwijderd, classes:', track.className);
 
     track.innerHTML = doubledAds.map((ad) => {
       const id = encodeURIComponent(ad.Gereedschap_id);
@@ -63,7 +60,6 @@ async function loadNewAds() {
 
     const images = track.querySelectorAll('img');
     const total = images.length;
-    console.log('Aantal afbeeldingen:', total);
 
     if (total === 0) {
       track.classList.add('is-loaded');
@@ -74,12 +70,9 @@ async function loadNewAds() {
     images.forEach((img) => {
       const done = () => {
         loaded++;
-        console.log(`Afbeelding ${loaded}/${total} geladen`);
         if (loaded >= total) {
-          console.log('Alle afbeeldingen geladen, animatie starten...');
           requestAnimationFrame(() => {
             track.classList.add('is-loaded');
-            console.log('Classes op track:', track.className);
           });
         }
       };
