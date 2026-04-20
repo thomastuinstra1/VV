@@ -333,6 +333,11 @@ body {
     line-height: 1.5;
 }
 
+.ad-card {
+    text-decoration: none;
+    color: inherit;
+}
+
 /* animation */
 @keyframes adScroll {
     0% {
