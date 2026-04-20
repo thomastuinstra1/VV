@@ -1,16 +1,18 @@
 // ── GET /uitleen/:id ──
 export const toUitleenResponseDTO = (u) => ({
-  Uitleen_id:     u.Uitleen_id,
-  Account_id:     u.Account_id     ?? null,
-  Gereedschap_id: u.Gereedschap_id ?? null,
-  StartDatum:     u.StartDatum     ?? null,
-  EindDatum:      u.EindDatum      ?? null,
-  BorgBedrag:     u.BorgBedrag     ?? null,
-  Status:         u.Status         ?? null,
-  Lener_id:       u.Lener_id       ?? null,
-  StartTijd:      u.StartTijd      ?? null,
-  EindTijd:       u.EindTijd       ?? null,
-  Adres:          u.Adres          ?? null
+  Uitleen_id:      u.Uitleen_id,
+  Account_id:      u.Account_id      ?? null,
+  Gereedschap_id:  u.Gereedschap_id  ?? null,
+  StartDatum:      u.StartDatum      ?? null,
+  EindDatum:       u.EindDatum       ?? null,
+  BorgBedrag:      u.BorgBedrag      ?? null,
+  BorgStatus:      u.BorgStatus      ?? null,  // ← toegevoegd
+  PaymentIntentId: u.PaymentIntentId ?? null,  // ← toegevoegd
+  Status:          u.Status          ?? null,
+  Lener_id:        u.Lener_id        ?? null,
+  StartTijd:       u.StartTijd       ?? null,
+  EindTijd:        u.EindTijd        ?? null,
+  Adres:           u.Adres           ?? null
 });
 
 
@@ -22,7 +24,6 @@ export const toStatusUpdateResponseDTO = (status) => ({
 
 
 // ── GET /dashboard/uitleningen ──
-// Mapping zit in de DTO: lenerMap wordt meegegeven als parameter
 export const toDashboardUitleningDTO = (u, lenerMap) => ({
   Uitleen_id:      u.Uitleen_id,
   Status:          u.Status,
@@ -38,7 +39,6 @@ export const toDashboardUitleningDTO = (u, lenerMap) => ({
 
 
 // ── GET /dashboard/gereedschap ──
-// Statusberekening zit in de route (heeft `now` nodig), DTO filtert de output
 export const toDashboardGereedschapDTO = (g) => ({
   Gereedschap_id:  g.Gereedschap_id,
   Naam:            g.Naam,
@@ -54,7 +54,6 @@ export const toDashboardGereedschapDTO = (g) => ({
 
 
 // ── GET /mijn-leningen ──
-// Chat-koppeling en eigenaar-info worden in de route opgehaald en hier gefilterd
 export const toMijnLeningDTO = (u, chatList, lenerId) => {
   const tool     = u.Gereedschap ?? null;
   const eigenaar = tool?.Account ?? null;
@@ -73,13 +72,14 @@ export const toMijnLeningDTO = (u, chatList, lenerId) => {
     StartDatum:      u.StartDatum,
     EindDatum:       u.EindDatum,
     BorgBedrag:      u.BorgBedrag,
+    BorgStatus:      u.BorgStatus      ?? null,  // ← toegevoegd (handig voor lener-dashboard)
     Gereedschap_id:  u.Gereedschap_id,
-    gereedschapNaam: tool?.Naam       ?? null,
-    Afbeelding:      tool?.Afbeelding ?? null,
+    gereedschapNaam: tool?.Naam        ?? null,
+    Afbeelding:      tool?.Afbeelding  ?? null,
     eigenaarId:      eigenaar?.Account_id ?? null,
-    eigenaarNaam:    eigenaar?.Name   ?? null,
-    eigenaarEmail:   eigenaar?.E_mail ?? null,
-    Chat_id:         chat?.Chat_id    ?? null
+    eigenaarNaam:    eigenaar?.Name    ?? null,
+    eigenaarEmail:   eigenaar?.E_mail  ?? null,
+    Chat_id:         chat?.Chat_id     ?? null
   };
 };
 
