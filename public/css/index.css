@@ -380,6 +380,12 @@
     border: 2px solid green !important;
 }
 
+.ad-slider-track {
+    border: 2px solid blue !important;
+    min-height: 50px !important;
+    background: yellow !important;
+}
+
 .ad-card {
   flex-shrink: 0;
   width: 280px;
