@@ -29,6 +29,8 @@ async function loadNewAds() {
 
     const doubledAds = [...latestAds, ...latestAds];
 
+    track.classList.remove('is-loaded');
+
     track.innerHTML = doubledAds.map((ad) => {
       const id = encodeURIComponent(ad.Gereedschap_id);
       const titel = escapeHtml(ad.Naam || ad.Titel || 'Gereedschap');
@@ -47,7 +49,34 @@ async function loadNewAds() {
         </a>
       `;
     }).join('');
-    track.classList.add('is-loaded');
+
+    // Wacht tot alle afbeeldingen geladen zijn, dan pas animatie starten
+    const images = track.querySelectorAll('img');
+    const total = images.length;
+
+    if (total === 0) {
+      track.classList.add('is-loaded');
+      return;
+    }
+
+    let loaded = 0;
+    images.forEach((img) => {
+      const done = () => {
+        loaded++;
+        if (loaded >= total) {
+          requestAnimationFrame(() => {
+            track.classList.add('is-loaded');
+          });
+        }
+      };
+      if (img.complete) {
+        done();
+      } else {
+        img.addEventListener('load', done);
+        img.addEventListener('error', done);
+      }
+    });
+
   } catch (err) {
     console.error('Slider ads laden mislukt:', err);
     track.innerHTML = '<p>Kon advertenties niet laden.</p>';
