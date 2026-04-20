@@ -342,7 +342,6 @@
 .ad-slider-section {
     background-color: #ffffff;
     padding: 55px 0 70px;
-    overflow: hidden;
 }
 
 .ad-slider-wrapper {
@@ -363,7 +362,7 @@
     animation: adScroll 40s linear infinite;
 }
 
-.ad-slider-track:hover {
+.ad-slider-track.ad-slider-track.is-loaded:hover {
     animation-play-state: paused; /* pauzeert scroll bij hover */
 }
 
