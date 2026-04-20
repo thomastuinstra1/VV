@@ -628,3 +628,8 @@ section {
   color: #534AB7;
   user-select: none;
 }
+
+.header-search input[type="text"] {
+    border: none;
+    box-shadow: none;
+}
