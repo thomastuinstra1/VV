@@ -23,27 +23,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("toolName").textContent = tool.Naam || "Onbekend gereedschap";
         document.getElementById("toolDescription").textContent = tool.Beschrijving || "";
         document.getElementById("toolBorg").textContent = `Borg: €${tool.BorgBedrag || 0}`;
-       document.getElementById("toolType").textContent =
-    tool.Type || "—";
+        
+        const specs = tool.specs || {};
 
-document.getElementById("toolWerkwijze").textContent =
-    tool.Werkwijze || "—";
-
-document.getElementById("toolMateriaal").textContent =
-    Array.isArray(tool.Materiaal)
-        ? tool.Materiaal.join(", ")
-        : (tool.Materiaal || "—");
-
-document.getElementById("toolGrootte").textContent =
-    tool.Grootte || "—";
-
-document.getElementById("toolStaat").textContent =
-    tool.Staat || "—";
-
-    document.getElementById("toolMateriaal").textContent =
-    Array.isArray(tool.Materiaal)
-        ? tool.Materiaal.join(", ")
-        : (tool.Materiaal || "—");
+        document.getElementById("toolType").textContent      = specs["Type"]?.join(", ")      || "—";
+        document.getElementById("toolWerkwijze").textContent = specs["Werkwijze"]?.join(", ") || "—";
+        document.getElementById("toolMateriaal").textContent = specs["Materiaal"]?.join(", ") || "—";
+        document.getElementById("toolGrootte").textContent   = specs["Grootte"]?.join(", ")   || "—";
+        document.getElementById("toolStaat").textContent     = specs["Staat"]?.join(", ")     || "—";
 
         const start = tool.Begindatum ? new Date(tool.Begindatum).toLocaleDateString() : "--";
         const end = tool.Einddatum ? new Date(tool.Einddatum).toLocaleDateString() : "--";

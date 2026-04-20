@@ -17,25 +17,42 @@ export const toGereedschapCreateResponseDTO = (tool) => ({
 
 // ── LIST ──
 export const toGereedschapResponseDTO = (tools) => {
-  return tools.map(t => ({
-    Gereedschap_id: t.Gereedschap_id,
-    Naam:           t.Naam,
-    Beschrijving:   t.Beschrijving,
-    BorgBedrag:     t.BorgBedrag,
-    Afbeelding:     t.Afbeelding,
-    Begindatum:     t.Begindatum,
-    Einddatum:      t.Einddatum,
-    Account_id:     t.Account_id,
-    // Gefilterd: geen wachtwoord of gevoelige velden van eigenaar
-    eigenaar: t.Account ? {
-      Account_id:      t.Account.Account_id,
-      Name:            t.Account.Name,
-      Afbeelding:      t.Account.Afbeelding,
-      aantalRapporten: t.Account.Report_Report_Gemelde_idToAccount?.length ?? 0,
-      lat:             t.Account.lat, 
-      lon:             t.Account.lon
-    } : null
-  }));
+  return tools.map(t => {
+
+    // Groepeer categorieën op parent naam
+    const specs = {};
+    for (const koppeling of t.Gereedschap_Categorie ?? []) {
+      const kind   = koppeling.Categorie;
+      const parent = kind?.Categorie;         // de parent via Parent_id
+      if (parent?.Naam && kind?.Naam) {
+        if (!specs[parent.Naam]) specs[parent.Naam] = [];
+        specs[parent.Naam].push(kind.Naam);
+      }
+    }
+
+    return {
+      Gereedschap_id: t.Gereedschap_id,
+      Naam:           t.Naam,
+      Beschrijving:   t.Beschrijving,
+      BorgBedrag:     t.BorgBedrag,
+      Afbeelding:     t.Afbeelding,
+      Begindatum:     t.Begindatum,
+      Einddatum:      t.Einddatum,
+      Account_id:     t.Account_id,
+
+      // bijv. { Type: ["Tuingereedschap"], Werkwijze: ["Accu"], Materiaal: ["Hout", "Steen"] }
+      specs,
+
+      eigenaar: t.Account ? {
+        Account_id:      t.Account.Account_id,
+        Name:            t.Account.Name,
+        Afbeelding:      t.Account.Afbeelding,
+        aantalRapporten: t.Account.Report_Report_Gemelde_idToAccount?.length ?? 0,
+        lat:             t.Account.lat,
+        lon:             t.Account.lon
+      } : null
+    };
+  });
 };
 
 

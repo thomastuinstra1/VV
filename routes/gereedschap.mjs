@@ -110,6 +110,15 @@ router.get(
               select: { Report_id: true }
             }
           }
+        },
+        Gereedschap_Categorie: {          // ← toevoegen
+          include: {
+            Categorie: {
+              include: {
+                Categorie: true           // ← de parent ophalen
+              }
+            }
+          }
         }
       },
       orderBy: { Gereedschap_id: 'desc' }
@@ -128,7 +137,18 @@ router.get(
 
     const tools = await prisma.gereedschap.findMany({
       where:   { Account_id: req.session.userId },
-      orderBy: { Gereedschap_id: 'desc' }
+      orderBy: { Gereedschap_id: 'desc' },
+      include: {
+        Gereedschap_Categorie: {
+          include: {
+            Categorie: {
+              include: {
+                Categorie: true
+              }
+            }
+          }
+        }
+      }
     });
 
     res.json(toGereedschapResponseDTO(tools));
