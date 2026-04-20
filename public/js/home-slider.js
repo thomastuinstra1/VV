@@ -33,7 +33,7 @@ async function loadNewestAds() {
       const id = encodeURIComponent(ad.Gereedschap_id);
       const titel = escapeHtml(ad.Naam || ad.Titel || 'Gereedschap');
       const beschrijving = escapeHtml(ad.Beschrijving || 'Bekijk deze advertentie');
-      const plaats = escapeHtml(ad.Plaats || 'Nieuw');
+      const plaats = escapeHtml(ad.eigenaar?.Name || 'Nieuw');
       const afbeelding = ad.Afbeelding || '/images/default-tool.jpg';
 
       return `

@@ -59,6 +59,40 @@ router.post(
   })
 );
 
+// ── NIEUWSTE GEREEDSCHAP (homepage slider) ──
+router.get(
+  '/gereedschappen/nieuw',
+  asyncHandler(async (req, res) => {
+
+    const tools = await prisma.gereedschap.findMany({
+      orderBy: { Gereedschap_id: 'desc' },
+      take: 10,
+      include: {
+        Account: {
+          select: {
+            Account_id: true,
+            Name:       true,
+            Afbeelding: true,
+            lat:        true,
+            lon:        true,
+            Report_Report_Gemelde_idToAccount: {
+              select: { Report_id: true }
+            }
+          }
+        },
+        Gereedschap_Categorie: {
+          include: {
+            Categorie: {
+              include: { Categorie: true }
+            }
+          }
+        }
+      }
+    });
+
+    res.json(toGereedschapResponseDTO(tools));
+  })
+);
 
 // ── CATEGORIEËN ──
 router.get(
