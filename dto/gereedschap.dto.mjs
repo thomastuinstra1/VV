@@ -32,8 +32,8 @@ export const toGereedschapResponseDTO = (tools) => {
       Name:            t.Account.Name,
       Afbeelding:      t.Account.Afbeelding,
       aantalRapporten: t.Account.Report_Report_Gemelde_idToAccount?.length ?? 0,
-      lat: tool.Account.lat, 
-      lon: tool.Account.lon
+      lat:             t.Account.lat, 
+      lon:             t.Account.lon
     } : null
   }));
 };
