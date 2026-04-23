@@ -9,7 +9,7 @@
   </head>
 
   <body>
-    <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+    <div id="globalSpinner" class="spinner-overlay" style="display: none">
       <div class="spinner"></div>
     </div>
     <div id="toast"></div>
@@ -17,41 +17,49 @@
     <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
 
     <header class="site-header">
-  <div class="container nav-container">
-    <div class="logo">
-      <a href="index.html">
-        <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
-      </a>
-    </div>
-
-    <form class="header-search" action="lijst.html" method="get">
-      <input
-        type="text"
-        name="zoek"
-        placeholder="Zoek gereedschap..."
-        aria-label="Zoek gereedschap"
-      />
-      <button type="submit">Zoeken</button>
-    </form>
-
-    <nav class="main-nav">
-      <ul>
-        <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
-        <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
-        <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
-        <li data-auth="true">
-          <a href="accountinstellingen.html">
-            <div id="navAvatar">
-              <span id="navAvatarInitials">?</span>
-            </div>
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="./images/Logo.png"
+              alt="Gereedschapspunt"
+              class="logo-img"
+            />
           </a>
-        </li>
-        <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
-         <li data-guest="true"><a href="register.html">Registreren</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
+        </div>
+
+        <form class="header-search" action="zoeken.html" method="get">
+          <input
+            type="text"
+            name="search"
+            placeholder="Zoek gereedschap of profielen..."
+            aria-label="Zoek gereedschap of profielen"
+          />
+          <button type="submit">Zoeken</button>
+        </form>
+
+        <nav class="main-nav">
+          <ul>
+            <li data-auth="true">
+              <a href="lenerdashboard.html">Lenerdashboard</a>
+            </li>
+            <li data-auth="true">
+              <a href="uitlenerdashboard.html">Uitlenerdashboard</a>
+            </li>
+            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+            <li data-auth="true">
+              <a href="accountinstellingen.html">
+                <div id="navAvatar">
+                  <span id="navAvatarInitials">?</span>
+                </div>
+              </a>
+            </li>
+            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+            <li data-guest="true"><a href="register.html">Registreren</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
 
     <main id="main-content">
       <section class="tool-detail-section">
@@ -77,45 +85,45 @@
               <p id="toolDescription">Beschrijving gereedschap</p>
 
               <div class="tool-meta-card">
-  <div class="tool-price" id="toolBorg">Borg: €0</div>
+                <div class="tool-price" id="toolBorg">Borg: €0</div>
 
-  <div class="availability" id="toolAvailability">
-    Beschikbaar van <span id="startDate">--</span> tot
-    <span id="endDate">--</span>
-  </div>
-</div>
+                <div class="availability" id="toolAvailability">
+                  Beschikbaar van <span id="startDate">--</span> tot
+                  <span id="endDate">--</span>
+                </div>
+              </div>
 
-<div class="tool-specs-card">
-  <h3>Details</h3>
+              <div class="tool-specs-card">
+                <h3>Details</h3>
 
-  <div class="tool-specs-list">
-    <div class="spec-row">
-      <span class="spec-label">Type</span>
-      <span class="spec-value" id="toolType">—</span>
-    </div>
+                <div class="tool-specs-list">
+                  <div class="spec-row">
+                    <span class="spec-label">Type</span>
+                    <span class="spec-value" id="toolType">—</span>
+                  </div>
 
-    <div class="spec-row">
-      <span class="spec-label">Werkwijze</span>
-      <span class="spec-value" id="toolWerkwijze">—</span>
-    </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Werkwijze</span>
+                    <span class="spec-value" id="toolWerkwijze">—</span>
+                  </div>
 
-    <div class="spec-row">
-      <span class="spec-label">Materiaal</span>
-      <span class="spec-value" id="toolMateriaal">—</span>
-    </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Materiaal</span>
+                    <span class="spec-value" id="toolMateriaal">—</span>
+                  </div>
 
-    <div class="spec-row">
-      <span class="spec-label">Grootte</span>
-      <span class="spec-value" id="toolGrootte">—</span>
-    </div>
+                  <div class="spec-row">
+                    <span class="spec-label">Grootte</span>
+                    <span class="spec-value" id="toolGrootte">—</span>
+                  </div>
 
-    <div class="spec-row">
-      <span class="spec-label">Staat</span>
-      <span class="spec-value" id="toolStaat">—</span>
-    </div>
-  </div>
-</div>
-              
+                  <div class="spec-row">
+                    <span class="spec-label">Staat</span>
+                    <span class="spec-value" id="toolStaat">—</span>
+                  </div>
+                </div>
+              </div>
+
               <div class="owner-card" id="ownerCard">
                 <img
                   id="ownerAvatar"
@@ -139,11 +147,14 @@
       </section>
     </main>
 
-    <div class="modal-overlay" id="reportWarningModal" style="display:none;">
+    <div class="modal-overlay" id="reportWarningModal" style="display: none">
       <div class="modal modal-warning">
         <div class="warning-icon">⚠️</div>
         <h2>Let op!</h2>
-        <p>Deze gebruiker heeft <strong>5 of meer rapportages</strong> ontvangen van andere gebruikers. Ga voorzichtig te werk.</p>
+        <p>
+          Deze gebruiker heeft <strong>5 of meer rapportages</strong> ontvangen
+          van andere gebruikers. Ga voorzichtig te werk.
+        </p>
         <div class="modal-actions">
           <button class="btn-submit" id="warningDoorgaan">Toch doorgaan</button>
           <button class="btn-cancel" id="warningAnnuleren">Terug</button>

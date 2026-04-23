@@ -1,136 +1,169 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="nl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chat</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/chat.css" />
-</head>
-<body>
-  <header class="site-header">
-    <div class="container nav-container">
-      <div class="logo">
-        <a href="index.html">
-          <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
-        </a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/chat.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="./images/Logo.png"
+              alt="Gereedschapspunt"
+              class="logo-img"
+            />
+          </a>
+        </div>
+
+        <form class="header-search" action="zoeken.html" method="get">
+          <input
+            type="text"
+            name="search"
+            placeholder="Zoek gereedschap of profielen..."
+            aria-label="Zoek gereedschap of profielen"
+          />
+          <button type="submit">Zoeken</button>
+        </form>
+
+        <nav class="main-nav">
+          <ul>
+            <li data-auth="true">
+              <a href="lenerdashboard.html">Lenerdashboard</a>
+            </li>
+            <li data-auth="true">
+              <a href="uitlenerdashboard.html">Uitlenerdashboard</a>
+            </li>
+            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+            <li data-auth="true">
+              <a href="accountinstellingen.html">
+                <div id="navAvatar">
+                  <span id="navAvatarInitials">?</span>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </nav>
       </div>
+    </header>
 
-      <form class="header-search" action="lijst.html" method="get">
-        <input
-          type="text"
-          name="zoek"
-          placeholder="Zoek gereedschap..."
-          aria-label="Zoek gereedschap"
-        />
-        <button type="submit">Zoeken</button>
-      </form>
-
-      <nav class="main-nav">
-        <ul>
-          <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
-          <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
-          <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
-          <li data-auth="true">
-            <a href="accountinstellingen.html">
-              <div id="navAvatar">
-                <span id="navAvatarInitials">?</span>
-              </div>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </header>
-
-  <main class="chat-page">
-    <div class="container">
-      <section class="chat-shell">
-        <div class="chat-header">
-          <div class="chat-header-info">
-            <div class="chat-partner-row">
-              <div class="chat-avatar-fallback" id="chat-partner-initial">?</div>
-              <div>
-                <h1 id="chat-partner-name">Chat</h1>
-                <p class="chat-subtitle" id="chat-tool-name">Gereedschap laden...</p>
+    <main class="chat-page">
+      <div class="container">
+        <section class="chat-shell">
+          <div class="chat-header">
+            <div class="chat-header-info">
+              <div class="chat-partner-row">
+                <div class="chat-avatar-fallback" id="chat-partner-initial">
+                  ?
+                </div>
+                <div>
+                  <h1 id="chat-partner-name">Chat</h1>
+                  <p class="chat-subtitle" id="chat-tool-name">
+                    Gereedschap laden...
+                  </p>
+                </div>
               </div>
             </div>
+
+            <button
+              id="afspraak-btn"
+              class="appointment-trigger-btn"
+              onclick="openModal()"
+              style="display: none"
+            >
+              Maak afspraak
+            </button>
           </div>
 
-          <button id="afspraak-btn" class="appointment-trigger-btn" onclick="openModal()" style="display:none;">
-            Maak afspraak
+          <div class="chat-card">
+            <div class="chat-status">
+              <span class="status-dot"></span>
+              <span id="chat-status-text">Gesprek actief</span>
+            </div>
+
+            <div id="chat-box" class="chat-box"></div>
+
+            <div class="chat-composer">
+              <input
+                type="text"
+                id="chat-input"
+                placeholder="Typ je bericht..."
+              />
+              <button id="send-btn">Verstuur</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <div id="modal" class="modal-overlay" aria-hidden="true">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Afspraak maken</h3>
+          <button
+            class="modal-close"
+            onclick="closeModal()"
+            aria-label="Sluiten"
+          >
+            &times;
           </button>
         </div>
 
-        <div class="chat-card">
-          <div class="chat-status">
-            <span class="status-dot"></span>
-            <span id="chat-status-text">Gesprek actief</span>
+        <p class="modal-borg">
+          Borg: <strong>€<span id="modal-borg">0</span></strong>
+        </p>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="startDate">Startdatum</label>
+            <input type="date" id="startDate" />
           </div>
 
-          <div id="chat-box" class="chat-box"></div>
+          <div class="form-group">
+            <label for="startTime">Starttijd</label>
+            <input type="time" id="startTime" />
+          </div>
 
-          <div class="chat-composer">
-            <input type="text" id="chat-input" placeholder="Typ je bericht..." />
-            <button id="send-btn">Verstuur</button>
+          <div class="form-group">
+            <label for="endDate">Einddatum</label>
+            <input type="date" id="endDate" />
+          </div>
+
+          <div class="form-group">
+            <label for="endTime">Eindtijd</label>
+            <input type="time" id="endTime" />
           </div>
         </div>
-      </section>
-    </div>
-  </main>
-
-  <div id="modal" class="modal-overlay" aria-hidden="true">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>Afspraak maken</h3>
-        <button class="modal-close" onclick="closeModal()" aria-label="Sluiten">&times;</button>
-      </div>
-
-      <p class="modal-borg">Borg: <strong>€<span id="modal-borg">0</span></strong></p>
-
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="startDate">Startdatum</label>
-          <input type="date" id="startDate" />
-        </div>
 
         <div class="form-group">
-          <label for="startTime">Starttijd</label>
-          <input type="time" id="startTime" />
+          <label for="appointmentAddress">Ophaaladres</label>
+          <input
+            type="text"
+            id="appointmentAddress"
+            placeholder="Straat, huisnummer, stad"
+          />
         </div>
 
-        <div class="form-group">
-          <label for="endDate">Einddatum</label>
-          <input type="date" id="endDate" />
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeModal()">
+            Annuleren
+          </button>
+          <button class="btn btn-primary" onclick="sendAppointment()">
+            Verstuur
+          </button>
         </div>
-
-        <div class="form-group">
-          <label for="endTime">Eindtijd</label>
-          <input type="time" id="endTime" />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="appointmentAddress">Ophaaladres</label>
-        <input
-          type="text"
-          id="appointmentAddress"
-          placeholder="Straat, huisnummer, stad"
-        />
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeModal()">Annuleren</button>
-        <button class="btn btn-primary" onclick="sendAppointment()">Verstuur</button>
       </div>
     </div>
-  </div>
 
-  <div id="toast"></div>
+    <div id="toast"></div>
 
-  <script src="js/globaal.js"></script>
-  <script src="js/logincheck.js"></script>
-  <script src="https://gereedschapspunt.student.open-ict.hu/socket.io/socket.io.js"></script>
-  <script type="module" src="js/chat.js"></script>
-</body>
+    <script src="js/globaal.js"></script>
+    <script src="js/logincheck.js"></script>
+    <script src="https://gereedschapspunt.student.open-ict.hu/socket.io/socket.io.js"></script>
+    <script type="module" src="js/chat.js"></script>
+  </body>
 </html>

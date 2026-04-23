@@ -27,20 +27,24 @@
           </a>
         </div>
 
-        <form class="header-search" action="lijst.html" method="get">
+        <form class="header-search" action="zoeken.html" method="get">
           <input
             type="text"
-            name="zoek"
-            placeholder="Zoek gereedschap..."
-            aria-label="Zoek gereedschap"
+            name="search"
+            placeholder="Zoek gereedschap of profielen..."
+            aria-label="Zoek gereedschap of profielen"
           />
           <button type="submit">Zoeken</button>
         </form>
 
         <nav class="main-nav">
           <ul>
-            <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
-            <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+            <li data-auth="true">
+              <a href="lenerdashboard.html">Lenerdashboard</a>
+            </li>
+            <li data-auth="true">
+              <a href="uitlenerdashboard.html">Uitlenerdashboard</a>
+            </li>
             <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
             <li data-auth="true">
               <a href="accountinstellingen.html">
@@ -81,11 +85,27 @@
               <div class="form-group">
                 <label for="Password">Wachtwoord</label>
                 <div class="input-icon-wrapper">
-                <input type="password" id="Password" name="Password" required />
-                <button type="button" id="togglePassword" class="toggle-password" aria-label="Wachtwoord tonen">
-                  <img id="eyeIcon" src="./images/eye.svg" alt="" width="20" height="20"/>
-                </button>
-              </div>
+                  <input
+                    type="password"
+                    id="Password"
+                    name="Password"
+                    required
+                  />
+                  <button
+                    type="button"
+                    id="togglePassword"
+                    class="toggle-password"
+                    aria-label="Wachtwoord tonen"
+                  >
+                    <img
+                      id="eyeIcon"
+                      src="./images/eye.svg"
+                      alt=""
+                      width="20"
+                      height="20"
+                    />
+                  </button>
+                </div>
               </div>
 
               <a href="#" class="forgot-password" id="openForgotModal"

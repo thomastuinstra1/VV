@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/profiel.css" />
   </head>
   <body>
-    <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+    <div id="globalSpinner" class="spinner-overlay" style="display: none">
       <div class="spinner"></div>
     </div>
     <div id="toast"></div>
@@ -19,24 +19,32 @@
       <div class="container nav-container">
         <div class="logo">
           <a href="index.html">
-            <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+            <img
+              src="./images/Logo.png"
+              alt="Gereedschapspunt"
+              class="logo-img"
+            />
           </a>
         </div>
 
-        <form class="header-search" action="lijst.html" method="get">
+        <form class="header-search" action="zoeken.html" method="get">
           <input
             type="text"
-            name="zoek"
-            placeholder="Zoek gereedschap..."
-            aria-label="Zoek gereedschap"
+            name="search"
+            placeholder="Zoek gereedschap of profielen..."
+            aria-label="Zoek gereedschap of profielen"
           />
           <button type="submit">Zoeken</button>
         </form>
 
         <nav class="main-nav">
           <ul>
-            <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
-            <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+            <li data-auth="true">
+              <a href="lenerdashboard.html">Lenerdashboard</a>
+            </li>
+            <li data-auth="true">
+              <a href="uitlenerdashboard.html">Uitlenerdashboard</a>
+            </li>
             <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
             <li data-auth="true">
               <a href="accountinstellingen.html">
@@ -58,8 +66,19 @@
           <div class="profile-shell">
             <div class="profile-card">
               <div class="profile-avatar-wrap">
-                <img id="profileAvatar" src="/images/default-avatar.jpg" alt="Profielfoto" class="profile-avatar" />
-                <div id="profileAvatarFallback" class="profile-avatar-fallback" style="display:none;">?</div>
+                <img
+                  id="profileAvatar"
+                  src="/images/default-avatar.jpg"
+                  alt="Profielfoto"
+                  class="profile-avatar"
+                />
+                <div
+                  id="profileAvatarFallback"
+                  class="profile-avatar-fallback"
+                  style="display: none"
+                >
+                  ?
+                </div>
               </div>
 
               <div class="profile-details">
@@ -80,8 +99,14 @@
               </div>
             </div>
 
-            <div class="profile-actions" id="profileActions" style="display:none;">
-              <button class="btn-report" id="reportBtn">Rapporteer gebruiker</button>
+            <div
+              class="profile-actions"
+              id="profileActions"
+              style="display: none"
+            >
+              <button class="btn-report" id="reportBtn">
+                Rapporteer gebruiker
+              </button>
             </div>
 
             <section class="profile-listings-card">
@@ -96,17 +121,25 @@
                 <div class="empty-state">
                   <div class="empty-icon">🛠️</div>
                   <div class="empty-title">Advertenties laden</div>
-                  <div class="empty-text">Het gereedschap van deze gebruiker wordt opgehaald…</div>
+                  <div class="empty-text">
+                    Het gereedschap van deze gebruiker wordt opgehaald…
+                  </div>
                 </div>
               </div>
             </section>
           </div>
 
-          <div class="modal-overlay" id="reportModal" style="display:none;">
+          <div class="modal-overlay" id="reportModal" style="display: none">
             <div class="modal">
               <div class="modal-header">
                 <h2>Rapporteer gebruiker</h2>
-                <button class="modal-close" id="reportCancelTop" aria-label="Sluiten">&times;</button>
+                <button
+                  class="modal-close"
+                  id="reportCancelTop"
+                  aria-label="Sluiten"
+                >
+                  &times;
+                </button>
               </div>
 
               <p class="modal-text">Geef een reden op voor je rapport.</p>
@@ -119,7 +152,9 @@
 
               <div class="modal-actions">
                 <button class="btn-cancel" id="reportCancel">Annuleren</button>
-                <button class="btn-submit" id="reportSubmit">Verstuur rapport</button>
+                <button class="btn-submit" id="reportSubmit">
+                  Verstuur rapport
+                </button>
               </div>
             </div>
           </div>

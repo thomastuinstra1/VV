@@ -10,89 +10,120 @@
   <body>
     <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
 
-   <header class="site-header">
-  <div class="container nav-container">
-    <div class="logo">
-      <a href="index.html">
-        <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
-      </a>
-    </div>
-
-    <form class="header-search" action="lijst.html" method="get">
-      <input
-        type="text"
-        name="zoek"
-        placeholder="Zoek gereedschap..."
-        aria-label="Zoek gereedschap"
-      />
-      <button type="submit">Zoeken</button>
-    </form>
-
-    <nav class="main-nav">
-      <ul>
-        <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
-        <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
-        <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
-        <li data-auth="true">
-          <a href="accountinstellingen.html">
-            <div id="navAvatar">
-              <span id="navAvatarInitials">?</span>
-            </div>
+    <header class="site-header">
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="./images/Logo.png"
+              alt="Gereedschapspunt"
+              class="logo-img"
+            />
           </a>
-        </li>
-        <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
-         <li data-guest="true"><a href="register.html">Registreren</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
+        </div>
+
+        <form class="header-search" action="zoeken.html" method="get">
+          <input
+            type="text"
+            name="search"
+            placeholder="Zoek gereedschap of profielen..."
+            aria-label="Zoek gereedschap of profielen"
+          />
+          <button type="submit">Zoeken</button>
+        </form>
+
+        <nav class="main-nav">
+          <ul>
+            <li data-auth="true">
+              <a href="lenerdashboard.html">Lenerdashboard</a>
+            </li>
+            <li data-auth="true">
+              <a href="uitlenerdashboard.html">Uitlenerdashboard</a>
+            </li>
+            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+            <li data-auth="true">
+              <a href="accountinstellingen.html">
+                <div id="navAvatar">
+                  <span id="navAvatarInitials">?</span>
+                </div>
+              </a>
+            </li>
+            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+            <li data-guest="true"><a href="register.html">Registreren</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
 
     <main id="main-content">
       <section class="search-results container">
-            <div id="results"></div>
-        </section>
+        <div id="results"></div>
+      </section>
 
-        <section class="browse-section" id="browse">
-            <div class="container">
-                <div class="section-heading">
-                    <h2>Beschikbaar gereedschap</h2>
-                    <p>Bekijk wat er beschikbaar is en filter makkelijk op jouw klus.</p>
+      <section class="browse-section" id="browse">
+        <div class="container">
+          <div class="section-heading">
+            <h2>Beschikbaar gereedschap</h2>
+            <p>
+              Bekijk wat er beschikbaar is en filter makkelijk op jouw klus.
+            </p>
+          </div>
+
+          <div class="browse-layout">
+            <button
+              class="filter-toggle-btn"
+              id="filterToggle"
+              onclick="toggleFilterPanel()"
+              aria-expanded="false"
+            >
+              Filters
+              <span class="filter-badge" id="filterBadge" hidden>0</span>
+            </button>
+
+            <div
+              class="filter-overlay"
+              id="filterOverlay"
+              onclick="toggleFilterPanel()"
+            ></div>
+
+            <aside class="filter-panel" id="filterPanel">
+              <div class="filter-header">
+                <span class="filter-title">Filteren</span>
+                <button
+                  class="filter-reset"
+                  id="resetBtn"
+                  onclick="resetFilters()"
+                  hidden
+                >
+                  Wis alles
+                </button>
+              </div>
+
+              <div id="filterGroups">
+                <p style="color: #6b7280; font-size: 0.95rem">
+                  Filters laden...
+                </p>
+              </div>
+            </aside>
+
+            <div class="tools-section">
+              <div class="tools-header">
+                <div>
+                  <h2>Voor jouw volgende klus</h2>
+                  <p class="tools-subtitle">
+                    Kies gereedschap dat past bij wat jij wilt maken of
+                    repareren.
+                  </p>
                 </div>
+                <span id="toolCount" class="tool-count"></span>
+              </div>
 
-                <div class="browse-layout">
-                    <button class="filter-toggle-btn" id="filterToggle" onclick="toggleFilterPanel()" aria-expanded="false">
-                        Filters
-                        <span class="filter-badge" id="filterBadge" hidden>0</span>
-                    </button>
-
-                    <div class="filter-overlay" id="filterOverlay" onclick="toggleFilterPanel()"></div>
-
-                    <aside class="filter-panel" id="filterPanel">
-                        <div class="filter-header">
-                            <span class="filter-title">Filteren</span>
-                            <button class="filter-reset" id="resetBtn" onclick="resetFilters()" hidden>Wis alles</button>
-                        </div>
-                        
-                        <div id="filterGroups">
-                            <p style="color:#6b7280;font-size:.95rem;">Filters laden...</p>
-                        </div>
-                    </aside>
-
-                    <div class="tools-section">
-                        <div class="tools-header">
-                            <div>
-                                <h2>Voor jouw volgende klus</h2>
-                                <p class="tools-subtitle">Kies gereedschap dat past bij wat jij wilt maken of repareren.</p>
-                            </div>
-                            <span id="toolCount" class="tool-count"></span>
-                        </div>
-
-                        <div id="activeFilters" class="active-filters" hidden></div>
-                        <div id="toolsContainer" class="tools-grid"></div>
-                    </div>
-                </div>
+              <div id="activeFilters" class="active-filters" hidden></div>
+              <div id="toolsContainer" class="tools-grid"></div>
             </div>
-        </section>
+          </div>
+        </div>
+      </section>
 
       <section class="ad-slider-section">
         <div class="container">
@@ -127,7 +158,7 @@
       </div>
     </footer>
     <div id="toast"></div>
-    
+
     <script src="js/globaal.js"></script>
     <script src="js/index.js"></script>
     <script src="js/logincheck.js"></script>
