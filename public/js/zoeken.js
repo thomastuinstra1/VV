@@ -9,12 +9,15 @@ const headerInput = document.getElementById("headerSearchInput");
 if (headerInput) headerInput.value = zoekterm;
 
 // Opnieuw zoeken via de header
-document.getElementById("headerSearchForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const input = headerInput.value.trim();
-    if (!input) return;
-    window.location.href = `/zoeken.html?search=${encodeURIComponent(input)}`;
-});
+const headerForm = document.getElementById("headerSearchForm");
+if (headerForm) {
+    headerForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const input = headerInput.value.trim();
+        if (!input) return;
+        window.location.href = `/zoeken.html?search=${encodeURIComponent(input)}`;
+    });
+}
 
 // -----------------------
 // TABS
