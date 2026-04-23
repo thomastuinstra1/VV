@@ -65,7 +65,7 @@ async function searchTools() {
         return;
     }
 
-    window.location.href = `/lijst.html?search=${encodeURIComponent(input)}`;
+    window.location.href = `/zoeken.html?search=${encodeURIComponent(input)}`;
 }
 
 // -----------------------

@@ -158,4 +158,34 @@ router.get(
   })
 );
 
+// ── Profielen zoeken ──
+router.get(
+  '/accounts/zoeken',
+  asyncHandler(async (req, res, next) => {
+    const zoekterm = req.query.q?.trim();
+
+    if (!zoekterm) {
+      return next(new AppError('Geen zoekterm opgegeven', 400));
+    }
+
+    const accounts = await prisma.account.findMany({
+      where: {
+        Name: {
+          contains: zoekterm,
+          mode: 'insensitive'
+        }
+      },
+      select: {
+        Account_id: true,
+        Name: true,
+        Postcode: true,
+        Afbeelding: true
+      },
+      take: 20
+    });
+
+    res.json(accounts);
+  })
+);
+
 export default router;
