@@ -36,7 +36,7 @@ async function fetchGereedschap(zoekterm) {
     const grid = document.getElementById("gereedschapGrid");
 
     try {
-        const res = await fetch(`/api/advertenties?search=${encodeURIComponent(zoekterm)}`);
+        const res = await fetch(`/api/gereedschap?search=${encodeURIComponent(zoekterm)}`);
         if (!res.ok) throw new Error("Fout bij ophalen gereedschap");
 
         const items = await res.json();
@@ -49,18 +49,17 @@ async function fetchGereedschap(zoekterm) {
         }
 
         grid.innerHTML = items.map(item => `
-            <a href="advertentie.html?id=${item.Advertentie_id}" class="tool-card">
+            <a href="gereedschap.html?id=${item.id}" class="tool-card">
                 <div class="tool-img-wrapper">
                     <img
-                        src="${item.Afbeelding || './images/placeholder.png'}"
-                        alt="${item.Titel}"
+                        src="${item.afbeelding || './images/placeholder.png'}"
+                        alt="${item.naam}"
                         onerror="this.src='./images/placeholder.png'"
                     />
                 </div>
                 <div class="tool-info">
-                    <h3>${item.Titel}</h3>
-                    <p class="tool-locatie">📍 ${item.Postcode || "Onbekend"}</p>
-                    <p class="tool-prijs">€${item.Prijs_per_dag}/dag</p>
+                    <h3>${item.naam}</h3>
+                    <p class="tool-locatie">📍 ${item.postcode || "Onbekend"}</p>
                 </div>
             </a>
         `).join("");
