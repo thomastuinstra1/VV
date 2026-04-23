@@ -36,7 +36,7 @@ async function fetchGereedschap(zoekterm) {
     const grid = document.getElementById("gereedschapGrid");
 
     try {
-        const res = await fetch(`/api/gereedschap?search=${encodeURIComponent(zoekterm)}`);
+        const res = await fetch(`/gereedschap?search=${encodeURIComponent(zoekterm)}`);
         if (!res.ok) throw new Error("Fout bij ophalen gereedschap");
 
         const items = await res.json();
@@ -78,7 +78,7 @@ async function fetchProfielen(zoekterm) {
     const grid = document.getElementById("profielenGrid");
 
     try {
-        const res = await fetch(`/api/accounts/zoeken?q=${encodeURIComponent(zoekterm)}`);
+        const res = await fetch(`/accounts/zoeken?q=${encodeURIComponent(zoekterm)}`);
         if (!res.ok) throw new Error("Fout bij ophalen profielen");
 
         const profielen = await res.json();
