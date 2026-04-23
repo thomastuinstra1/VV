@@ -1,414 +1,355 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="nl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Uitlenerdashboard - Gereedschapspunt</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="stylesheet" href="css/uitlenerdashboard.css" />
-  </head>
-  <body>
-    <div id="globalSpinner" class="spinner-overlay" style="display: none">
-      <div class="spinner"></div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uitlenerdashboard - Gereedschapspunt</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/uitlenerdashboard.css" />
+</head>
+<body>
+  <div id="globalSpinner" class="spinner-overlay" style="display: none;">
+    <div class="spinner"></div>
+  </div>
+
+  <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
+
+  <header class="site-header">
+  <div class="container nav-container">
+    <div class="logo">
+      <a href="index.html">
+        <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+      </a>
     </div>
 
-    <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
+    <form class="header-search" action="lijst.html" method="get">
+      <input
+        type="text"
+        name="zoek"
+        placeholder="Zoek gereedschap..."
+        aria-label="Zoek gereedschap"
+      />
+      <button type="submit">Zoeken</button>
+    </form>
 
-    <header class="site-header">
-      <div class="container nav-container">
-        <div class="logo">
-          <a href="index.html">
-            <img
-              src="./images/Logo.png"
-              alt="Gereedschapspunt"
-              class="logo-img"
-            />
+    <nav class="main-nav">
+      <ul>
+        <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+        <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+        <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+        <li data-auth="true">
+          <a href="accountinstellingen.html">
+            <div id="navAvatar">
+              <span id="navAvatarInitials">?</span>
+            </div>
           </a>
+        </li>
+        <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+        <li data-guest="true"><a href="register.html">Registreren</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+  <main id="main-content">
+    <section class="dashboard-shell">
+      <div class="container">
+        <div class="dashboard-subnav">
+          <button class="dashboard-tab active" onclick="showPage('dashboard', this)">Dashboard</button>
+          <button class="dashboard-tab" onclick="showPage('gereedschap', this)">Gereedschap</button>
+          <button class="dashboard-tab" onclick="showPage('geschiedenis', this)">Geschiedenis</button>
         </div>
 
-        <form class="header-search" action="zoeken.html" method="get">
-          <input
-            type="text"
-            name="search"
-            placeholder="Zoek gereedschap of profielen..."
-            aria-label="Zoek gereedschap of profielen"
-          />
-          <button type="submit">Zoeken</button>
-        </form>
+        <div class="main">
+          <!-- DASHBOARD -->
+          <div id="page-dashboard">
+            <div class="page-title">
+              <div>
+                <h1>Uitlener<span>dashboard</span></h1>
+                <p class="subtitle">Overzicht van alle uitleningen en beschikbaarheid</p>
+              </div>
+              <div class="timestamp" id="ts"></div>
+            </div>
 
-        <nav class="main-nav">
-          <ul>
-            <li data-auth="true">
-              <a href="lenerdashboard.html">Lenerdashboard</a>
-            </li>
-            <li data-auth="true">
-              <a href="uitlenerdashboard.html">Uitlenerdashboard</a>
-            </li>
-            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
-            <li data-auth="true">
-              <a href="accountinstellingen.html">
-                <div id="navAvatar">
-                  <span id="navAvatarInitials">?</span>
-                </div>
-              </a>
-            </li>
-            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
-            <li data-guest="true"><a href="register.html">Registreren</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
+            <div class="stats-grid">
+              <div class="stat-card orange">
+                <div class="stat-label">Actief uitgeleend</div>
+                <div class="stat-value" id="stat-actief">—</div>
+              </div>
+              <div class="stat-card green">
+                <div class="stat-label">Beschikbaar</div>
+                <div class="stat-value" id="stat-beschikbaar">—</div>
+              </div>
+              <div class="stat-card amber">
+                <div class="stat-label">Te laat terug</div>
+                <div class="stat-value" id="stat-verlaat">—</div>
+              </div>
+              <div class="stat-card blue">
+                <div class="stat-label">Totaal uitleningen</div>
+                <div class="stat-value" id="stat-totaal">—</div>
+              </div>
+            </div>
 
-    <main id="main-content">
-      <section class="dashboard-shell">
-        <div class="container">
-          <div class="dashboard-subnav">
-            <button
-              class="dashboard-tab active"
-              onclick="showPage('dashboard', this)"
-            >
-              Dashboard
-            </button>
-            <button
-              class="dashboard-tab"
-              onclick="showPage('gereedschap', this)"
-            >
-              Gereedschap
-            </button>
-            <button
-              class="dashboard-tab"
-              onclick="showPage('geschiedenis', this)"
-            >
-              Geschiedenis
-            </button>
-          </div>
-
-          <div class="main">
-            <!-- DASHBOARD -->
-            <div id="page-dashboard">
-              <div class="page-title">
-                <div>
-                  <h1>Uitlener<span>dashboard</span></h1>
-                  <p class="subtitle">
-                    Overzicht van alle uitleningen en beschikbaarheid
-                  </p>
-                </div>
-                <div class="timestamp" id="ts"></div>
+            <div class="charts-row">
+              <div class="chart-card">
+                <div class="section-label">Uitleningen per maand</div>
+                <div class="bar-chart" id="bar-chart"></div>
               </div>
 
-              <div class="stats-grid">
-                <div class="stat-card orange">
-                  <div class="stat-label">Actief uitgeleend</div>
-                  <div class="stat-value" id="stat-actief">—</div>
-                </div>
-                <div class="stat-card green">
-                  <div class="stat-label">Beschikbaar</div>
-                  <div class="stat-value" id="stat-beschikbaar">—</div>
-                </div>
-                <div class="stat-card amber">
-                  <div class="stat-label">Te laat terug</div>
-                  <div class="stat-value" id="stat-verlaat">—</div>
-                </div>
-                <div class="stat-card blue">
-                  <div class="stat-label">Totaal uitleningen</div>
-                  <div class="stat-value" id="stat-totaal">—</div>
-                </div>
-              </div>
-
-              <div class="charts-row">
-                <div class="chart-card">
-                  <div class="section-label">Uitleningen per maand</div>
-                  <div class="bar-chart" id="bar-chart"></div>
-                </div>
-
-                <div class="chart-card">
-                  <div class="section-label">Statusverdeling</div>
-                  <div class="donut-wrap">
-                    <svg
-                      id="donut-svg"
-                      width="120"
-                      height="120"
-                      viewBox="0 0 120 120"
-                    ></svg>
-                    <div class="donut-legend" id="donut-legend"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="table-section">
-                <div class="table-header">
-                  <div class="table-title">Actieve uitleningen</div>
-                  <div class="table-controls">
-                    <select
-                      class="filter-select"
-                      onchange="filterActief()"
-                      id="filter-actief-status"
-                    >
-                      <option value="">Alle</option>
-                      <option value="Bezig">Bezig</option>
-                      <option value="Komend">Komend</option>
-                      <option value="Verlopen">Verlopen</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Gereedschap</th>
-                        <th>Uitgeleend aan</th>
-                        <th>Startdatum</th>
-                        <th>Vervaldatum</th>
-                        <th>Borg</th>
-                        <th>Type</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbody-actief">
-                      <tr class="loading-row">
-                        <td colspan="6">Laden…</td>
-                      </tr>
-                    </tbody>
-                  </table>
+              <div class="chart-card">
+                <div class="section-label">Statusverdeling</div>
+                <div class="donut-wrap">
+                  <svg id="donut-svg" width="120" height="120" viewBox="0 0 120 120"></svg>
+                  <div class="donut-legend" id="donut-legend"></div>
                 </div>
               </div>
             </div>
 
-            <!-- GEREEDSCHAP -->
-            <div id="page-gereedschap" style="display: none">
-              <div class="page-title">
-                <div>
-                  <h1>Mijn <span>gereedschap</span></h1>
-                  <p class="subtitle">
-                    Beheer, bewerk en verwijder je geplaatste gereedschap
-                  </p>
+            <div class="table-section">
+              <div class="table-header">
+                <div class="table-title">Actieve uitleningen</div>
+                <div class="table-controls">
+                  <select class="filter-select" onchange="filterActief()" id="filter-actief-status">
+                    <option value="">Alle</option>
+                    <option value="Bezig">Bezig</option>
+                    <option value="Komend">Komend</option>
+                    <option value="Verlopen">Verlopen</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Gereedschap</th>
+                      <th>Uitgeleend aan</th>
+                      <th>Startdatum</th>
+                      <th>Vervaldatum</th>
+                      <th>Borg</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-actief">
+                    <tr class="loading-row">
+                      <td colspan="6">Laden…</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- GEREEDSCHAP -->
+          <div id="page-gereedschap" style="display:none">
+            <div class="page-title">
+              <div>
+                <h1>Mijn <span>gereedschap</span></h1>
+                <p class="subtitle">Beheer, bewerk en verwijder je geplaatste gereedschap</p>
+              </div>
+
+              <div class="table-controls">
+                <input
+                  class="search-input"
+                  type="text"
+                  placeholder="Zoek gereedschap…"
+                  id="search-tools"
+                  oninput="filterTools()"
+                />
+                <select class="filter-select" onchange="filterTools()" id="filter-tools-status">
+                  <option value="">Alle statussen</option>
+                  <option value="Beschikbaar">Beschikbaar</option>
+                  <option value="Uitgeleend">Uitgeleend</option>
+                  <option value="Ingeleverd?">Ingeleverd?</option>
+                  <option value="Te laat">Te laat</option>
+                </select>
+
+                <div class="tab-bar">
+                  <button class="tab active" onclick="setToolView('grid', this)">Tegels</button>
+                  <button class="tab" onclick="setToolView('table', this)">Tabel</button>
                 </div>
 
+                <a href="gereedschapsregistratie.html" class="dashboard-add-btn">+ Plaats gereedschap</a>
+              </div>
+            </div>
+
+           <div id="geenGereedschap" class="geen-items" hidden>
+           <p>Je hebt nog geen gereedschap geplaatst.</p>
+          </div>
+
+            <div id="tool-grid-view" class="tool-grid"></div>
+
+            <div id="tool-table-view" style="display:none">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Naam</th>
+                      <th>Borg</th>
+                      <th>Beschikbaar vanaf</th>
+                      <th>Beschikbaar tot</th>
+                      <th>Status</th>
+                      <th>Actie</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-tools-table"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- GESCHIEDENIS -->
+          <div id="page-geschiedenis" style="display:none">
+            <div class="page-title">
+              <div>
+                <h1>Uitleen<span>geschiedenis</span></h1>
+                <p class="subtitle">Alle afgeronde en actieve uitleningen</p>
+              </div>
+            </div>
+
+            <div class="table-section">
+              <div class="table-header">
+                <div class="table-title">Alle uitleningen</div>
                 <div class="table-controls">
                   <input
                     class="search-input"
                     type="text"
-                    placeholder="Zoek gereedschap…"
-                    id="search-tools"
-                    oninput="filterTools()"
+                    placeholder="Zoek…"
+                    id="search-hist"
+                    oninput="filterHistorie()"
                   />
-                  <select
-                    class="filter-select"
-                    onchange="filterTools()"
-                    id="filter-tools-status"
-                  >
-                    <option value="">Alle statussen</option>
-                    <option value="Beschikbaar">Beschikbaar</option>
-                    <option value="Uitgeleend">Uitgeleend</option>
-                    <option value="Ingeleverd?">Ingeleverd?</option>
-                    <option value="Te laat">Te laat</option>
+                  <select class="filter-select" onchange="filterHistorie()" id="filter-hist">
+                    <option value="">Alle</option>
+                    <option value="pending">In afwachting</option>
+                    <option value="accepted">Geaccepteerd</option>
+                    <option value="rejected">Geweigerd</option>
+                    <option value="ingeleverd_op_tijd">Op tijd ingeleverd</option>
+                    <option value="ingeleverd_te_laat">Te laat ingeleverd</option>
                   </select>
-
-                  <div class="tab-bar">
-                    <button
-                      class="tab active"
-                      onclick="setToolView('grid', this)"
-                    >
-                      Tegels
-                    </button>
-                    <button class="tab" onclick="setToolView('table', this)">
-                      Tabel
-                    </button>
-                  </div>
-
-                  <a
-                    href="gereedschapsregistratie.html"
-                    class="dashboard-add-btn"
-                    >+ Plaats gereedschap</a
-                  >
                 </div>
               </div>
 
-              <div id="geenGereedschap" class="geen-items" hidden>
-                <p>Je hebt nog geen gereedschap geplaatst.</p>
-              </div>
-
-              <div id="tool-grid-view" class="tool-grid"></div>
-
-              <div id="tool-table-view" style="display: none">
-                <div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Naam</th>
-                        <th>Borg</th>
-                        <th>Beschikbaar vanaf</th>
-                        <th>Beschikbaar tot</th>
-                        <th>Status</th>
-                        <th>Actie</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbody-tools-table"></tbody>
-                  </table>
-                </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Gereedschap</th>
+                      <th>Lener</th>
+                      <th>Startdatum</th>
+                      <th>Vervaldatum</th>
+                      <th>Borg</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody-hist">
+                    <tr class="loading-row">
+                      <td colspan="7">Laden…</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="pagination" id="pagination-hist"></div>
               </div>
             </div>
-
-            <!-- GESCHIEDENIS -->
-            <div id="page-geschiedenis" style="display: none">
-              <div class="page-title">
-                <div>
-                  <h1>Uitleen<span>geschiedenis</span></h1>
-                  <p class="subtitle">Alle afgeronde en actieve uitleningen</p>
-                </div>
-              </div>
-
-              <div class="table-section">
-                <div class="table-header">
-                  <div class="table-title">Alle uitleningen</div>
-                  <div class="table-controls">
-                    <input
-                      class="search-input"
-                      type="text"
-                      placeholder="Zoek…"
-                      id="search-hist"
-                      oninput="filterHistorie()"
-                    />
-                    <select
-                      class="filter-select"
-                      onchange="filterHistorie()"
-                      id="filter-hist"
-                    >
-                      <option value="">Alle</option>
-                      <option value="pending">In afwachting</option>
-                      <option value="accepted">Geaccepteerd</option>
-                      <option value="rejected">Geweigerd</option>
-                      <option value="ingeleverd_op_tijd">
-                        Op tijd ingeleverd
-                      </option>
-                      <option value="ingeleverd_te_laat">
-                        Te laat ingeleverd
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="table-wrap">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>#</th>
-                        <th>Gereedschap</th>
-                        <th>Lener</th>
-                        <th>Startdatum</th>
-                        <th>Vervaldatum</th>
-                        <th>Borg</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody id="tbody-hist">
-                      <tr class="loading-row">
-                        <td colspan="7">Laden…</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div class="pagination" id="pagination-hist"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- MODAL -->
-    <div class="gm-overlay" id="gm-overlay" hidden>
-      <div class="gm-modal">
-        <div class="gm-header">
-          <h2>Gereedschap bewerken</h2>
-          <button class="gm-sluit" type="button" onclick="sluitGmModal()">
-            ×
-          </button>
-        </div>
-
-        <div class="gm-img-wrap" id="gm-img-wrap">
-          <div class="gm-no-img">Geen afbeelding</div>
-        </div>
-
-        <div class="gm-body">
-          <form id="gm-form">
-            <input type="hidden" id="gm-id" />
-
-            <div class="gm-form-group">
-              <label for="gm-naam">Naam</label>
-              <input type="text" id="gm-naam" required />
-            </div>
-
-            <div class="gm-form-group">
-              <label for="gm-beschrijving">Beschrijving</label>
-              <textarea id="gm-beschrijving" rows="3"></textarea>
-            </div>
-
-            <div class="gm-two-col">
-              <div class="gm-form-group">
-                <label for="gm-borg">Borgbedrag (€)</label>
-                <input type="number" id="gm-borg" min="0" step="0.01" />
-              </div>
-
-              <div class="gm-form-group">
-                <label for="gm-afbeelding">Nieuwe afbeelding</label>
-                <input type="file" id="gm-afbeelding" accept="image/*" />
-              </div>
-            </div>
-
-            <div class="gm-two-col">
-              <div class="gm-form-group">
-                <label for="gm-begindatum">Beschikbaar vanaf</label>
-                <input type="date" id="gm-begindatum" />
-              </div>
-
-              <div class="gm-form-group">
-                <label for="gm-einddatum">Beschikbaar tot</label>
-                <input type="date" id="gm-einddatum" />
-              </div>
-            </div>
-
-            <div class="gm-form-group">
-              <label>Categorieën</label>
-              <div class="gm-cat-grid" id="gm-categorieen"></div>
-            </div>
-          </form>
-        </div>
-
-        <div class="gm-footer">
-          <button
-            class="gm-btn verwijder"
-            type="button"
-            onclick="gmVerwijder()"
-          >
-            🗑 Verwijderen
-          </button>
-          <div style="display: flex; gap: 8px">
-            <button
-              class="gm-btn annuleer"
-              type="button"
-              onclick="sluitGmModal()"
-            >
-              Annuleren
-            </button>
-            <button class="gm-btn opslaan" type="button" onclick="gmOpslaan()">
-              Opslaan
-            </button>
           </div>
         </div>
       </div>
+    </section>
+  </main>
+
+  <!-- MODAL -->
+  <div class="gm-overlay" id="gm-overlay" hidden>
+    <div class="gm-modal">
+      <div class="gm-header">
+        <h2>Gereedschap bewerken</h2>
+        <button class="gm-sluit" type="button" onclick="sluitGmModal()">×</button>
+      </div>
+
+      <div class="gm-img-wrap" id="gm-img-wrap">
+        <div class="gm-no-img">Geen afbeelding</div>
+      </div>
+
+      <div class="gm-body">
+        <form id="gm-form">
+          <input type="hidden" id="gm-id" />
+
+          <div class="gm-form-group">
+            <label for="gm-naam">Naam</label>
+            <input type="text" id="gm-naam" required />
+          </div>
+
+          <div class="gm-form-group">
+            <label for="gm-beschrijving">Beschrijving</label>
+            <textarea id="gm-beschrijving" rows="3"></textarea>
+          </div>
+
+          <div class="gm-two-col">
+            <div class="gm-form-group">
+              <label for="gm-borg">Borgbedrag (€)</label>
+              <input type="number" id="gm-borg" min="0" step="0.01" />
+            </div>
+
+            <div class="gm-form-group">
+              <label for="gm-afbeelding">Nieuwe afbeelding</label>
+              <input type="file" id="gm-afbeelding" accept="image/*" />
+            </div>
+          </div>
+
+          <div class="gm-two-col">
+            <div class="gm-form-group">
+              <label for="gm-begindatum">Beschikbaar vanaf</label>
+              <input type="date" id="gm-begindatum" />
+            </div>
+
+            <div class="gm-form-group">
+              <label for="gm-einddatum">Beschikbaar tot</label>
+              <input type="date" id="gm-einddatum" />
+            </div>
+          </div>
+
+          <div class="gm-form-group">
+            <label>Categorieën</label>
+            <div class="gm-cat-grid" id="gm-categorieen"></div>
+          </div>
+        </form>
+      </div>
+
+      <div class="gm-footer">
+        <button class="gm-btn verwijder" type="button" onclick="gmVerwijder()">🗑 Verwijderen</button>
+        <div style="display:flex; gap:8px;">
+          <button class="gm-btn annuleer" type="button" onclick="sluitGmModal()">Annuleren</button>
+          <button class="gm-btn opslaan" type="button" onclick="gmOpslaan()">Opslaan</button>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="toast"></div>
+  <footer class="site-footer">
+      <div class="container footer-container">
+        <div class="footer-brand">
+          <h3>Gereedschapspunt</h3>
+          <p>Leen slim, lokaal en duurzaam.</p>
+        </div>
 
-    <script src="js/globaal.js"></script>
-    <script src="js/uitlenerdashboard.js"></script>
-    <script src="js/logincheck.js"></script>
-    <script src="https://gereedschapspunt.student.open-ict.hu/socket.io/socket.io.js"></script>
-    <script src="js/floating-chat.js"></script>
-  </body>
+        <ul class="footer-links">
+          <li><a href="#">Over ons</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 Gereedschapspunt</p>
+      </div>
+    </footer>
+
+  <div id="toast"></div>
+
+  <script src="js/globaal.js"></script>
+  <script src="js/uitlenerdashboard.js"></script>
+  <script src="js/logincheck.js"></script>
+  <script src="https://gereedschapspunt.student.open-ict.hu/socket.io/socket.io.js"></script>
+  <script src="js/floating-chat.js"></script>
+</body>
 </html>
