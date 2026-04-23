@@ -49,17 +49,18 @@ async function fetchGereedschap(zoekterm) {
         }
 
         grid.innerHTML = items.map(item => `
-            <a href="gereedschap.html?id=${item.id}" class="tool-card">
+            <a href="gereedschap.html?id=${item.Gereedschap_id}" class="tool-card">
                 <div class="tool-img-wrapper">
                     <img
-                        src="${item.afbeelding || './images/placeholder.png'}"
-                        alt="${item.naam}"
+                        src="${item.Afbeelding || './images/placeholder.png'}"
+                        alt="${item.Naam}"
                         onerror="this.src='./images/placeholder.png'"
                     />
                 </div>
                 <div class="tool-info">
-                    <h3>${item.naam}</h3>
-                    <p class="tool-locatie">📍 ${item.postcode || "Onbekend"}</p>
+                    <h3>${item.Naam}</h3>
+                    <p class="tool-locatie">📍 ${item.eigenaar?.Name || "Onbekend"}</p>
+                    ${item.BorgBedrag ? `<p class="tool-prijs">Borg: €${item.BorgBedrag}</p>` : ""}
                 </div>
             </a>
         `).join("");
