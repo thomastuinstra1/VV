@@ -171,8 +171,7 @@ router.get(
     const accounts = await prisma.account.findMany({
       where: {
         Name: {
-          contains: zoekterm,
-          mode: 'insensitive'
+          contains: zoekterm
         }
       },
       select: {
