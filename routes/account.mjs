@@ -168,12 +168,19 @@ router.get(
       return next(new AppError('Geen zoekterm opgegeven', 400));
     }
 
+    const where = {
+      Name: {
+        contains: zoekterm
+      }
+    };
+
+    // Sluit eigen account uit als de gebruiker is ingelogd
+    if (req.session?.userId) {
+      where.Account_id = { not: req.session.userId };
+    }
+
     const accounts = await prisma.account.findMany({
-      where: {
-        Name: {
-          contains: zoekterm
-        }
-      },
+      where,
       select: {
         Account_id: true,
         Name: true,
