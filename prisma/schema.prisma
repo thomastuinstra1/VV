@@ -17,9 +17,6 @@ model Account {
   Review_Review_Auteur_idToAccount    Review[]  @relation("Review_Auteur_idToAccount")
   Review_Review_Ontvanger_idToAccount Review[]  @relation("Review_Ontvanger_idToAccount")
   Uitleen                             Uitleen[]
-  two_factor_enabled Boolean?                    @default(false)
-  two_factor_secret  String?
-  two_factor_recovery_code String?
 }
 
 model Categorie {
