@@ -6,6 +6,7 @@ import validate from '../middleware/validate.mjs';
 import { registerValidator, loginValidator } from '../validators/authValidator.mjs';
 import asyncHandler from '../middleware/asyncHandler.mjs';
 import AppError from '../utils/appError.mjs';
+import speakeasy from 'speakeasy';
 
 import {
   toAuthStatusResponseDTO,
@@ -108,6 +109,63 @@ router.post(
 
     if (!geldig) {
       return next(new AppError('Ongeldig wachtwoord', 401));
+    }
+
+    // ✅ If 2FA is enabled, do NOT log in yet
+    if (account.two_factor_enabled === 1 || account.two_factor_enabled === true) {
+      return res.json({
+        requires2FA: true,
+        userId: account.Account_id
+      });
+    }
+
+    // ✅ Normal login when 2FA is off
+    req.session.userId = account.Account_id;
+    req.session.Name = account.Name;
+
+    req.session.save(err => {
+      if (err) {
+        return next(new AppError('Sessie opslaan mislukt, probeer opnieuw', 500));
+      }
+
+      res.json(toLoginResponseDTO(account));
+    });
+  })
+);
+
+// ── 2FA login verificatie ──
+router.post(
+  '/login/2fa',
+  asyncHandler(async (req, res, next) => {
+    const { userId, token } = req.body;
+
+    if (!userId || !token) {
+      return next(new AppError('Gebruiker of 2FA-code ontbreekt', 400));
+    }
+
+    const account = await prisma.account.findUnique({
+      where: {
+        Account_id: Number(userId)
+      }
+    });
+
+    if (!account) {
+      return next(new AppError('Account niet gevonden', 404));
+    }
+
+    if (!account.two_factor_secret) {
+      return next(new AppError('2FA is niet ingesteld voor dit account', 400));
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: account.two_factor_secret,
+      encoding: 'base32',
+      token,
+      window: 1
+    });
+
+    if (!verified) {
+      return next(new AppError('Ongeldige 2FA-code', 401));
     }
 
     req.session.userId = account.Account_id;
