@@ -68,28 +68,42 @@
   margin-top: 6px;
 }
 
+.twofa-section {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+.twofa-section button {
+  margin-top: 10px;
+  margin-right: 8px;
+}
+
+#trustedDevicesBox {
+  padding: 18px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
 .trusted-device {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
   align-items: center;
   padding: 14px;
   border-radius: 12px;
-  background: white;
+  background: #f8fafc;
   border: 1px solid #e5e7eb;
   margin-bottom: 10px;
 }
 
 .remove-device-btn {
-  background: #fee2e2;
   border: 1px solid #fecaca;
+  background: #fff5f5;
   color: #b91c1c;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 8px 12px;
+  border-radius: 10px;
   cursor: pointer;
-}
-
-.remove-device-btn:hover {
-  background: #fecaca;
 }
 
 .account-box {
