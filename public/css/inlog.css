@@ -135,6 +135,27 @@
     display: none;
 }
 
+.trusted-device-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0;
+  font-size: 0.95rem;
+  color: #374151;
+  cursor: pointer;
+}
+
+.trusted-device-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: #f97316;
+  cursor: pointer;
+}
+
+.trusted-device-check span {
+  line-height: 1.4;
+}
+
 .modal-overlay {
     position: fixed;
     inset: 0;

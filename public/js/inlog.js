@@ -77,6 +77,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    console.log('checkbox exists:', document.getElementById('trustDevice'));
+    console.log('checked:', document.getElementById('trustDevice')?.checked);
+
     try {
       const response = await fetchWithSpinner('/login/2fa', {
         method: 'POST',
