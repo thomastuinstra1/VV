@@ -285,30 +285,38 @@
   margin: 12px 0;
 }
 
-/* hide default but KEEP it clickable */
+.trusted-device-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #374151;
+  margin-top: 12px;
+}
+
+/* hide default checkbox */
 .trusted-device-check input {
   position: absolute;
   opacity: 0;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
 }
 
-/* custom box */
-.trusted-device-check .checkmark {
+/* visible custom box */
+.checkmark {
   width: 20px;
   height: 20px;
+  border: 2px solid #d1d5db;
   border-radius: 6px;
-  border: 2px solid #cbd5e1;
   background: white;
   display: inline-block;
   position: relative;
+  flex-shrink: 0;
 }
 
-/* checked state */
+/* checked */
 .trusted-device-check input:checked + .checkmark {
-  background: #1e3a8a;
-  border-color: #1e3a8a;
+  background: #f97316; /* your orange */
+  border-color: #f97316;
 }
 
 /* check icon */
