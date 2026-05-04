@@ -113,39 +113,77 @@
                     </button>
                   </div>
                 </div>
-              <!-- 2FA SECTION -->
-          <div class="twofa-section" style="margin-top:30px;">
-            <h2>Two-Factor Authentication</h2>
-            <p>Extra beveiliging via Google Authenticator.</p>
+            <div class="twofa-section">
+  <h2>Two-Factor Authentication</h2>
+  <p>Beveilig je account met Google Authenticator of een andere authenticator app.</p>
 
-            <!-- enable -->
-            <button type="button" id="setup2faBtn" class="secondary-btn">
-              2FA inschakelen
-            </button>
+  <button type="button" id="setup2faBtn" class="secondary-btn">
+    2FA inschakelen
+  </button>
 
-            <!-- disable -->
-            <button type="button" id="disable2faBtn" class="secondary-btn" style="display:none;">
-              2FA uitschakelen
-            </button>
+  <button type="button" id="disable2faBtn" class="secondary-btn" style="display: none">
+    2FA uitschakelen
+  </button>
 
-            <!-- setup box -->
-            <div id="twoFaSetupBox" style="display:none; margin-top:20px;">
-              <p>Scan deze QR-code:</p>
+  <div id="twoFaSetupBox" style="display: none">
+    <p>Scan deze QR-code:</p>
+    <img id="twoFaQrCode" alt="2FA QR code" />
 
-              <img id="twoFaQrCode" style="width:200px;" />
+    <p>Of voer deze code handmatig in:</p>
+    <code id="manual2faCode"></code>
 
-              <input
-                type="text"
-                id="twoFaSetupCode"
-                placeholder="123456"
-                maxlength="6"
-              />
+    <div class="form-group">
+      <label for="twoFaSetupCode">Vul je 6-cijferige code in</label>
+      <input
+        type="text"
+        id="twoFaSetupCode"
+        maxlength="6"
+        inputmode="numeric"
+        pattern="[0-9]{6}"
+        placeholder="123456"
+      />
+    </div>
 
-              <button type="button" id="enable2faBtn" class="primary-btn">
-                Bevestig 2FA
-              </button>
-            </div>
-          </div>
+    <button type="button" id="enable2faBtn" class="primary-btn">
+      Bevestig 2FA
+    </button>
+  </div>
+
+  <div id="backupCodesBox" style="display: none">
+    <h3>Backup codes</h3>
+    <p>Bewaar deze codes goed. Je ziet ze maar één keer.</p>
+
+    <pre id="backupCodesList"></pre>
+
+    <button type="button" id="copyBackupCodesBtn" class="secondary-btn">
+      Backup codes kopiëren
+    </button>
+  </div>
+
+  <div id="disable2faBox" style="display: none">
+    <h3>2FA uitschakelen</h3>
+
+    <div class="form-group">
+      <label for="disable2faPassword">Wachtwoord</label>
+      <input type="password" id="disable2faPassword" />
+    </div>
+
+    <div class="form-group">
+      <label for="disable2faCode">2FA code</label>
+      <input
+        type="text"
+        id="disable2faCode"
+        maxlength="6"
+        inputmode="numeric"
+        placeholder="123456"
+      />
+    </div>
+
+    <button type="button" id="confirmDisable2faBtn" class="primary-btn">
+      Bevestig uitschakelen
+    </button>
+  </div>
+</div>
 
           <!-- ACTIONS -->
           <div class="account-actions">

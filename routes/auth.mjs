@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import speakeasy from 'speakeasy';
+import crypto from 'crypto';
 import QRCode from 'qrcode';
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
@@ -37,6 +38,16 @@ async function postcodeNaarCoords(postcode) {
 }
 
 const router = Router();
+
+function generateBackupCodes(count = 8) {
+  return Array.from({ length: count }, () =>
+    crypto.randomBytes(4).toString('hex').toUpperCase()
+  );
+}
+
+async function hashBackupCodes(codes) {
+  return Promise.all(codes.map(code => bcrypt.hash(code, 10)));
+}
 
 // ── Auth status ──
 router.get('/auth-status', (req, res) => {
@@ -211,6 +222,25 @@ router.post(
   })
 );
 
+router.post(
+  '/2fa/setup',
+  isLoggedIn,
+  asyncHandler(async (req, res) => {
+    const secret = speakeasy.generateSecret({
+      name: `Gereedschapspunt (${req.session.Name})`
+    });
+
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+
+    req.session.temp2FASecret = secret.base32;
+
+    res.json({
+      qrCodeUrl,
+      manualCode: secret.base32
+    });
+  })
+);
+
 // ── 2FA inschakelen ──
 router.post(
   '/2fa/enable',
@@ -238,21 +268,26 @@ router.post(
       return next(new AppError('Ongeldige 2FA-code', 400));
     }
 
-    await prisma.account.update({
-      where: {
-        Account_id: req.session.userId
-      },
-      data: {
-        two_factor_enabled: true,
-        two_factor_secret: secret
-      }
-    });
+    const backupCodes = generateBackupCodes();
+const hashedBackupCodes = await hashBackupCodes(backupCodes);
 
-    delete req.session.temp2FASecret;
+await prisma.account.update({
+  where: {
+    Account_id: req.session.userId
+  },
+  data: {
+    two_factor_enabled: true,
+    two_factor_secret: secret,
+    two_factor_recovery_codes: hashedBackupCodes
+  }
+});
 
-    res.json({
-      message: '2FA ingeschakeld'
-    });
+delete req.session.temp2FASecret;
+
+res.json({
+  message: '2FA ingeschakeld',
+  backupCodes
+});
   })
 );
 

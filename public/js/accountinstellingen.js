@@ -129,86 +129,144 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
-  // ── 2FA ──
-  const setup2faBtn = document.getElementById('setup2faBtn');
-  const enable2faBtn = document.getElementById('enable2faBtn');
-  const disable2faBtn = document.getElementById('disable2faBtn');
-  const twoFaSetupBox = document.getElementById('twoFaSetupBox');
-  const twoFaQrCode = document.getElementById('twoFaQrCode');
-  const twoFaSetupCode = document.getElementById('twoFaSetupCode');
+ // ── 2FA ──
+const setup2faBtn = document.getElementById('setup2faBtn');
+const disable2faBtn = document.getElementById('disable2faBtn');
 
-  setup2faBtn.addEventListener('click', async () => {
-    try {
-      const response = await fetchWithSpinner('/2fa/setup', {
-        method: 'POST',
-        credentials: 'include'
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        showToast(data.message || '2FA setup mislukt', 'error');
-        return;
-      }
-      twoFaQrCode.src = data.qrCodeUrl;
-      twoFaSetupBox.style.display = 'block';
-      showToast('Scan de QR-code met je authenticator app', 'success');
-    } catch (error) {
-      console.error(error);
-      showToast('Er is iets misgegaan bij 2FA setup', 'error');
-    }
-  });
+const twoFaSetupBox = document.getElementById('twoFaSetupBox');
+const twoFaQrCode = document.getElementById('twoFaQrCode');
+const manual2faCode = document.getElementById('manual2faCode');
+const twoFaSetupCode = document.getElementById('twoFaSetupCode');
+const enable2faBtn = document.getElementById('enable2faBtn');
 
-  enable2faBtn.addEventListener('click', async () => {
-    const token = twoFaSetupCode.value.trim();
-    if (!token) {
-      showToast('Vul je 2FA-code in', 'error');
+const backupCodesBox = document.getElementById('backupCodesBox');
+const backupCodesList = document.getElementById('backupCodesList');
+const copyBackupCodesBtn = document.getElementById('copyBackupCodesBtn');
+
+const disable2faBox = document.getElementById('disable2faBox');
+const disable2faPassword = document.getElementById('disable2faPassword');
+const disable2faCode = document.getElementById('disable2faCode');
+const confirmDisable2faBtn = document.getElementById('confirmDisable2faBtn');
+
+let backupCodesText = '';
+
+setup2faBtn.addEventListener('click', async () => {
+  try {
+    const response = await fetchWithSpinner('/2fa/setup', {
+      method: 'POST',
+      credentials: 'include'
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      showToast(data.message || '2FA setup mislukt', 'error');
       return;
     }
-    try {
-      const response = await fetchWithSpinner('/2fa/enable', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ token })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        showToast(data.message || 'Ongeldige 2FA-code', 'error');
-        return;
-      }
-      showToast('2FA is ingeschakeld!', 'success');
-      twoFaSetupBox.style.display = 'none';
-      setup2faBtn.textContent = '2FA is ingeschakeld';
-      setup2faBtn.disabled = true;
-      enable2faBtn.style.display = 'none';
-      disable2faBtn.style.display = 'block';
-    } catch (error) {
-      console.error(error);
-      showToast('Er is iets misgegaan bij 2FA inschakelen', 'error');
-    }
-  });
 
-  disable2faBtn.addEventListener('click', async () => {
-    const token = prompt('Voer je 2FA code in om uit te schakelen');
-    try {
-      const res = await fetchWithSpinner('/2fa/disable', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        showToast('2FA uitgeschakeld', 'success');
-        enable2faBtn.style.display = 'block';
-        disable2faBtn.style.display = 'none';
-        setup2faBtn.textContent = '2FA inschakelen';
-        setup2faBtn.disabled = false;
-      } else {
-        showToast(data.message, 'error');
-      }
-    } catch (error) {
-      console.error(error);
-      showToast('Er is iets misgegaan bij 2FA uitschakelen', 'error');
-    }
-  });
+    twoFaQrCode.src = data.qrCodeUrl;
+    manual2faCode.textContent = data.manualCode || '';
+    twoFaSetupBox.style.display = 'block';
 
+    showToast('Scan de QR-code met je authenticator app', 'success');
+  } catch (error) {
+    console.error(error);
+    showToast('Er is iets misgegaan bij 2FA setup', 'error');
+  }
+});
+
+enable2faBtn.addEventListener('click', async () => {
+  const token = twoFaSetupCode.value.trim();
+
+  if (!token) {
+    showToast('Vul je 2FA-code in', 'error');
+    return;
+  }
+
+  try {
+    const response = await fetchWithSpinner('/2fa/enable', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ token })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      showToast(data.message || 'Ongeldige 2FA-code', 'error');
+      return;
+    }
+
+    showToast('2FA is ingeschakeld!', 'success');
+
+    twoFaSetupBox.style.display = 'none';
+    setup2faBtn.style.display = 'none';
+    disable2faBtn.style.display = 'inline-block';
+
+    if (data.backupCodes && Array.isArray(data.backupCodes)) {
+      backupCodesText = data.backupCodes.join('\n');
+      backupCodesList.textContent = backupCodesText;
+      backupCodesBox.style.display = 'block';
+    }
+  } catch (error) {
+    console.error(error);
+    showToast('Er is iets misgegaan bij 2FA inschakelen', 'error');
+  }
+});
+
+copyBackupCodesBtn.addEventListener('click', async () => {
+  if (!backupCodesText) return;
+
+  try {
+    await navigator.clipboard.writeText(backupCodesText);
+    showToast('Backup codes gekopieerd', 'success');
+  } catch {
+    showToast('Kopiëren mislukt', 'error');
+  }
+});
+
+disable2faBtn.addEventListener('click', () => {
+  disable2faBox.style.display = 'block';
+});
+
+confirmDisable2faBtn.addEventListener('click', async () => {
+  const password = disable2faPassword.value.trim();
+  const token = disable2faCode.value.trim();
+
+  if (!password || !token) {
+    showToast('Vul wachtwoord en 2FA-code in', 'error');
+    return;
+  }
+
+  try {
+    const response = await fetchWithSpinner('/2fa/disable', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ password, token })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      showToast(data.message || '2FA uitschakelen mislukt', 'error');
+      return;
+    }
+
+    showToast('2FA uitgeschakeld', 'success');
+
+    disable2faBox.style.display = 'none';
+    disable2faBtn.style.display = 'none';
+    setup2faBtn.style.display = 'inline-block';
+    setup2faBtn.disabled = false;
+    setup2faBtn.textContent = '2FA inschakelen';
+
+    disable2faPassword.value = '';
+    disable2faCode.value = '';
+  } catch (error) {
+    console.error(error);
+    showToast('Er is iets misgegaan bij 2FA uitschakelen', 'error');
+  }
+});
 }); // einde DOMContentLoaded
