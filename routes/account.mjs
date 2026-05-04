@@ -198,21 +198,7 @@ router.post(
     res.json({ qrCodeUrl });
   })
 );
-router.post(
-  '/2fa/setup',
-  isLoggedIn,
-  asyncHandler(async (req, res) => {
-    const secret = speakeasy.generateSecret({
-      name: `Gereedschapspunt (${req.session.Name})`
-    });
 
-    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
-
-    req.session.temp2FASecret = secret.base32;
-
-    res.json({ qrCodeUrl });
-  })
-);
 // ── 2FA inschakelen + recovery code maken ──
 router.post(
   '/2fa/enable',
