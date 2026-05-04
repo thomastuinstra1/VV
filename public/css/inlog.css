@@ -276,52 +276,6 @@
   transform: none !important;
 }
 
-.trusted-device-check {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  color: #374151;
-  margin-top: 12px;
-}
-
-/* hide default checkbox */
-.trusted-device-check input {
-  position: absolute;
-  opacity: 0;
-}
-
-/* visible custom box */
-.checkmark {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #d1d5db;
-  border-radius: 6px;
-  background: white;
-  display: inline-block;
-  position: relative;
-  flex-shrink: 0;
-}
-
-/* checked */
-.trusted-device-check input:checked + .checkmark {
-  background: #f97316; /* your orange */
-  border-color: #f97316;
-}
-
-/* check icon */
-.trusted-device-check input:checked + .checkmark::after {
-  content: '';
-  position: absolute;
-  top: 3px;
-  left: 6px;
-  width: 5px;
-  height: 10px;
-  border: solid white;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
 
 @keyframes modalPop {
     from {
