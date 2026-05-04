@@ -212,7 +212,6 @@ enable2faBtn.addEventListener('click', async () => {
   }
 });
 });
-<<<<<<< HEAD
 
 const enableBtn = document.getElementById('enable2faBtn');
 const disableBtn = document.getElementById('disable2faBtn');
@@ -267,6 +266,3 @@ disableBtn.addEventListener('click', async () => {
     showToast(data.message, 'error');
   }
 });
-});
-=======
->>>>>>> parent of b28d71e (2)
