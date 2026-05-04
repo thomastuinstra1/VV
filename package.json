@@ -5,6 +5,7 @@
   "main": "index.mjs",
   "scripts": {
     "start": "node index.mjs",
+    "dev": "nodemon index.mjs",
     "prisma:generate": "prisma generate"
   },
   "repository": {
@@ -20,8 +21,18 @@
   "homepage": "https://github.com/thomastuinstra1/VV#readme",
   "dependencies": {
     "@prisma/client": "^6.18.0",
+    "bcryptjs": "^3.0.3",
     "dotenv": "^16.3.1",
     "express": "^5.2.1",
-    "prisma": "^6.18.0"
+    "express-session": "^1.19.0",
+    "express-validator": "^7.3.2",
+    "multer": "^2.1.1",
+    "prisma": "^6.19.2",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.3",
+    "stripe": "^22.0.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
   }
 }

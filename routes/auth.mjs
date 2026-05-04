@@ -2,6 +2,8 @@ import { Router } from 'express';
 import bcrypt from 'bcryptjs';
 import speakeasy from 'speakeasy';
 import QRCode from 'qrcode';
+import crypto from 'crypto';
+
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
 import validate from '../middleware/validate.mjs';
@@ -101,9 +103,7 @@ router.post(
     });
 
     if (!account) {
-      return next(
-        new AppError('Geen account gevonden met deze naam of dit e-mailadres', 401)
-      );
+      return next(new AppError('Geen account gevonden met deze naam of dit e-mailadres', 401));
     }
 
     const geldig = await bcrypt.compare(dto.password, account.Password);
@@ -143,9 +143,7 @@ router.post(
     }
 
     const account = await prisma.account.findUnique({
-      where: {
-        Account_id: Number(userId)
-      }
+      where: { Account_id: Number(userId) }
     });
 
     if (!account) {
@@ -156,12 +154,16 @@ router.post(
       return next(new AppError('2FA is niet ingesteld voor dit account', 400));
     }
 
-    const verified = speakeasy.totp.verify({
+    let verified = speakeasy.totp.verify({
       secret: account.two_factor_secret,
       encoding: 'base32',
       token,
       window: 1
     });
+
+    if (!verified && account.two_factor_recovery_code) {
+      verified = await bcrypt.compare(token, account.two_factor_recovery_code);
+    }
 
     if (!verified) {
       return next(new AppError('Ongeldige 2FA-code', 401));
@@ -197,7 +199,7 @@ router.post(
   })
 );
 
-// ── 2FA inschakelen ──
+// ── 2FA inschakelen + recovery code maken ──
 router.post(
   '/2fa/enable',
   isLoggedIn,
@@ -224,21 +226,67 @@ router.post(
       return next(new AppError('Ongeldige 2FA-code', 400));
     }
 
+    const recoveryCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+    const hashedRecoveryCode = await bcrypt.hash(recoveryCode, 10);
+
     await prisma.account.update({
-      where: {
-        Account_id: req.session.userId
-      },
+      where: { Account_id: req.session.userId },
       data: {
         two_factor_enabled: true,
-        two_factor_secret: secret
+        two_factor_secret: secret,
+        two_factor_recovery_code: hashedRecoveryCode
       }
     });
 
     delete req.session.temp2FASecret;
 
     res.json({
-      message: '2FA ingeschakeld'
+      message: '2FA ingeschakeld',
+      recoveryCode
     });
+  })
+);
+
+// ── 2FA uitschakelen, alleen met geldige 2FA code ──
+router.post(
+  '/2fa/disable',
+  isLoggedIn,
+  asyncHandler(async (req, res, next) => {
+    const { token } = req.body;
+
+    if (!token) {
+      return next(new AppError('2FA-code ontbreekt', 400));
+    }
+
+    const account = await prisma.account.findUnique({
+      where: { Account_id: req.session.userId }
+    });
+
+    if (!account || !account.two_factor_secret) {
+      return next(new AppError('2FA staat niet aan', 400));
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: account.two_factor_secret,
+      encoding: 'base32',
+      token,
+      window: 1
+    });
+
+    if (!verified) {
+      return next(new AppError('Ongeldige 2FA-code', 401));
+    }
+
+    await prisma.account.update({
+      where: { Account_id: req.session.userId },
+      data: {
+        two_factor_enabled: false,
+        two_factor_secret: null,
+        two_factor_recovery_code: null
+      }
+    });
+
+    res.json({ message: '2FA uitgeschakeld' });
   })
 );
 
@@ -260,9 +308,7 @@ router.get(
   isLoggedIn,
   asyncHandler(async (req, res, next) => {
     const account = await prisma.account.findUnique({
-      where: {
-        Account_id: req.session.userId
-      },
+      where: { Account_id: req.session.userId },
       select: {
         Account_id: true,
         Name: true,
@@ -276,9 +322,7 @@ router.get(
     });
 
     if (!account) {
-      return next(
-        new AppError('Ingelogde gebruiker niet gevonden in de database', 404)
-      );
+      return next(new AppError('Ingelogde gebruiker niet gevonden in de database', 404));
     }
 
     res.json(toMeResponseDTO(account));
