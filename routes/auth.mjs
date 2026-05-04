@@ -123,7 +123,7 @@ router.post(
       return next(new AppError('Ongeldig wachtwoord', 401));
     }
 
-    // ✅ If 2FA is enabled, first check trusted device
+    // If 2FA is enabled, first check trusted device
     if (account.two_factor_enabled) {
       const trustedToken = req.cookies?.trusted_device;
 
@@ -161,26 +161,8 @@ router.post(
     }
 
     // No 2FA → normal login
-    if (req.body.trustDevice) {
-  const rawToken = crypto.randomBytes(32).toString('hex');
-  const tokenHash = await bcrypt.hash(rawToken, 10);
-
-  await prisma.trusted_device.create({
-    data: {
-      Account_id: account.Account_id,
-      Token_hash: tokenHash,
-      Device_name: req.headers['user-agent'] || 'Onbekend apparaat',
-      Expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    }
-  });
-
-  res.cookie('trusted_device', rawToken, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: true, // ⚠️ set false if testing locally without https
-    maxAge: 30 * 24 * 60 * 60 * 1000
-  });
-}
+    req.session.userId = account.Account_id;
+    req.session.Name = account.Name;
 
     req.session.save((err) => {
       if (err) {
@@ -285,6 +267,27 @@ await prisma.account.update({
     two_factor_block_until: null
   }
 });
+
+if (req.body.trustDevice) {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = await bcrypt.hash(rawToken, 10);
+
+  await prisma.trusted_device.create({
+    data: {
+      Account_id: account.Account_id,
+      Token_hash: tokenHash,
+      Device_name: req.headers['user-agent'] || 'Onbekend apparaat',
+      Expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    }
+  });
+
+  res.cookie('trusted_device', rawToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false,
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  });
+}
 
 // ✅ Login success
 req.session.userId = account.Account_id;
