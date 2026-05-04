@@ -83,9 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-          userId: pendingUserId,
-          token
-        })
+         userId: pendingUserId,
+          token,
+          trustDevice: document.getElementById('trustDevice').checked
+          })
       });
 
       const data = await response.json();
@@ -110,12 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     form.style.display = 'block';
     document.getElementById('twoFaCode').value = '';
   });
-
-  body: JSON.stringify({
-  userId: pendingUserId,
-  token,
-  trustDevice: document.getElementById('trustDevice').checked
-})
 
   // ── Wachtwoord vergeten modal ──
   const openBtn = document.getElementById('openForgotModal');

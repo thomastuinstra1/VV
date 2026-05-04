@@ -275,7 +275,56 @@
   text-decoration: underline;
   transform: none !important;
 }
+.trusted-device-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: #374151;
+  margin: 12px 0;
+  user-select: none;
+}
 
+.trusted-device-check input {
+  display: none; /* hide default checkbox */
+}
+
+/* custom box */
+.trusted-device-check .checkmark {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid #cbd5e1;
+  background: white;
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+/* hover effect */
+.trusted-device-check:hover .checkmark {
+  border-color: #1e3a8a;
+}
+
+/* checked state */
+.trusted-device-check input:checked + .checkmark {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border-color: transparent;
+}
+
+/* check icon */
+.trusted-device-check input:checked + .checkmark::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 7px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
 
 @keyframes modalPop {
     from {
