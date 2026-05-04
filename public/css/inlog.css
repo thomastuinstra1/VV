@@ -283,11 +283,15 @@
   font-size: 0.95rem;
   color: #374151;
   margin: 12px 0;
-  user-select: none;
 }
 
+/* hide default but KEEP it clickable */
 .trusted-device-check input {
-  display: none; /* hide default checkbox */
+  position: absolute;
+  opacity: 0;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
 }
 
 /* custom box */
@@ -299,28 +303,22 @@
   background: white;
   display: inline-block;
   position: relative;
-  transition: all 0.2s ease;
-}
-
-/* hover effect */
-.trusted-device-check:hover .checkmark {
-  border-color: #1e3a8a;
 }
 
 /* checked state */
 .trusted-device-check input:checked + .checkmark {
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-  border-color: transparent;
+  background: #1e3a8a;
+  border-color: #1e3a8a;
 }
 
 /* check icon */
 .trusted-device-check input:checked + .checkmark::after {
   content: '';
   position: absolute;
-  top: 4px;
-  left: 7px;
-  width: 4px;
-  height: 8px;
+  top: 3px;
+  left: 6px;
+  width: 5px;
+  height: 10px;
   border: solid white;
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
