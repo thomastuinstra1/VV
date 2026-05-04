@@ -67,5 +67,3 @@ initSocket(io);
 server.listen(PORT, HOST, () => {
   console.log(`Server draait op https://${HOST}:${PORT}`);
 });
-
-//test
