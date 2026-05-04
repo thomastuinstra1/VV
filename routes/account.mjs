@@ -1,187 +1,164 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
-import speakeasy from 'speakeasy';
-import QRCode from 'qrcode';
-import crypto from 'crypto';
-
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
+import { upload } from '../middleware/upload.mjs';
 import validate from '../middleware/validate.mjs';
-import { registerValidator, loginValidator } from '../validators/authValidator.mjs';
+import { updateAccountValidator } from '../validators/accountValidator.mjs';
 import asyncHandler from '../middleware/asyncHandler.mjs';
 import AppError from '../utils/appError.mjs';
 
 import {
-  toAuthStatusResponseDTO,
-  toRegisterDTO,
-  toRegisterResponseDTO,
-  toLoginDTO,
-  toLoginResponseDTO,
-  toMeResponseDTO
-} from '../dto/auth.dto.mjs';
+  toUpdateAccountDTO,
+  toUpdateAccountResponseDTO,
+  toReportDTO,
+  toPubliekProfielResponseDTO
+} from '../dto/account.dto.mjs';
 
-import { toMessageResponseDTO } from '../dto/common.dto.mjs';
-
-async function postcodeNaarCoords(postcode) {
-  const url = `https://nominatim.openstreetmap.org/search?postalcode=${postcode}&country=NL&format=json&limit=1`;
-  const res = await fetch(url, {
-    headers: { 'User-Agent': 'GereedschapspuntApp' }
-  });
-
-  const data = await res.json();
-
-  if (!data.length) throw new Error('Postcode niet gevonden');
-
-  return {
-    lat: parseFloat(data[0].lat),
-    lon: parseFloat(data[0].lon)
-  };
-}
+import {
+  toMessageResponseDTO,
+  toUploadAfbeeldingResponseDTO
+} from '../dto/common.dto.mjs';
 
 const router = Router();
 
-// ── Auth status ──
-router.get('/auth-status', (req, res) => {
-  res.json(toAuthStatusResponseDTO(!!req.session.userId));
-});
+// ── Alle accounts ophalen ──
+router.get('/Account', isLoggedIn, asyncHandler(async (req, res) => {
+  const accounts = await prisma.account.findMany();
+  res.json(accounts); // eventueel later nog DTO van maken
+}));
 
-// ── Registreren ──
-router.post(
-  '/register',
-  registerValidator,
+// ── Account bijwerken ──
+router.put(
+  '/account',
+  isLoggedIn,
+  updateAccountValidator,
   validate,
   asyncHandler(async (req, res, next) => {
-    const dto = toRegisterDTO(req.body);
 
-    const bestaand = await prisma.account.findFirst({
+    const dto = toUpdateAccountDTO(req.body);
+    const data = {};
+
+    if (dto.email) {
+      const bestaandEmail = await prisma.account.findFirst({
+        where: {
+          E_mail: dto.email,
+          NOT: { Account_id: req.session.userId }
+        }
+      });
+      if (bestaandEmail) {
+        return next(new AppError('Dit e-mailadres is al in gebruik', 400));
+      }
+      data.E_mail = dto.email;
+    }
+
+    if (dto.name) data.Name = dto.name;
+    if (dto.postcode) data.Postcode = dto.postcode;
+    if (dto.password) data.Password = await bcrypt.hash(dto.password, 10);
+
+    const account = await prisma.account.update({
+      where: { Account_id: req.session.userId },
+      data
+    });
+
+    if (dto.name) req.session.Name = account.Name;
+
+    res.json(toUpdateAccountResponseDTO(account));
+  })
+);
+
+// ── Profielfoto uploaden ──
+router.post(
+  '/account/afbeelding',
+  isLoggedIn,
+  upload.single('afbeelding'),
+  asyncHandler(async (req, res, next) => {
+
+    if (!req.file) {
+      return next(new AppError('Geen geldig afbeeldingsbestand ontvangen', 400));
+    }
+
+    const afbeeldingUrl = '/uploads/' + req.file.filename;
+
+    await prisma.account.update({
+      where: { Account_id: req.session.userId },
+      data: { Afbeelding: afbeeldingUrl }
+    });
+
+    res.json(toUploadAfbeeldingResponseDTO(afbeeldingUrl));
+  })
+);
+
+// ── Account rapporteren ──
+router.post(
+  '/account/:id/report',
+  isLoggedIn,
+  asyncHandler(async (req, res, next) => {
+
+    const gemeldId = parseInt(req.params.id);
+    const melderId = req.session.userId;
+    const dto = toReportDTO(req.body);
+
+    if (gemeldId === melderId) {
+      return next(new AppError('Je kunt jezelf niet rapporteren', 400));
+    }
+
+    const bestaand = await prisma.report.findFirst({
       where: {
-        OR: [{ Name: dto.name }, { E_mail: dto.email }]
+        Melder_id: melderId,
+        Gemelde_id: gemeldId
       }
     });
 
     if (bestaand) {
-      return next(new AppError('Naam of e-mail is al in gebruik', 400));
+      return next(new AppError('Je hebt dit account al gerapporteerd', 400));
     }
 
-    const hash = await bcrypt.hash(dto.password, 10);
-
-    let coords = { lat: null, lon: null };
-
-    try {
-      coords = await postcodeNaarCoords(dto.postcode);
-    } catch {
-      console.warn('Coördinaten ophalen mislukt voor postcode:', dto.postcode);
-    }
-
-    const account = await prisma.account.create({
+    await prisma.report.create({
       data: {
-        Name: dto.name,
-        E_mail: dto.email,
-        Password: hash,
-        Postcode: dto.postcode,
-        lat: coords.lat,
-        lon: coords.lon
+        Melder_id: melderId,
+        Gemelde_id: gemeldId,
+        Reden: dto.reden
       }
     });
 
-    res.status(201).json(toRegisterResponseDTO(account));
+    res.json(toMessageResponseDTO('Rapport ingediend!'));
   })
 );
 
-// ── Inloggen ──
-router.post(
-  '/login',
-  loginValidator,
-  validate,
+// ── Publiek profiel ophalen ──
+router.get(
+  '/account/:id/profiel',
   asyncHandler(async (req, res, next) => {
-    const dto = toLoginDTO(req.body);
 
-    const account = await prisma.account.findFirst({
-      where: {
-        OR: [{ Name: dto.login }, { E_mail: dto.login }]
-      }
-    });
-
-    if (!account) {
-      return next(new AppError('Geen account gevonden met deze naam of dit e-mailadres', 401));
-    }
-
-    const geldig = await bcrypt.compare(dto.password, account.Password);
-
-    if (!geldig) {
-      return next(new AppError('Ongeldig wachtwoord', 401));
-    }
-
-    if (account.two_factor_enabled) {
-      return res.json({
-        requires2FA: true,
-        userId: account.Account_id
-      });
-    }
-
-    req.session.userId = account.Account_id;
-    req.session.Name = account.Name;
-
-    req.session.save((err) => {
-      if (err) {
-        return next(new AppError('Sessie opslaan mislukt, probeer opnieuw', 500));
-      }
-
-      res.json(toLoginResponseDTO(account));
-    });
-  })
-);
-
-// ── 2FA login verificatie ──
-router.post(
-  '/login/2fa',
-  asyncHandler(async (req, res, next) => {
-    const { userId, token } = req.body;
-
-    if (!userId || !token) {
-      return next(new AppError('Gebruiker of 2FA-code ontbreekt', 400));
-    }
+    const accountId = parseInt(req.params.id);
 
     const account = await prisma.account.findUnique({
-      where: { Account_id: Number(userId) }
+      where: { Account_id: accountId },
+      select: {
+        Account_id: true,
+        Name: true,
+        E_mail: true,
+        Postcode: true,
+        Afbeelding: true
+      }
     });
 
     if (!account) {
       return next(new AppError('Account niet gevonden', 404));
     }
 
-    if (!account.two_factor_secret) {
-      return next(new AppError('2FA is niet ingesteld voor dit account', 400));
-    }
-
-    let verified = speakeasy.totp.verify({
-      secret: account.two_factor_secret,
-      encoding: 'base32',
-      token,
-      window: 1
+    const aantalRapporten = await prisma.report.count({
+      where: { Gemelde_id: accountId }
     });
 
-    if (!verified && account.two_factor_recovery_code) {
-      verified = await bcrypt.compare(token, account.two_factor_recovery_code);
-    }
-
-    if (!verified) {
-      return next(new AppError('Ongeldige 2FA-code', 401));
-    }
-
-    req.session.userId = account.Account_id;
-    req.session.Name = account.Name;
-
-    req.session.save((err) => {
-      if (err) {
-        return next(new AppError('Sessie opslaan mislukt, probeer opnieuw', 500));
-      }
-
-      res.json(toLoginResponseDTO(account));
-    });
+    res.json(
+      toPubliekProfielResponseDTO(account, aantalRapporten)
+    );
   })
 );
 
+<<<<<<< HEAD
 // ── 2FA setup QR-code maken ──
 router.post(
   '/2fa/setup',
@@ -317,29 +294,41 @@ router.post('/logout', (req, res, next) => {
 });
 
 // ── Huidig ingelogde gebruiker ──
+=======
+// ── Profielen zoeken ──
+>>>>>>> parent of b28d71e (2)
 router.get(
-  '/me',
-  isLoggedIn,
+  '/accounts/zoeken',
   asyncHandler(async (req, res, next) => {
-    const account = await prisma.account.findUnique({
-      where: { Account_id: req.session.userId },
+    const zoekterm = req.query.q?.trim();
+
+    if (!zoekterm) {
+      return next(new AppError('Geen zoekterm opgegeven', 400));
+    }
+
+    const where = {
+      Name: {
+        contains: zoekterm
+      }
+    };
+
+    // Sluit eigen account uit als de gebruiker is ingelogd
+    if (req.session?.userId) {
+      where.Account_id = { not: req.session.userId };
+    }
+
+    const accounts = await prisma.account.findMany({
+      where,
       select: {
         Account_id: true,
         Name: true,
-        E_mail: true,
         Postcode: true,
-        Afbeelding: true,
-        lat: true,
-        lon: true,
-        two_factor_enabled: true
-      }
+        Afbeelding: true
+      },
+      take: 20
     });
 
-    if (!account) {
-      return next(new AppError('Ingelogde gebruiker niet gevonden in de database', 404));
-    }
-
-    res.json(toMeResponseDTO(account));
+    res.json(accounts);
   })
 );
 
