@@ -21,6 +21,8 @@ model Account {
   two_factor_enabled                      Boolean?      @default(false)
   two_factor_secret                       String?       @db.VarChar(255)
   two_factor_recovery_code                String?       @db.VarChar(255)
+  two_factor_attempts                     Int?          @default(0)
+  two_factor_block_until                  DateTime?     @db.DateTime(0)
   Berichten_Berichten_receiverIdToAccount Berichten[]   @relation("Berichten_receiverIdToAccount")
   Berichten_Berichten_senderIdToAccount   Berichten[]   @relation("Berichten_senderIdToAccount")
   Chats_Chats_SenderIdToAccount           Chats[]       @relation("Chats_SenderIdToAccount")
