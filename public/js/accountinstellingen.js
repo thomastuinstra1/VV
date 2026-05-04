@@ -211,29 +211,8 @@ enable2faBtn.addEventListener('click', async () => {
     showToast('Er is iets misgegaan bij 2FA inschakelen', 'error');
   }
 });
-const disableBtn = document.getElementById('disable2faBtn');
-const disableInput = document.getElementById('disable2faCode');
-
-disableBtn.addEventListener('click', async () => {
-  const token = prompt('Voer je 2FA code in om uit te schakelen:');
-
-  if (!token) return;
-
-  const response = await fetchWithSpinner('/2fa/disable', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token }),
-    credentials: 'include'
-  });
-
-  const data = await response.json();
-
-  if (response.ok) {
-    showToast('2FA uitgeschakeld', 'success');
-  } else {
-    showToast(data.message, 'error');
-  }
 });
+<<<<<<< HEAD
 
 const enableBtn = document.getElementById('enable2faBtn');
 const disableBtn = document.getElementById('disable2faBtn');
@@ -289,3 +268,5 @@ disableBtn.addEventListener('click', async () => {
   }
 });
 });
+=======
+>>>>>>> parent of b28d71e (2)
