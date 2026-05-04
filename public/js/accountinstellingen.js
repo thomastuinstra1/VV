@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', async () => {
 const setup2faBtn = document.getElementById('setup2faBtn');
 const disable2faBtn = document.getElementById('disable2faBtn');
+const trustedDevicesBox = document.getElementById('trustedDevicesBox');
+const trustedDevicesList = document.getElementById('trustedDevicesList');
 
   // ── Wachtwoord tonen/verbergen ──
   document.getElementById('togglePassword').addEventListener('click', () => {
@@ -44,11 +46,13 @@ const disable2faBtn = document.getElementById('disable2faBtn');
     document.getElementById('E_mail').value = data.E_mail || '';
     document.getElementById('Postcode').value = data.Postcode || '';
     if (data.two_factor_enabled) {
-  document.getElementById('setup2faBtn').style.display = 'none';
-  document.getElementById('disable2faBtn').style.display = 'inline-block';
+  setup2faBtn.style.display = 'none';
+  disable2faBtn.style.display = 'inline-block';
+
+  await loadTrustedDevices(); // 
 } else {
-  document.getElementById('setup2faBtn').style.display = 'inline-block';
-  document.getElementById('disable2faBtn').style.display = 'none';
+  setup2faBtn.style.display = 'inline-block';
+  disable2faBtn.style.display = 'none';
 }
   } catch (error) {
     console.error(error);
@@ -297,6 +301,55 @@ confirmDisable2faBtn.addEventListener('click', async () => {
   } catch (error) {
     console.error(error);
     showToast('Er is iets misgegaan bij 2FA uitschakelen', 'error');
+  }
+});
+async function loadTrustedDevices() {
+  try {
+    const res = await fetchWithSpinner('/2fa/trusted-devices');
+    const devices = await res.json();
+
+    if (!res.ok) return;
+
+    if (!devices.length) {
+      trustedDevicesList.innerHTML = '<p>Geen vertrouwde apparaten</p>';
+      trustedDevicesBox.style.display = 'block';
+      return;
+    }
+
+    trustedDevicesList.innerHTML = devices.map(device => `
+      <div class="trusted-device">
+        <div>
+          <strong>${device.Device_name}</strong><br/>
+          <small>Verloopt: ${new Date(device.Expires_at).toLocaleString()}</small>
+        </div>
+        <button class="remove-device-btn" data-id="${device.Trusted_device_id}">
+          Verwijder
+        </button>
+      </div>
+    `).join('');
+
+    trustedDevicesBox.style.display = 'block';
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+document.addEventListener('click', async (e) => {
+  if (!e.target.classList.contains('remove-device-btn')) return;
+
+  const id = e.target.dataset.id;
+
+  try {
+    const res = await fetchWithSpinner(`/2fa/trusted-devices/${id}`, {
+      method: 'DELETE'
+    });
+
+    if (res.ok) {
+      showToast('Apparaat verwijderd', 'success');
+      loadTrustedDevices();
+    }
+  } catch (err) {
+    console.error(err);
   }
 });
 }); // einde DOMContentLoaded

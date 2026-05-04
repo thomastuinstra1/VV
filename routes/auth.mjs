@@ -123,15 +123,64 @@ router.post(
       return next(new AppError('Ongeldig wachtwoord', 401));
     }
 
+    // ✅ If 2FA is enabled, first check trusted device
     if (account.two_factor_enabled) {
+      const trustedToken = req.cookies?.trusted_device;
+
+      if (trustedToken) {
+        const devices = await prisma.trusted_device.findMany({
+          where: {
+            Account_id: account.Account_id,
+            Expires_at: { gt: new Date() }
+          }
+        });
+
+        for (const device of devices) {
+          const match = await bcrypt.compare(trustedToken, device.Token_hash);
+
+          if (match) {
+            req.session.userId = account.Account_id;
+            req.session.Name = account.Name;
+
+            return req.session.save((err) => {
+              if (err) {
+                return next(new AppError('Sessie opslaan mislukt', 500));
+              }
+
+              return res.json(toLoginResponseDTO(account));
+            });
+          }
+        }
+      }
+
+      // Not trusted device → ask for 2FA
       return res.json({
         requires2FA: true,
         userId: account.Account_id
       });
     }
 
-    req.session.userId = account.Account_id;
-    req.session.Name = account.Name;
+    // No 2FA → normal login
+    if (req.body.trustDevice) {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = await bcrypt.hash(rawToken, 10);
+
+  await prisma.trusted_device.create({
+    data: {
+      Account_id: account.Account_id,
+      Token_hash: tokenHash,
+      Device_name: req.headers['user-agent'] || 'Onbekend apparaat',
+      Expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    }
+  });
+
+  res.cookie('trusted_device', rawToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true, // ⚠️ set false if testing locally without https
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  });
+}
 
     req.session.save((err) => {
       if (err) {
@@ -326,6 +375,40 @@ res.json({
   message: '2FA ingeschakeld',
   backupCodes
 });
+  })
+);
+
+// ── Trusted devices ophalen ──
+router.get(
+  '/2fa/trusted-devices',
+  isLoggedIn,
+  asyncHandler(async (req, res) => {
+    const devices = await prisma.trusted_device.findMany({
+      where: { Account_id: req.session.userId },
+      select: {
+        Trusted_device_id: true,
+        Device_name: true,
+        Created_at: true,
+        Expires_at: true
+      }
+    });
+
+    res.json(devices);
+  })
+);
+
+router.delete(
+  '/2fa/trusted-devices/:id',
+  isLoggedIn,
+  asyncHandler(async (req, res) => {
+    await prisma.trusted_device.deleteMany({
+      where: {
+        Trusted_device_id: Number(req.params.id),
+        Account_id: req.session.userId
+      }
+    });
+
+    res.json({ message: 'Verwijderd' });
   })
 );
 

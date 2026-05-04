@@ -68,6 +68,30 @@
   margin-top: 6px;
 }
 
+.trusted-device {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  margin-bottom: 10px;
+}
+
+.remove-device-btn {
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.remove-device-btn:hover {
+  background: #fecaca;
+}
+
 .account-box {
     width: 100%;
     max-width: 860px;

@@ -111,6 +111,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('twoFaCode').value = '';
   });
 
+  body: JSON.stringify({
+  userId: pendingUserId,
+  token,
+  trustDevice: document.getElementById('trustDevice').checked
+})
+
   // ── Wachtwoord vergeten modal ──
   const openBtn = document.getElementById('openForgotModal');
   const modal = document.getElementById('forgotModal');
