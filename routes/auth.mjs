@@ -243,7 +243,10 @@ router.post(
 
     const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
 
-    res.json({ qrCodeUrl });
+    res.json({
+  qrCodeUrl,
+  manualCode: secret.base32
+  });
   })
 );
 
@@ -288,7 +291,12 @@ await prisma.account.update({
   }
 });
 
-    res.json({ message: '2FA ingeschakeld' });
+   delete req.session.temp2FASecret;
+
+res.json({
+  message: '2FA ingeschakeld',
+  backupCodes
+});
   })
 );
 
@@ -297,16 +305,30 @@ router.post(
   '/2fa/disable',
   isLoggedIn,
   asyncHandler(async (req, res, next) => {
-    const { token } = req.body;
 
+    const { password, token } = req.body;
+
+    // 🔹 Fetch account (THIS is the line you were asking about)
     const account = await prisma.account.findUnique({
       where: { Account_id: req.session.userId }
     });
 
-    if (!account.two_factor_enabled) {
+    if (!account || !account.two_factor_enabled) {
       return next(new AppError('2FA is niet ingeschakeld', 400));
     }
 
+    // 🔹 Check password
+    if (!password || !token) {
+      return next(new AppError('Wachtwoord en 2FA-code zijn verplicht', 400));
+    }
+
+    const passwordOk = await bcrypt.compare(password, account.Password);
+
+    if (!passwordOk) {
+      return next(new AppError('Ongeldig wachtwoord', 401));
+    }
+
+    // 🔹 Check 2FA code
     const verified = speakeasy.totp.verify({
       secret: account.two_factor_secret,
       encoding: 'base32',
@@ -318,11 +340,13 @@ router.post(
       return next(new AppError('Ongeldige 2FA-code', 401));
     }
 
+    // 🔹 Disable 2FA
     await prisma.account.update({
       where: { Account_id: req.session.userId },
       data: {
         two_factor_enabled: false,
-        two_factor_secret: null
+        two_factor_secret: null,
+        two_factor_recovery_codes: null
       }
     });
 

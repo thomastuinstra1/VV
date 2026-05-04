@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', async () => {
+const setup2faBtn = document.getElementById('setup2faBtn');
+const disable2faBtn = document.getElementById('disable2faBtn');
 
   // ── Wachtwoord tonen/verbergen ──
   document.getElementById('togglePassword').addEventListener('click', () => {
@@ -137,8 +139,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
  // ── 2FA ──
-const setup2faBtn = document.getElementById('setup2faBtn');
-const disable2faBtn = document.getElementById('disable2faBtn');
 
 const twoFaSetupBox = document.getElementById('twoFaSetupBox');
 const twoFaQrCode = document.getElementById('twoFaQrCode');
