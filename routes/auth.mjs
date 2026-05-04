@@ -41,7 +41,7 @@ const router = Router();
 
 function generateBackupCodes(count = 8) {
   return Array.from({ length: count }, () =>
-    crypto.randomBytes(4).toString('hex').toUpperCase()
+    crypto.randomInt(100000, 1000000).toString()
   );
 }
 
