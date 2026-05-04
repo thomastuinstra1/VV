@@ -222,22 +222,28 @@ router.post(
   })
 );
 
+// ── 2FA setup (QR-code genereren) ──
 router.post(
   '/2fa/setup',
   isLoggedIn,
-  asyncHandler(async (req, res) => {
-    const secret = speakeasy.generateSecret({
-      name: `Gereedschapspunt (${req.session.Name})`
+  asyncHandler(async (req, res, next) => {
+    const account = await prisma.account.findUnique({
+      where: { Account_id: req.session.userId }
     });
 
-    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+    if (account.two_factor_enabled) {
+      return next(new AppError('2FA is al ingeschakeld', 400));
+    }
+
+    const secret = speakeasy.generateSecret({
+      name: `GereedschapsPunt (${account.E_mail})`
+    });
 
     req.session.temp2FASecret = secret.base32;
 
-    res.json({
-      qrCodeUrl,
-      manualCode: secret.base32
-    });
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+
+    res.json({ qrCodeUrl });
   })
 );
 
@@ -282,12 +288,45 @@ await prisma.account.update({
   }
 });
 
-delete req.session.temp2FASecret;
+    res.json({ message: '2FA ingeschakeld' });
+  })
+);
 
-res.json({
-  message: '2FA ingeschakeld',
-  backupCodes
-});
+// ── 2FA uitschakelen ──
+router.post(
+  '/2fa/disable',
+  isLoggedIn,
+  asyncHandler(async (req, res, next) => {
+    const { token } = req.body;
+
+    const account = await prisma.account.findUnique({
+      where: { Account_id: req.session.userId }
+    });
+
+    if (!account.two_factor_enabled) {
+      return next(new AppError('2FA is niet ingeschakeld', 400));
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret: account.two_factor_secret,
+      encoding: 'base32',
+      token,
+      window: 1
+    });
+
+    if (!verified) {
+      return next(new AppError('Ongeldige 2FA-code', 401));
+    }
+
+    await prisma.account.update({
+      where: { Account_id: req.session.userId },
+      data: {
+        two_factor_enabled: false,
+        two_factor_secret: null
+      }
+    });
+
+    res.json({ message: '2FA uitgeschakeld' });
   })
 );
 
