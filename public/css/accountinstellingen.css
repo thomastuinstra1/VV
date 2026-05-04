@@ -10,58 +10,62 @@
 }
 
 .twofa-section {
-  grid-column: 1 / -1;
-  margin-top: 24px;
-  padding: 22px;
-  border: 1px solid #e5e7eb;
-  border-radius: 18px;
-  background: #f8fafc;
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 22px;
+  padding: 26px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
 }
 
-#twoFaQrCode {
-  width: 180px;
-  height: 180px;
-  display: block;
-  margin: 12px 0 18px;
-  border-radius: 12px;
-  background: white;
-  padding: 10px;
-}
-
-.twofa-section h2,
-.twofa-section h3 {
+.twofa-section h2 {
+  font-size: 1.35rem;
   margin-bottom: 8px;
-  color: #1f2937;
 }
 
-.twofa-section p {
-  color: #6b7280;
-  margin-bottom: 16px;
+.twofa-section h3 {
+  font-size: 1.1rem;
+  margin-top: 18px;
 }
 
 #twoFaSetupBox,
 #backupCodesBox,
 #disable2faBox {
-  margin-top: 18px;
+  padding: 18px;
+  border-radius: 16px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+#twoFaQrCode {
+  width: 190px;
+  height: 190px;
+  margin: 14px auto 20px;
+  border: 1px solid #e5e7eb;
 }
 
 #manual2faCode {
-  display: block;
-  padding: 12px;
-  background: #fff;
-  border: 1px solid #dbe1ea;
-  border-radius: 10px;
-  margin-bottom: 18px;
-  word-break: break-all;
+  font-family: monospace;
+  font-size: 1rem;
+  text-align: center;
+  background: #f1f5f9;
 }
 
 #backupCodesList {
-  background: #111827;
-  color: white;
-  padding: 16px;
-  border-radius: 12px;
-  line-height: 1.7;
-  margin-bottom: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px 18px;
+  white-space: pre-wrap;
+  font-family: monospace;
+}
+
+.twofa-section button {
+  margin-top: 10px;
+  margin-right: 8px;
+}
+
+#disable2faBox input,
+#twoFaSetupCode {
+  margin-top: 6px;
 }
 
 .account-box {

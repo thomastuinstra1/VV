@@ -122,12 +122,14 @@
   <div class="form-group">
     <label for="twoFaCode">2FA code</label>
     <input
-  type="text"
-  id="twoFaCode"
-  name="twoFaCode"
-  maxlength="12"
-  placeholder="123456 of backup code"
-  required
+      type="text"
+      id="twoFaCode"
+      name="twoFaCode"
+      maxlength="6"
+      inputmode="numeric"
+      pattern="[0-9]{6}"
+      placeholder="123456"
+      required
     />
   </div>
 

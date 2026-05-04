@@ -358,16 +358,30 @@ router.post(
     }
 
     // 🔹 Check 2FA code
-    const verified = speakeasy.totp.verify({
-      secret: account.two_factor_secret,
-      encoding: 'base32',
-      token,
-      window: 1
-    });
+   let verified = speakeasy.totp.verify({
+  secret: account.two_factor_secret,
+  encoding: 'base32',
+  token,
+  window: 1
+});
 
-    if (!verified) {
-      return next(new AppError('Ongeldige 2FA-code', 401));
+if (!verified && account.two_factor_recovery_codes) {
+  const codes = account.two_factor_recovery_codes;
+
+  for (let i = 0; i < codes.length; i++) {
+    const match = await bcrypt.compare(token, codes[i]);
+
+    if (match) {
+      verified = true;
+      codes.splice(i, 1);
+      break;
     }
+  }
+}
+
+if (!verified) {
+  return next(new AppError('Ongeldige 2FA-code of backupcode', 401));
+}
 
     // 🔹 Disable 2FA
     await prisma.account.update({
