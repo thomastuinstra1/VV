@@ -113,51 +113,53 @@
                     </button>
                   </div>
                 </div>
-              <div class="twofa-section">
-            <h2>Two-factor authentication</h2>
-          <p>Beveilig je account met een 6-cijferige code via Google Authenticator.</p>
+              <!-- 2FA SECTION -->
+          <div class="twofa-section" style="margin-top:30px;">
+            <h2>Two-Factor Authentication</h2>
+            <p>Extra beveiliging via Google Authenticator.</p>
 
+            <!-- enable -->
             <button type="button" id="setup2faBtn" class="secondary-btn">
-           2FA inschakelen
-           </button>
+              2FA inschakelen
+            </button>
 
-        <div id="twoFaSetupBox" style="display: none">
-         <p>Scan deze QR-code met Google Authenticator:</p>
+            <!-- disable -->
+            <button type="button" id="disable2faBtn" class="secondary-btn" style="display:none;">
+              2FA uitschakelen
+            </button>
 
-        <img id="twoFaQrCode" alt="2FA QR code" />
+            <!-- setup box -->
+            <div id="twoFaSetupBox" style="display:none; margin-top:20px;">
+              <p>Scan deze QR-code:</p>
 
-        <div class="form-group">
-       <label for="twoFaSetupCode">Vul je 6-cijferige code in</label>
-        <input
-        type="text"
-        id="twoFaSetupCode"
-        maxlength="6"
-        inputmode="numeric"
-        pattern="[0-9]{6}"
-        placeholder="123456"
-      />
-       </div>
+              <img id="twoFaQrCode" style="width:200px;" />
 
-      <button type="button" id="enable2faBtn" class="primary-btn">
-        Bevestig 2FA
-        </button>
-        </div>
-        </div>
-              <div class="account-actions">
-                <button type="submit" class="primary-btn">Opslaan</button>
-                <button
-                  type="button"
-                  id="logout-btn"
-                  class="secondary-btn logout-btn"
-                >
-                  Uitloggen
-                </button>
-              </div>
-            </form>
+              <input
+                type="text"
+                id="twoFaSetupCode"
+                placeholder="123456"
+                maxlength="6"
+              />
+
+              <button type="button" id="confirm2faBtn" class="primary-btn">
+                Bevestig 2FA
+              </button>
+            </div>
           </div>
-        </div>
+
+          <!-- ACTIONS -->
+          <div class="account-actions">
+            <button type="submit" class="primary-btn">Opslaan</button>
+            <button type="button" id="logout-btn" class="secondary-btn">
+              Uitloggen
+            </button>
+          </div>
+
+        </form>
       </div>
-    </main>
+    </div>
+  </div>
+</main>
 
     <footer class="site-footer">
       <div class="container footer-container">
