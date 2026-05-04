@@ -150,6 +150,10 @@ const backupCodesBox = document.getElementById('backupCodesBox');
 const backupCodesList = document.getElementById('backupCodesList');
 const copyBackupCodesBtn = document.getElementById('copyBackupCodesBtn');
 
+const downloadBackupCodesBtn = document.getElementById('downloadBackupCodesBtn');
+const finish2faBtn = document.getElementById('finish2faBtn');
+
+
 const disable2faBox = document.getElementById('disable2faBox');
 const disable2faPassword = document.getElementById('disable2faPassword');
 const disable2faCode = document.getElementById('disable2faCode');
@@ -231,6 +235,25 @@ copyBackupCodesBtn.addEventListener('click', async () => {
   } catch {
     showToast('Kopiëren mislukt', 'error');
   }
+});
+
+downloadBackupCodesBtn.addEventListener('click', () => {
+  if (!backupCodesText) return;
+
+  const blob = new Blob([backupCodesText], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'gereedschapspunt-backup-codes.txt';
+  a.click();
+
+  URL.revokeObjectURL(url);
+});
+
+finish2faBtn.addEventListener('click', () => {
+  backupCodesBox.style.display = 'none';
+  showToast('2FA setup afgerond', 'success');
 });
 
 disable2faBtn.addEventListener('click', () => {

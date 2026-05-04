@@ -148,17 +148,24 @@
       Bevestig 2FA
     </button>
   </div>
+<div id="backupCodesBox" style="display: none">
+  <h3>Backup codes</h3>
+  <p>Bewaar deze codes goed. Je ziet ze maar één keer.</p>
 
-  <div id="backupCodesBox" style="display: none">
-    <h3>Backup codes</h3>
-    <p>Bewaar deze codes goed. Je ziet ze maar één keer.</p>
+  <pre id="backupCodesList"></pre>
 
-    <pre id="backupCodesList"></pre>
+  <button type="button" id="copyBackupCodesBtn" class="secondary-btn">
+    Backup codes kopiëren
+  </button>
 
-    <button type="button" id="copyBackupCodesBtn" class="secondary-btn">
-      Backup codes kopiëren
-    </button>
-  </div>
+  <button type="button" id="downloadBackupCodesBtn" class="secondary-btn">
+    Backup codes downloaden
+  </button>
+
+  <button type="button" id="finish2faBtn" class="primary-btn">
+    Klaar
+  </button>
+</div>
 
   <div id="disable2faBox" style="display: none">
     <h3>2FA uitschakelen</h3>

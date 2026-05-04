@@ -174,51 +174,80 @@ router.post(
       );
     }
 
-    const verified = speakeasy.totp.verify({
-      secret: account.two_factor_secret,
-      encoding: 'base32',
+   let verified = speakeasy.totp.verify({
+  secret: account.two_factor_secret,
+  encoding: 'base32',
+  token,
+  window: 1
+});
+
+// 👉 Backup codes check
+if (!verified && account.two_factor_recovery_codes) {
+  for (let i = 0; i < account.two_factor_recovery_codes.length; i++) {
+    const match = await bcrypt.compare(
       token,
-      window: 1
-    });
+      account.two_factor_recovery_codes[i]
+    );
 
-    if (!verified) {
-      const attempts = (account.two_factor_attempts || 0) + 1;
+    if (match) {
+      verified = true;
 
-      const updateData = {
-        two_factor_attempts: attempts
-      };
-
-      if (attempts >= 5) {
-        updateData.two_factor_attempts = 0;
-        updateData.two_factor_block_until = new Date(Date.now() + 5 * 60 * 1000);
-      }
+      // ❗ Remove used backup code (one-time use)
+      const updatedCodes = [...account.two_factor_recovery_codes];
+      updatedCodes.splice(i, 1);
 
       await prisma.account.update({
         where: { Account_id: account.Account_id },
-        data: updateData
+        data: {
+          two_factor_recovery_codes: updatedCodes
+        }
       });
 
-      return next(new AppError('Ongeldige 2FA-code', 401));
+      break;
     }
+  }
+}
 
-    await prisma.account.update({
-      where: { Account_id: account.Account_id },
-      data: {
-        two_factor_attempts: 0,
-        two_factor_block_until: null
-      }
-    });
+if (!verified) {
+  const attempts = (account.two_factor_attempts || 0) + 1;
 
-    req.session.userId = account.Account_id;
-    req.session.Name = account.Name;
+  const updateData = {
+    two_factor_attempts: attempts
+  };
 
-    req.session.save((err) => {
-      if (err) {
-        return next(new AppError('Sessie opslaan mislukt, probeer opnieuw', 500));
-      }
+  if (attempts >= 5) {
+    updateData.two_factor_attempts = 0;
+    updateData.two_factor_block_until = new Date(Date.now() + 5 * 60 * 1000);
+  }
 
-      return res.json(toLoginResponseDTO(account));
-    });
+  await prisma.account.update({
+    where: { Account_id: account.Account_id },
+    data: updateData
+  });
+
+  return next(new AppError('Ongeldige 2FA-code', 401));
+}
+
+// ✅ Reset attempts after success
+await prisma.account.update({
+  where: { Account_id: account.Account_id },
+  data: {
+    two_factor_attempts: 0,
+    two_factor_block_until: null
+  }
+});
+
+// ✅ Login success
+req.session.userId = account.Account_id;
+req.session.Name = account.Name;
+
+req.session.save((err) => {
+  if (err) {
+    return next(new AppError('Sessie opslaan mislukt, probeer opnieuw', 500));
+  }
+
+  return res.json(toLoginResponseDTO(account));
+});
   })
 );
 
