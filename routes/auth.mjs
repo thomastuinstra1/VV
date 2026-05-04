@@ -369,7 +369,10 @@ router.get(
       );
     }
 
-    res.json(toMeResponseDTO(account));
+    res.json({
+  ...toMeResponseDTO(account),
+  two_factor_enabled: account.two_factor_enabled
+});
   })
 );
 
