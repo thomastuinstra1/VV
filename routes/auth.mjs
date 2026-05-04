@@ -143,9 +143,7 @@ router.post(
     }
 
     const account = await prisma.account.findUnique({
-      where: {
-        Account_id: Number(userId)
-      }
+      where: { Account_id: Number(userId) }
     });
 
     if (!account) {
@@ -156,6 +154,15 @@ router.post(
       return next(new AppError('2FA is niet ingesteld voor dit account', 400));
     }
 
+    if (
+      account.two_factor_block_until &&
+      new Date() < account.two_factor_block_until
+    ) {
+      return next(
+        new AppError('Te veel mislukte pogingen. Probeer later opnieuw.', 429)
+      );
+    }
+
     const verified = speakeasy.totp.verify({
       secret: account.two_factor_secret,
       encoding: 'base32',
@@ -164,8 +171,32 @@ router.post(
     });
 
     if (!verified) {
+      const attempts = (account.two_factor_attempts || 0) + 1;
+
+      const updateData = {
+        two_factor_attempts: attempts
+      };
+
+      if (attempts >= 5) {
+        updateData.two_factor_attempts = 0;
+        updateData.two_factor_block_until = new Date(Date.now() + 5 * 60 * 1000);
+      }
+
+      await prisma.account.update({
+        where: { Account_id: account.Account_id },
+        data: updateData
+      });
+
       return next(new AppError('Ongeldige 2FA-code', 401));
     }
+
+    await prisma.account.update({
+      where: { Account_id: account.Account_id },
+      data: {
+        two_factor_attempts: 0,
+        two_factor_block_until: null
+      }
+    });
 
     req.session.userId = account.Account_id;
     req.session.Name = account.Name;
@@ -175,25 +206,8 @@ router.post(
         return next(new AppError('Sessie opslaan mislukt, probeer opnieuw', 500));
       }
 
-      res.json(toLoginResponseDTO(account));
+      return res.json(toLoginResponseDTO(account));
     });
-  })
-);
-
-// ── 2FA setup QR-code maken ──
-router.post(
-  '/2fa/setup',
-  isLoggedIn,
-  asyncHandler(async (req, res) => {
-    const secret = speakeasy.generateSecret({
-      name: `Gereedschapspunt (${req.session.Name})`
-    });
-
-    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
-
-    req.session.temp2FASecret = secret.base32;
-
-    res.json({ qrCodeUrl });
   })
 );
 

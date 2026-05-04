@@ -234,4 +234,58 @@ disableBtn.addEventListener('click', async () => {
     showToast(data.message, 'error');
   }
 });
+
+const enableBtn = document.getElementById('enable2faBtn');
+const disableBtn = document.getElementById('disable2faBtn');
+const qrContainer = document.getElementById('qrContainer');
+const qrImage = document.getElementById('qrImage');
+
+enableBtn.addEventListener('click', async () => {
+  const res = await fetch('/2fa/setup', { method: 'POST' });
+  const data = await res.json();
+
+  qrImage.src = data.qrCodeUrl;
+  qrContainer.style.display = 'block';
+});
+
+document.getElementById('confirm2faBtn').addEventListener('click', async () => {
+  const token = document.getElementById('verify2faCode').value;
+
+  const res = await fetch('/2fa/enable', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    showToast('2FA ingeschakeld!', 'success');
+    qrContainer.style.display = 'none';
+    enableBtn.style.display = 'none';
+    disableBtn.style.display = 'block';
+  } else {
+    showToast(data.message, 'error');
+  }
+});
+
+disableBtn.addEventListener('click', async () => {
+  const token = prompt('Voer je 2FA code in om uit te schakelen');
+
+  const res = await fetch('/2fa/disable', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    showToast('2FA uitgeschakeld', 'success');
+    enableBtn.style.display = 'block';
+    disableBtn.style.display = 'none';
+  } else {
+    showToast(data.message, 'error');
+  }
+});
 });
