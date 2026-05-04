@@ -41,6 +41,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('Name').value = data.Name || '';
     document.getElementById('E_mail').value = data.E_mail || '';
     document.getElementById('Postcode').value = data.Postcode || '';
+    if (data.two_factor_enabled) {
+  document.getElementById('setup2faBtn').style.display = 'none';
+  document.getElementById('disable2faBtn').style.display = 'inline-block';
+} else {
+  document.getElementById('setup2faBtn').style.display = 'inline-block';
+  document.getElementById('disable2faBtn').style.display = 'none';
+}
   } catch (error) {
     console.error(error);
   }
