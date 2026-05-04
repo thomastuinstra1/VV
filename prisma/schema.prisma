@@ -8,36 +8,56 @@ datasource db {
 }
 
 model Account {
-  Account_id                          Int       @id @default(autoincrement())
-  Name                                String?   @db.VarChar(255)
-  Postcode                            String?   @db.VarChar(20)
-  E_mail                              String?   @unique(map: "E_mail") @db.VarChar(255)
-  Password                            String?   @db.VarChar(255)
-  BSN                                 String?   @db.VarChar(50)
-  Review_Review_Auteur_idToAccount    Review[]  @relation("Review_Auteur_idToAccount")
-  Review_Review_Ontvanger_idToAccount Review[]  @relation("Review_Ontvanger_idToAccount")
-  Uitleen                             Uitleen[]
+  Account_id                              Int           @id @default(autoincrement())
+  Name                                    String?       @db.VarChar(255)
+  Postcode                                String?       @db.VarChar(20)
+  E_mail                                  String?       @unique(map: "E_mail") @db.VarChar(255)
+  Password                                String?       @db.VarChar(255)
+  Afbeelding                              String?       @db.VarChar(255)
+  resetToken                              String?       @db.VarChar(64)
+  resetTokenExpiry                        DateTime?     @db.DateTime(0)
+  lat                                     Float?        @db.Float
+  lon                                     Float?        @db.Float
+  two_factor_enabled                      Boolean?      @default(false)
+  two_factor_secret                       String?       @db.VarChar(255)
+  Berichten_Berichten_receiverIdToAccount Berichten[]   @relation("Berichten_receiverIdToAccount")
+  Berichten_Berichten_senderIdToAccount   Berichten[]   @relation("Berichten_senderIdToAccount")
+  Chats_Chats_SenderIdToAccount           Chats[]       @relation("Chats_SenderIdToAccount")
+  Chats_Chats_ReceiverIdToAccount         Chats[]       @relation("Chats_ReceiverIdToAccount")
+  Gereedschap                             Gereedschap[]
+  Report_Report_Melder_idToAccount        Report[]      @relation("Report_Melder_idToAccount")
+  Report_Report_Gemelde_idToAccount       Report[]      @relation("Report_Gemelde_idToAccount")
+  Review_Review_Auteur_idToAccount        Review[]      @relation("Review_Auteur_idToAccount")
+  Review_Review_Ontvanger_idToAccount     Review[]      @relation("Review_Ontvanger_idToAccount")
+  Uitleen                                 Uitleen[]
 }
 
 model Categorie {
-  Categorie_id Int           @id @default(autoincrement())
-  Naam         String?       @db.VarChar(255)
-  Beschrijving String?       @db.VarChar(255)
-  Gereedschap  Gereedschap[]
+  Categorie_id          Int                     @id @default(autoincrement())
+  Naam                  String?                 @db.VarChar(255)
+  Parent_id             Int?
+  Categorie             Categorie?              @relation("CategorieToCategorie", fields: [Parent_id], references: [Categorie_id], onDelete: NoAction, onUpdate: NoAction, map: "Categorie_ibfk_1")
+  other_Categorie       Categorie[]             @relation("CategorieToCategorie")
+  Gereedschap_Categorie Gereedschap_Categorie[]
+
+  @@index([Parent_id], map: "Parent_id")
 }
 
 model Gereedschap {
-  Gereedschap_id Int        @id @default(autoincrement())
-  Categorie_id   Int?
-  Naam           String?    @db.VarChar(255)
-  Beschrijving   String?    @db.VarChar(255)
-  Staat          String?    @db.VarChar(100)
-  Beschikbaar    Boolean?
-  BorgBedrag     Decimal?   @db.Decimal(10, 2)
-  Categorie      Categorie? @relation(fields: [Categorie_id], references: [Categorie_id], onDelete: NoAction, onUpdate: NoAction, map: "Gereedschap_ibfk_1")
-  Uitleen        Uitleen[]
+  Gereedschap_id        Int                     @id @default(autoincrement())
+  Naam                  String?                 @db.VarChar(255)
+  Beschrijving          String?                 @db.VarChar(255)
+  BorgBedrag            Decimal?                @db.Decimal(10, 2)
+  Afbeelding            String?                 @db.VarChar(255)
+  Begindatum            DateTime?               @db.Date
+  Einddatum             DateTime?               @db.Date
+  Account_id            Int?
+  Chats                 Chats[]
+  Account               Account?                @relation(fields: [Account_id], references: [Account_id], onUpdate: NoAction, map: "fk_gereedschap_account")
+  Gereedschap_Categorie Gereedschap_Categorie[]
+  Uitleen               Uitleen[]
 
-  @@index([Categorie_id], map: "Categorie_id")
+  @@index([Account_id], map: "fk_gereedschap_account")
 }
 
 model Review {
@@ -57,32 +77,82 @@ model Review {
   @@index([Uitleen_id], map: "Uitleen_id")
 }
 
-model Schade {
-  Schade_id    Int       @id @default(autoincrement())
-  Uitleen_id   Int?
-  Beschrijving String?   @db.VarChar(255)
-  SchadeKosten Decimal?  @db.Decimal(10, 2)
-  Datum        DateTime? @db.Date
-  Uitleen      Uitleen?  @relation(fields: [Uitleen_id], references: [Uitleen_id], onDelete: NoAction, onUpdate: NoAction, map: "Schade_ibfk_1")
-
-  @@index([Uitleen_id], map: "Uitleen_id")
-}
-
 model Uitleen {
-  Uitleen_id     Int          @id @default(autoincrement())
-  Account_id     Int?
-  Gereedschap_id Int?
-  StartDatum     DateTime?    @db.Date
-  EindDatum      DateTime?    @db.Date
-  RetourDatum    DateTime?    @db.Date
-  BorgBedrag     Decimal?     @db.Decimal(10, 2)
-  Kosten         Decimal?     @db.Decimal(10, 2)
-  Status         String?      @db.VarChar(100)
-  Review         Review[]
-  Schade         Schade[]
-  Account        Account?     @relation(fields: [Account_id], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Uitleen_ibfk_1")
-  Gereedschap    Gereedschap? @relation(fields: [Gereedschap_id], references: [Gereedschap_id], onDelete: NoAction, onUpdate: NoAction, map: "Uitleen_ibfk_2")
+  Uitleen_id      Int          @id @default(autoincrement())
+  Account_id      Int?
+  Gereedschap_id  Int?
+  StartDatum      DateTime?    @db.Date
+  EindDatum       DateTime?    @db.Date
+  BorgBedrag      Decimal?     @db.Decimal(10, 2)
+  Status          String?      @db.VarChar(100)
+  Lener_id        Int?
+  StartTijd       String?      @db.VarChar(10)
+  EindTijd        String?      @db.VarChar(10)
+  Adres           String?      @db.VarChar(255)
+  PaymentIntentId String?      @db.VarChar(255)
+  BorgStatus      String?      @db.VarChar(50)
+  Review          Review[]
+  Account         Account?     @relation(fields: [Account_id], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Uitleen_ibfk_1")
+  Gereedschap     Gereedschap? @relation(fields: [Gereedschap_id], references: [Gereedschap_id], onDelete: NoAction, onUpdate: NoAction, map: "Uitleen_ibfk_2")
 
   @@index([Account_id], map: "Account_id")
   @@index([Gereedschap_id], map: "Gereedschap_id")
+}
+
+model Gereedschap_Categorie {
+  Gereedschap_id Int
+  Categorie_id   Int
+  Gereedschap    Gereedschap @relation(fields: [Gereedschap_id], references: [Gereedschap_id], onDelete: NoAction, onUpdate: NoAction, map: "Gereedschap_Categorie_ibfk_1")
+  Categorie      Categorie   @relation(fields: [Categorie_id], references: [Categorie_id], onDelete: NoAction, onUpdate: NoAction, map: "Gereedschap_Categorie_ibfk_2")
+
+  @@id([Gereedschap_id, Categorie_id])
+  @@index([Categorie_id], map: "Categorie_id")
+}
+
+model Berichten {
+  id                                    Int       @id @default(autoincrement())
+  content                               String    @db.Text
+  senderId                              Int
+  receiverId                            Int
+  createdAt                             DateTime? @default(now()) @db.DateTime(0)
+  type                                  String?   @default("text") @db.VarChar(50)
+  uitleenId                             Int?
+  Chat_id                               Int?
+  isRead                                Boolean   @default(false)
+  Chats                                 Chats?    @relation(fields: [Chat_id], references: [Chat_id], onDelete: NoAction, onUpdate: NoAction, map: "Berichten_ibfk_1")
+  Account_Berichten_receiverIdToAccount Account   @relation("Berichten_receiverIdToAccount", fields: [receiverId], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_receiver")
+  Account_Berichten_senderIdToAccount   Account   @relation("Berichten_senderIdToAccount", fields: [senderId], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_sender")
+
+  @@index([receiverId], map: "fk_receiver")
+  @@index([senderId], map: "fk_sender")
+  @@index([Chat_id], map: "Chat_id")
+}
+
+model Chats {
+  Chat_id                           Int         @id @default(autoincrement())
+  SenderId                          Int
+  ReceiverId                        Int
+  Gereedschap_id                    Int
+  CreatedAt                         DateTime?   @default(now()) @db.DateTime(0)
+  Berichten                         Berichten[]
+  Account_Chats_SenderIdToAccount   Account     @relation("Chats_SenderIdToAccount", fields: [SenderId], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Chats_ibfk_1")
+  Account_Chats_ReceiverIdToAccount Account     @relation("Chats_ReceiverIdToAccount", fields: [ReceiverId], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Chats_ibfk_2")
+  Gereedschap                       Gereedschap @relation(fields: [Gereedschap_id], references: [Gereedschap_id], onDelete: NoAction, onUpdate: NoAction, map: "Chats_ibfk_3")
+
+  @@index([Gereedschap_id], map: "Gereedschap_id")
+  @@index([ReceiverId], map: "ReceiverId")
+  @@index([SenderId], map: "SenderId")
+}
+
+model Report {
+  Report_id                          Int       @id @default(autoincrement())
+  Melder_id                          Int
+  Gemelde_id                         Int
+  Reden                              String?   @db.VarChar(255)
+  Datum                              DateTime? @default(now()) @db.DateTime(0)
+  Account_Report_Melder_idToAccount  Account   @relation("Report_Melder_idToAccount", fields: [Melder_id], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Report_ibfk_1")
+  Account_Report_Gemelde_idToAccount Account   @relation("Report_Gemelde_idToAccount", fields: [Gemelde_id], references: [Account_id], onDelete: NoAction, onUpdate: NoAction, map: "Report_ibfk_2")
+
+  @@index([Gemelde_id], map: "Gemelde_id")
+  @@index([Melder_id], map: "Melder_id")
 }
