@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import bcrypt from 'bcryptjs';
+import speakeasy from 'speakeasy';
+import QRCode from 'qrcode';
 import prisma from '../prismaClient.mjs';
 import { isLoggedIn } from '../middleware/auth.mjs';
 import validate from '../middleware/validate.mjs';
 import { registerValidator, loginValidator } from '../validators/authValidator.mjs';
 import asyncHandler from '../middleware/asyncHandler.mjs';
 import AppError from '../utils/appError.mjs';
-import speakeasy from 'speakeasy';
 
 import {
   toAuthStatusResponseDTO,
@@ -17,17 +18,22 @@ import {
   toMeResponseDTO
 } from '../dto/auth.dto.mjs';
 
-import {
-  toMessageResponseDTO
-} from '../dto/common.dto.mjs';
+import { toMessageResponseDTO } from '../dto/common.dto.mjs';
 
-// ── Lokale helper (geen frontend-koppeling meer) ──
 async function postcodeNaarCoords(postcode) {
   const url = `https://nominatim.openstreetmap.org/search?postalcode=${postcode}&country=NL&format=json&limit=1`;
-  const res = await fetch(url, { headers: { "User-Agent": "GereedschapspuntApp" } });
+  const res = await fetch(url, {
+    headers: { 'User-Agent': 'GereedschapspuntApp' }
+  });
+
   const data = await res.json();
-  if (!data.length) throw new Error("Postcode niet gevonden");
-  return { lat: parseFloat(data[0].lat), lon: parseFloat(data[0].lon) };
+
+  if (!data.length) throw new Error('Postcode niet gevonden');
+
+  return {
+    lat: parseFloat(data[0].lat),
+    lon: parseFloat(data[0].lon)
+  };
 }
 
 const router = Router();
@@ -43,15 +49,11 @@ router.post(
   registerValidator,
   validate,
   asyncHandler(async (req, res, next) => {
-
     const dto = toRegisterDTO(req.body);
 
     const bestaand = await prisma.account.findFirst({
       where: {
-        OR: [
-          { Name: dto.name },
-          { E_mail: dto.email }
-        ]
+        OR: [{ Name: dto.name }, { E_mail: dto.email }]
       }
     });
 
@@ -62,6 +64,7 @@ router.post(
     const hash = await bcrypt.hash(dto.password, 10);
 
     let coords = { lat: null, lon: null };
+
     try {
       coords = await postcodeNaarCoords(dto.postcode);
     } catch {
@@ -74,8 +77,8 @@ router.post(
         E_mail: dto.email,
         Password: hash,
         Postcode: dto.postcode,
-        lat: coords.lat,  // ✅ fix
-        lon: coords.lon   // ✅ fix
+        lat: coords.lat,
+        lon: coords.lon
       }
     });
 
@@ -89,20 +92,18 @@ router.post(
   loginValidator,
   validate,
   asyncHandler(async (req, res, next) => {
-
     const dto = toLoginDTO(req.body);
 
     const account = await prisma.account.findFirst({
       where: {
-        OR: [
-          { Name: dto.login },
-          { E_mail: dto.login }
-        ]
+        OR: [{ Name: dto.login }, { E_mail: dto.login }]
       }
     });
 
     if (!account) {
-      return next(new AppError('Geen account gevonden met deze naam of dit e-mailadres', 401));
+      return next(
+        new AppError('Geen account gevonden met deze naam of dit e-mailadres', 401)
+      );
     }
 
     const geldig = await bcrypt.compare(dto.password, account.Password);
@@ -111,19 +112,17 @@ router.post(
       return next(new AppError('Ongeldig wachtwoord', 401));
     }
 
-    // ✅ If 2FA is enabled, do NOT log in yet
-    if (account.two_factor_enabled === 1 || account.two_factor_enabled === true) {
+    if (account.two_factor_enabled) {
       return res.json({
         requires2FA: true,
         userId: account.Account_id
       });
     }
 
-    // ✅ Normal login when 2FA is off
     req.session.userId = account.Account_id;
     req.session.Name = account.Name;
 
-    req.session.save(err => {
+    req.session.save((err) => {
       if (err) {
         return next(new AppError('Sessie opslaan mislukt, probeer opnieuw', 500));
       }
@@ -171,7 +170,7 @@ router.post(
     req.session.userId = account.Account_id;
     req.session.Name = account.Name;
 
-    req.session.save(err => {
+    req.session.save((err) => {
       if (err) {
         return next(new AppError('Sessie opslaan mislukt, probeer opnieuw', 500));
       }
@@ -181,9 +180,71 @@ router.post(
   })
 );
 
+// ── 2FA setup QR-code maken ──
+router.post(
+  '/2fa/setup',
+  isLoggedIn,
+  asyncHandler(async (req, res) => {
+    const secret = speakeasy.generateSecret({
+      name: `Gereedschapspunt (${req.session.Name})`
+    });
+
+    const qrCodeUrl = await QRCode.toDataURL(secret.otpauth_url);
+
+    req.session.temp2FASecret = secret.base32;
+
+    res.json({ qrCodeUrl });
+  })
+);
+
+// ── 2FA inschakelen ──
+router.post(
+  '/2fa/enable',
+  isLoggedIn,
+  asyncHandler(async (req, res, next) => {
+    const { token } = req.body;
+    const secret = req.session.temp2FASecret;
+
+    if (!secret) {
+      return next(new AppError('Start eerst de 2FA setup', 400));
+    }
+
+    if (!token) {
+      return next(new AppError('2FA-code ontbreekt', 400));
+    }
+
+    const verified = speakeasy.totp.verify({
+      secret,
+      encoding: 'base32',
+      token,
+      window: 1
+    });
+
+    if (!verified) {
+      return next(new AppError('Ongeldige 2FA-code', 400));
+    }
+
+    await prisma.account.update({
+      where: {
+        Account_id: req.session.userId
+      },
+      data: {
+        two_factor_enabled: true,
+        two_factor_secret: secret
+      }
+    });
+
+    delete req.session.temp2FASecret;
+
+    res.json({
+      message: '2FA ingeschakeld'
+    });
+  })
+);
+
 // ── Uitloggen ──
 router.post('/logout', (req, res, next) => {
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     if (err) {
       return next(new AppError('Uitloggen mislukt, probeer opnieuw', 500));
     }
@@ -198,9 +259,10 @@ router.get(
   '/me',
   isLoggedIn,
   asyncHandler(async (req, res, next) => {
-
     const account = await prisma.account.findUnique({
-      where: { Account_id: req.session.userId },
+      where: {
+        Account_id: req.session.userId
+      },
       select: {
         Account_id: true,
         Name: true,
@@ -208,12 +270,15 @@ router.get(
         Postcode: true,
         Afbeelding: true,
         lat: true,
-        lon: true
+        lon: true,
+        two_factor_enabled: true
       }
     });
 
     if (!account) {
-      return next(new AppError('Ingelogde gebruiker niet gevonden in de database', 404));
+      return next(
+        new AppError('Ingelogde gebruiker niet gevonden in de database', 404)
+      );
     }
 
     res.json(toMeResponseDTO(account));

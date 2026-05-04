@@ -113,7 +113,36 @@
                     </button>
                   </div>
                 </div>
+              <div class="twofa-section">
+            <h2>Two-factor authentication</h2>
+          <p>Beveilig je account met een 6-cijferige code via Google Authenticator.</p>
 
+            <button type="button" id="setup2faBtn" class="secondary-btn">
+           2FA inschakelen
+           </button>
+
+        <div id="twoFaSetupBox" style="display: none">
+         <p>Scan deze QR-code met Google Authenticator:</p>
+
+        <img id="twoFaQrCode" alt="2FA QR code" />
+
+        <div class="form-group">
+       <label for="twoFaSetupCode">Vul je 6-cijferige code in</label>
+        <input
+        type="text"
+        id="twoFaSetupCode"
+        maxlength="6"
+        inputmode="numeric"
+        pattern="[0-9]{6}"
+        placeholder="123456"
+      />
+       </div>
+
+      <button type="button" id="enable2faBtn" class="primary-btn">
+        Bevestig 2FA
+        </button>
+        </div>
+        </div>
               <div class="account-actions">
                 <button type="submit" class="primary-btn">Opslaan</button>
                 <button

@@ -9,6 +9,39 @@
     justify-content: center;
 }
 
+.twofa-section {
+  grid-column: 1 / -1;
+  margin-top: 24px;
+  padding: 22px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #f8fafc;
+}
+
+.twofa-section h2 {
+  margin-bottom: 8px;
+  color: #1f2937;
+}
+
+.twofa-section p {
+  color: #6b7280;
+  margin-bottom: 16px;
+}
+
+#twoFaSetupBox {
+  margin-top: 18px;
+}
+
+#twoFaQrCode {
+  width: 180px;
+  height: 180px;
+  display: block;
+  margin: 12px 0 18px;
+  border-radius: 12px;
+  background: white;
+  padding: 10px;
+}
+
 .account-box {
     width: 100%;
     max-width: 860px;
