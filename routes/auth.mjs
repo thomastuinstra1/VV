@@ -123,40 +123,46 @@ router.post(
       return next(new AppError('Ongeldig wachtwoord', 401));
     }
 
-    if (account.two_factor_enabled) {
-      const trustedToken = req.cookies?.trusted_device;
+   if (account.two_factor_enabled) {
+  console.log('COOKIES:', req.cookies);
 
-      if (trustedToken) {
-        const devices = await prisma.trusted_device.findMany({
-          where: {
-            Account_id: account.Account_id,
-            Expires_at: { gt: new Date() }
-          }
-        });
+  const trustedToken = req.cookies?.trusted_device;
+  console.log('trustedToken:', trustedToken);
 
-        for (const device of devices) {
-          const match = await bcrypt.compare(trustedToken, device.Token_hash);
-
-          if (match) {
-            req.session.userId = account.Account_id;
-            req.session.Name = account.Name;
-
-            return req.session.save((err) => {
-              if (err) {
-                return next(new AppError('Sessie opslaan mislukt', 500));
-              }
-
-              return res.json(toLoginResponseDTO(account));
-            });
-          }
-        }
+  if (trustedToken) {
+    const devices = await prisma.trusted_device.findMany({
+      where: {
+        Account_id: account.Account_id,
+        Expires_at: { gt: new Date() }
       }
+    });
 
-      return res.json({
-        requires2FA: true,
-        userId: account.Account_id
-      });
+    console.log('devices found:', devices.length);
+
+    for (const device of devices) {
+      const match = await bcrypt.compare(trustedToken, device.Token_hash);
+      console.log('device match:', match);
+
+      if (match) {
+        req.session.userId = account.Account_id;
+        req.session.Name = account.Name;
+
+        return req.session.save((err) => {
+          if (err) {
+            return next(new AppError('Sessie opslaan mislukt', 500));
+          }
+
+          return res.json(toLoginResponseDTO(account));
+        });
+      }
     }
+  }
+
+  return res.json({
+    requires2FA: true,
+    userId: account.Account_id
+  });
+}
 
     req.session.userId = account.Account_id;
     req.session.Name = account.Name;
