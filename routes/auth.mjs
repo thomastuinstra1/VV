@@ -529,7 +529,7 @@ router.post(
       }
     });
 
-    await fetch(process.env.APPS_SCRIPT_URL, {
+    fetch(process.env.APPS_SCRIPT_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -537,7 +537,7 @@ router.post(
     userEmail: account.E_mail,
     userName: account.Name
   })
-});
+}).catch(err => console.error('2FA recovery disabled mail error:', err));
 
     res.json({ message: '2FA hersteld' });
   })
