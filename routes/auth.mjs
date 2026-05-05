@@ -454,7 +454,7 @@ router.post(
 
    const recoveryLink = `${process.env.TWO_FA_RECOVERY_URL}?token=${token}`;
 
-await fetch(process.env.APPS_SCRIPT_URL, {
+const mailRes = await fetch(process.env.APPS_SCRIPT_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -464,6 +464,9 @@ await fetch(process.env.APPS_SCRIPT_URL, {
     recoveryUrl: recoveryLink
   })
 });
+
+const mailText = await mailRes.text();
+console.log('2FA recovery mail response:', mailText);
 
 res.json({ message: safeMessage }); // ✅ THIS LINE IS REQUIRED
 })
