@@ -361,24 +361,26 @@ router.post(
     const backupCodes = generateBackupCodes();
     const hashedBackupCodes = await hashBackupCodes(backupCodes);
 
-    await prisma.account.update({
-      where: { Account_id: req.session.userId },
-      data: {
-        two_factor_enabled: true,
-        two_factor_secret: secret,
-        two_factor_recovery_codes: hashedBackupCodes
-      }
-    });
+    const updatedAccount = await prisma.account.update({
+  where: { Account_id: req.session.userId },
+  data: {
+    two_factor_enabled: true,
+    two_factor_secret: secret,
+    two_factor_recovery_codes: hashedBackupCodes
+  }
+});
 
-    await fetch(process.env.APPS_SCRIPT_URL, {
+const mailRes = await fetch(process.env.APPS_SCRIPT_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     type: '2fa_enabled',
-    userEmail: account.E_mail,
-    userName: account.Name
+    userEmail: updatedAccount.E_mail,
+    userName: updatedAccount.Name
   })
 });
+
+console.log('2FA enabled mail response:', await mailRes.text());
 
     delete req.session.temp2FASecret;
 
@@ -451,6 +453,19 @@ router.post(
         two_factor_recovery_expires: new Date(Date.now() + 15 * 60 * 1000)
       }
     });
+
+    const recoveryLink = `${process.env.TWO_FA_RECOVERY_URL}?token=${token}`;
+
+await fetch(process.env.APPS_SCRIPT_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: '2fa_recovery',
+    userEmail: account.E_mail,
+    userName: account.Name,
+    recoveryUrl: recoveryLink
+  })
+});
 
    const recoveryLink = `${process.env.TWO_FA_RECOVERY_URL}?token=${token}`;
 
