@@ -115,6 +115,47 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('twoFaCode').value = '';
   });
 
+  const open2faBtn = document.getElementById('open2faRecoveryModal');
+const modal2fa = document.getElementById('twoFaRecoveryModal');
+const close2faBtn = document.getElementById('close2faModal');
+const send2faBtn = document.getElementById('send2faRecoveryBtn');
+const feedback2fa = document.getElementById('twoFaRecoveryFeedback');
+
+open2faBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  modal2fa.style.display = 'flex';
+});
+
+close2faBtn.addEventListener('click', () => {
+  modal2fa.style.display = 'none';
+});
+
+modal2fa.addEventListener('click', (e) => {
+  if (e.target === modal2fa) modal2fa.style.display = 'none';
+});
+
+send2faBtn.addEventListener('click', async () => {
+  const email = document.getElementById('recoveryEmail').value.trim();
+
+  if (!email) {
+    showToast('Vul een e-mailadres in', 'error');
+    return;
+  }
+
+  const res = await fetchWithSpinner('/2fa/recovery/request', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+
+  const data = await res.json();
+
+  feedback2fa.textContent = data.message;
+  feedback2fa.style.display = 'block';
+
+  send2faBtn.style.display = 'none';
+});
+
   // ── Wachtwoord vergeten modal ──
   const openBtn = document.getElementById('openForgotModal');
   const modal = document.getElementById('forgotModal');
