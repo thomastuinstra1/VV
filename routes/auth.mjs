@@ -282,12 +282,12 @@ router.post(
       });
 
       res.cookie('trusted_device', rawToken, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: false,
-        maxAge: 30 * 24 * 60 * 60 * 1000
-      });
-    }
+  httpOnly: true,
+  sameSite: 'lax',
+  secure: true,
+  path: '/',
+  maxAge: 30 * 24 * 60 * 60 * 1000
+});
 
     req.session.userId = account.Account_id;
     req.session.Name = account.Name;
