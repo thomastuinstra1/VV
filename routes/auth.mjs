@@ -454,19 +454,6 @@ router.post(
       }
     });
 
-    const recoveryLink = `${process.env.TWO_FA_RECOVERY_URL}?token=${token}`;
-
-await fetch(process.env.APPS_SCRIPT_URL, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    type: '2fa_recovery',
-    userEmail: account.E_mail,
-    userName: account.Name,
-    recoveryUrl: recoveryLink
-  })
-});
-
    const recoveryLink = `${process.env.TWO_FA_RECOVERY_URL}?token=${token}`;
 
 await fetch(process.env.APPS_SCRIPT_URL, {
@@ -479,8 +466,9 @@ await fetch(process.env.APPS_SCRIPT_URL, {
     recoveryUrl: recoveryLink
   })
 });
-    res.json({ message: safeMessage });
-  })
+
+res.json({ message: safeMessage }); // ✅ THIS LINE IS REQUIRED
+})
 );
 
 // ── 2FA recovery confirm ──
