@@ -415,6 +415,7 @@ router.delete(
   })
 );
 
+
 // ── 2FA uitschakelen ──
 router.post(
   '/2fa/disable',
@@ -515,6 +516,57 @@ router.get(
         two_factor_enabled: true
       }
     });
+
+    router.post(
+  '/2fa/recovery/confirm',
+  asyncHandler(async (req, res, next) => {
+    const { token, password } = req.body;
+
+    if (!token || !password) {
+      return next(new AppError('Token of wachtwoord ontbreekt', 400));
+    }
+
+    const accounts = await prisma.account.findMany({
+      where: {
+        two_factor_recovery_token: { not: null },
+        two_factor_recovery_expires: { gt: new Date() }
+      }
+    });
+
+    let account = null;
+
+    for (const acc of accounts) {
+      const match = await bcrypt.compare(token, acc.two_factor_recovery_token);
+      if (match) {
+        account = acc;
+        break;
+      }
+    }
+
+    if (!account) {
+      return next(new AppError('Ongeldige of verlopen herstel-link', 400));
+    }
+
+    const passwordOk = await bcrypt.compare(password, account.Password);
+
+    if (!passwordOk) {
+      return next(new AppError('Ongeldig wachtwoord', 401));
+    }
+
+    await prisma.account.update({
+      where: { Account_id: account.Account_id },
+      data: {
+        two_factor_enabled: false,
+        two_factor_secret: null,
+        two_factor_recovery_codes: null,
+        two_factor_recovery_token: null,
+        two_factor_recovery_expires: null
+      }
+    });
+
+    res.json({ message: '2FA hersteld' });
+  })
+);
 
     router.post('/2fa/recovery/request', asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;

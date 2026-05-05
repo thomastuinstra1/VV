@@ -66,21 +66,17 @@
             Geen toegang tot je authenticator? Vraag een herstel-link aan.
           </p>
 
-          <form id="twoFaRecoveryForm">
+          <form id="twoFaResetForm">
             <div class="form-group">
-              <label for="email">E-mailadres</label>
-              <input type="email" id="email" required />
+            <label for="password">Wachtwoord</label>
+            <input type="password" id="password" required />
             </div>
 
-            <div class="form-group">
-              <label for="password">Wachtwoord</label>
-              <input type="password" id="password" required />
-            </div>
+             <button type="submit">2FA herstellen</button>
 
-            <button type="submit">Herstel link versturen</button>
+        <a href="inlog.html" class="login-link">Terug naar login</a>
+        </form>
 
-            <a href="inlog.html" class="login-link">Terug naar login</a>
-          </form>
         </div>
       </div>
     </div>
@@ -92,7 +88,6 @@
 
   <script src="js/globaal.js"></script>
   <script src="js/2fa-recovery.js"></script>
-    <script src="js/inlog.js" defer></script>
     <script src="js/logincheck.js" defer></script>
 </body>
 </html>

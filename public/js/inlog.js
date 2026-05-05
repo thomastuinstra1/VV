@@ -14,6 +14,51 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
+// ── 2FA recovery modal ──
+const open2faBtn = document.getElementById('open2faRecoveryModal');
+const twoFaRecoveryModal = document.getElementById('twoFaRecoveryModal');
+const close2faBtn = document.getElementById('close2faModal');
+const send2faBtn = document.getElementById('send2faRecoveryBtn');
+const recoveryFeedback = document.getElementById('twoFaRecoveryFeedback');
+
+open2faBtn.addEventListener('click', (e) => {
+  e.preventDefault();
+  twoFaRecoveryModal.style.display = 'flex';
+});
+
+close2faBtn.addEventListener('click', () => {
+  twoFaRecoveryModal.style.display = 'none';
+});
+
+twoFaRecoveryModal.addEventListener('click', (e) => {
+  if (e.target === twoFaRecoveryModal) {
+    twoFaRecoveryModal.style.display = 'none';
+  }
+});
+
+send2faBtn.addEventListener('click', async () => {
+  const email = document.getElementById('recoveryEmail').value.trim();
+
+  if (!email) {
+    showToast('Vul een e-mailadres in', 'error');
+    return;
+  }
+
+  const res = await fetchWithSpinner('/2fa/recovery/request', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+
+  const data = await res.json();
+
+  recoveryFeedback.textContent =
+    data.message || 'Als dit e-mailadres bestaat, is er een herstel-link verzonden.';
+  recoveryFeedback.style.display = 'block';
+
+  send2faBtn.style.display = 'none';
+});
+
   // ── Login form ──
   const form = document.getElementById('loginForm');
   const twoFaForm = document.getElementById('twoFaForm');
