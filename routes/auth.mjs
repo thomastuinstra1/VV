@@ -268,29 +268,30 @@ router.post(
       }
     });
 
-    if (trustDevice) {
-      const rawToken = crypto.randomBytes(32).toString('hex');
-      const tokenHash = await bcrypt.hash(rawToken, 10);
+   if (trustDevice) {
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = await bcrypt.hash(rawToken, 10);
 
-      await prisma.trusted_device.create({
-        data: {
-          Account_id: account.Account_id,
-          Token_hash: tokenHash,
-          Device_name: req.headers['user-agent'] || 'Onbekend apparaat',
-          Expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        }
-      });
+  await prisma.trusted_device.create({
+    data: {
+      Account_id: account.Account_id,
+      Token_hash: tokenHash,
+      Device_name: req.headers['user-agent'] || 'Onbekend apparaat',
+      Expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    }
+  });
 
-      res.cookie('trusted_device', rawToken, {
-  httpOnly: true,
-  sameSite: 'lax',
-  secure: true,
-  path: '/',
-  maxAge: 30 * 24 * 60 * 60 * 1000
-});
+  res.cookie('trusted_device', rawToken, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,
+    path: '/',
+    maxAge: 30 * 24 * 60 * 60 * 1000
+  });
+}
 
-    req.session.userId = account.Account_id;
-    req.session.Name = account.Name;
+req.session.userId = account.Account_id;
+req.session.Name = account.Name;
 
     req.session.save((err) => {
       if (err) {
