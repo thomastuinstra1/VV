@@ -1,81 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // ── Wachtwoord tonen/verbergen ──
   const toggleBtn = document.getElementById('togglePassword');
   const passwordInput = document.getElementById('Password');
   const eyeIcon = document.getElementById('eyeIcon');
 
-  toggleBtn.addEventListener('click', () => {
-    const isPassword = passwordInput.type === 'password';
-    passwordInput.type = isPassword ? 'text' : 'password';
-    eyeIcon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
-    toggleBtn.setAttribute(
-      'aria-label',
-      isPassword ? 'Wachtwoord verbergen' : 'Wachtwoord tonen'
-    );
-  });
-
-// ── 2FA recovery modal ──
-const open2faBtn = document.getElementById('open2faRecoveryModal');
-const twoFaRecoveryModal = document.getElementById('twoFaRecoveryModal');
-const close2faBtn = document.getElementById('close2faModal');
-const send2faBtn = document.getElementById('send2faRecoveryBtn');
-const recoveryFeedback = document.getElementById('twoFaRecoveryFeedback');
-
-open2faBtn.addEventListener('click', (e) => {
-  e.preventDefault();
-  twoFaRecoveryModal.style.display = 'flex';
-});
-
-close2faBtn.addEventListener('click', () => {
-  twoFaRecoveryModal.style.display = 'none';
-});
-
-twoFaRecoveryModal.addEventListener('click', (e) => {
-  if (e.target === twoFaRecoveryModal) {
-    twoFaRecoveryModal.style.display = 'none';
-  }
-});
-
-send2faBtn.addEventListener('click', async () => {
-  const email = document.getElementById('recoveryEmail').value.trim();
-
-  if (!email) {
-    showToast('Vul een e-mailadres in', 'error');
-    return;
-  }
-
-  const res = await fetchWithSpinner('/2fa/recovery/request', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email })
-  });
-
-  const data = await res.json();
-
-  recoveryFeedback.textContent =
-    data.message || 'Als dit e-mailadres bestaat, is er een herstel-link verzonden.';
-  recoveryFeedback.style.display = 'block';
-
-  send2faBtn.style.display = 'none';
-});
-
-  // ── Login form ──
   const form = document.getElementById('loginForm');
   const twoFaForm = document.getElementById('twoFaForm');
   const backToLogin = document.getElementById('backToLogin');
 
   let pendingUserId = null;
 
+  toggleBtn.addEventListener('click', () => {
+    const isPassword = passwordInput.type === 'password';
+    passwordInput.type = isPassword ? 'text' : 'password';
+    eyeIcon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+  });
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const login = document.getElementById('login').value.trim();
     const Password = document.getElementById('Password').value;
-
-    if (!login || !Password) {
-      showToast('Vul alle velden in', 'error');
-      return;
-    }
 
     try {
       const response = await fetchWithSpinner('/login', {
@@ -94,36 +38,24 @@ send2faBtn.addEventListener('click', async () => {
 
       if (data.requires2FA) {
         pendingUserId = data.userId;
-
         form.style.display = 'none';
         twoFaForm.style.display = 'block';
-
-        showToast('Vul je 2FA-code in', 'success');
         return;
       }
 
       showToast(`Welkom ${data.Name}!`, 'success');
       window.location.href = 'index.html';
-
     } catch (error) {
       console.error(error);
       showToast('Er is iets misgegaan', 'error');
     }
   });
 
-  // ── 2FA login form ──
   twoFaForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const token = document.getElementById('twoFaCode').value.trim();
-
-    if (!token) {
-      showToast('Vul je 2FA-code in', 'error');
-      return;
-    }
-
-    console.log('checkbox exists:', document.getElementById('trustDevice'));
-    console.log('checked:', document.getElementById('trustDevice')?.checked);
+    const trustDevice = document.getElementById('trustDevice').checked;
 
     try {
       const response = await fetchWithSpinner('/login/2fa', {
@@ -131,10 +63,10 @@ send2faBtn.addEventListener('click', async () => {
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({
-         userId: pendingUserId,
+          userId: pendingUserId,
           token,
-          trustDevice: document.getElementById('trustDevice').checked
-          })
+          trustDevice
+        })
       });
 
       const data = await response.json();
@@ -146,7 +78,6 @@ send2faBtn.addEventListener('click', async () => {
 
       showToast('Succesvol ingelogd', 'success');
       window.location.href = 'index.html';
-
     } catch (error) {
       console.error(error);
       showToast('Er is iets misgegaan', 'error');
@@ -160,46 +91,46 @@ send2faBtn.addEventListener('click', async () => {
     document.getElementById('twoFaCode').value = '';
   });
 
+  // ── 2FA recovery modal ──
   const open2faBtn = document.getElementById('open2faRecoveryModal');
-const modal2fa = document.getElementById('twoFaRecoveryModal');
-const close2faBtn = document.getElementById('close2faModal');
-const send2faBtn = document.getElementById('send2faRecoveryBtn');
-const feedback2fa = document.getElementById('twoFaRecoveryFeedback');
+  const modal2fa = document.getElementById('twoFaRecoveryModal');
+  const close2faBtn = document.getElementById('close2faModal');
+  const send2faBtn = document.getElementById('send2faRecoveryBtn');
+  const feedback2fa = document.getElementById('twoFaRecoveryFeedback');
 
-open2faBtn.addEventListener('click', (e) => {
-  e.preventDefault();
-  modal2fa.style.display = 'flex';
-});
-
-close2faBtn.addEventListener('click', () => {
-  modal2fa.style.display = 'none';
-});
-
-modal2fa.addEventListener('click', (e) => {
-  if (e.target === modal2fa) modal2fa.style.display = 'none';
-});
-
-send2faBtn.addEventListener('click', async () => {
-  const email = document.getElementById('recoveryEmail').value.trim();
-
-  if (!email) {
-    showToast('Vul een e-mailadres in', 'error');
-    return;
-  }
-
-  const res = await fetchWithSpinner('/2fa/recovery/request', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email })
+  open2faBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    modal2fa.style.display = 'flex';
   });
 
-  const data = await res.json();
+  close2faBtn.addEventListener('click', () => {
+    modal2fa.style.display = 'none';
+  });
 
-  feedback2fa.textContent = data.message;
-  feedback2fa.style.display = 'block';
+  modal2fa.addEventListener('click', (e) => {
+    if (e.target === modal2fa) modal2fa.style.display = 'none';
+  });
 
-  send2faBtn.style.display = 'none';
-});
+  send2faBtn.addEventListener('click', async () => {
+    const email = document.getElementById('recoveryEmail').value.trim();
+
+    if (!email) {
+      showToast('Vul een e-mailadres in', 'error');
+      return;
+    }
+
+    const res = await fetchWithSpinner('/2fa/recovery/request', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await res.json();
+
+    feedback2fa.textContent = data.message;
+    feedback2fa.style.display = 'block';
+    send2faBtn.style.display = 'none';
+  });
 
   // ── Wachtwoord vergeten modal ──
   const openBtn = document.getElementById('openForgotModal');
@@ -229,27 +160,16 @@ send2faBtn.addEventListener('click', async () => {
       return;
     }
 
-    sendBtn.disabled = true;
-    sendBtn.textContent = 'Versturen...';
+    const res = await fetchWithSpinner('/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
 
-    try {
-      const res = await fetchWithSpinner('/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
+    const data = await res.json();
 
-      const data = await res.json();
-
-      feedback.textContent = data.message;
-      feedback.style.display = 'block';
-      sendBtn.style.display = 'none';
-
-    } catch {
-      showToast('Er is iets misgegaan. Probeer het opnieuw.', 'error');
-    } finally {
-      sendBtn.disabled = false;
-      sendBtn.textContent = 'Verstuur link';
-    }
+    feedback.textContent = data.message;
+    feedback.style.display = 'block';
+    sendBtn.style.display = 'none';
   });
 });
