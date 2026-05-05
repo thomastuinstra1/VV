@@ -452,24 +452,32 @@ router.post(
       }
     });
 
-   const recoveryLink = `${process.env.TWO_FA_RECOVERY_URL}?token=${token}`;
+    const recoveryLink = `${process.env.TWO_FA_RECOVERY_URL}?token=${token}`;
 
-const mailRes = await fetch(process.env.APPS_SCRIPT_URL, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    type: '2fa_recovery',
-    userEmail: account.E_mail,
-    userName: account.Name,
-    recoveryUrl: recoveryLink
+    console.log('APPS_SCRIPT_URL:', process.env.APPS_SCRIPT_URL);
+    console.log('TWO_FA_RECOVERY_URL:', process.env.TWO_FA_RECOVERY_URL);
+    console.log('Recovery link:', recoveryLink);
+
+    try {
+      const mailRes = await fetch(process.env.APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: '2fa_recovery',
+          userEmail: account.E_mail,
+          userName: account.Name,
+          recoveryUrl: recoveryLink
+        })
+      });
+
+      const mailText = await mailRes.text();
+      console.log('2FA recovery mail response:', mailText);
+    } catch (err) {
+      console.error('2FA recovery mail error:', err);
+    }
+
+    res.json({ message: safeMessage });
   })
-});
-
-const mailText = await mailRes.text();
-console.log('2FA recovery mail response:', mailText);
-
-res.json({ message: safeMessage }); // ✅ THIS LINE IS REQUIRED
-})
 );
 
 // ── 2FA recovery confirm ──
