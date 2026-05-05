@@ -370,7 +370,7 @@ router.post(
   }
 });
 
-const mailRes = await fetch(process.env.APPS_SCRIPT_URL, {
+fetch(process.env.APPS_SCRIPT_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -378,16 +378,14 @@ const mailRes = await fetch(process.env.APPS_SCRIPT_URL, {
     userEmail: updatedAccount.E_mail,
     userName: updatedAccount.Name
   })
+}).catch(err => console.error('2FA enabled mail error:', err));
+
+delete req.session.temp2FASecret;
+
+res.json({
+  message: '2FA ingeschakeld',
+  backupCodes
 });
-
-console.log('2FA enabled mail response:', await mailRes.text());
-
-    delete req.session.temp2FASecret;
-
-    res.json({
-      message: '2FA ingeschakeld',
-      backupCodes
-    });
   })
 );
 
@@ -592,7 +590,7 @@ router.post(
       }
     });
 
-    await fetch(process.env.APPS_SCRIPT_URL, {
+    fetch(process.env.APPS_SCRIPT_URL, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -600,7 +598,7 @@ router.post(
     userEmail: account.E_mail,
     userName: account.Name
   })
-});
+}).catch(err => console.error('2FA disabled mail error:', err));
 
     res.json({ message: '2FA uitgeschakeld' });
   })
