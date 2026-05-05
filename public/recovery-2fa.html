@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2FA herstellen</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/inlog.css" />
+</head>
+<body>
+    <header class="site-header">
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img
+              src="./images/Logo.png"
+              alt="Gereedschapspunt"
+              class="logo-img"
+            />
+          </a>
+        </div>
+
+        <form class="header-search" action="zoeken.html" method="get">
+          <input
+            type="text"
+            name="search"
+            placeholder="Zoek gereedschap of profielen..."
+            aria-label="Zoek gereedschap of profielen"
+          />
+          <button type="submit">Zoeken</button>
+        </form>
+
+        <nav class="main-nav">
+          <ul>
+            <li data-auth="true">
+              <a href="lenerdashboard.html">Lenerdashboard</a>
+            </li>
+            <li data-auth="true">
+              <a href="uitlenerdashboard.html">Uitlenerdashboard</a>
+            </li>
+            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+            <li data-auth="true">
+              <a href="accountinstellingen.html">
+                <div id="navAvatar">
+                  <span id="navAvatarInitials">?</span>
+                </div>
+              </a>
+            </li>
+            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+            <li data-guest="true"><a href="register.html">Registreren</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+  <main class="login-page">
+    <div class="container">
+      <div class="login-shell">
+        <div class="login-visual">
+          <img src="./images/login.png" alt="2FA herstellen" />
+        </div>
+
+        <div class="login-box">
+          <h1>2FA herstellen</h1>
+          <p class="login-sub">
+            Geen toegang tot je authenticator? Vraag een herstel-link aan.
+          </p>
+
+          <form id="twoFaRecoveryForm">
+            <div class="form-group">
+              <label for="email">E-mailadres</label>
+              <input type="email" id="email" required />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Wachtwoord</label>
+              <input type="password" id="password" required />
+            </div>
+
+            <button type="submit">Herstel link versturen</button>
+
+            <a href="inlog.html" class="login-link">Terug naar login</a>
+          </form>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  
+
+  <div id="toast"></div>
+
+  <script src="js/globaal.js"></script>
+  <script src="js/2fa-recovery.js"></script>
+    <script src="js/inlog.js" defer></script>
+    <script src="js/logincheck.js" defer></script>
+</body>
+</html>

@@ -516,6 +516,40 @@ router.get(
       }
     });
 
+    router.post('/2fa/recovery/request', asyncHandler(async (req, res, next) => {
+  const { email, password } = req.body;
+
+  const account = await prisma.account.findUnique({
+    where: { E_mail: email }
+  });
+
+  if (!account) {
+    return res.json({ message: 'Als je gegevens kloppen, is er een herstel-link verzonden.' });
+  }
+
+  const passwordOk = await bcrypt.compare(password, account.Password);
+
+  if (!passwordOk) {
+    return res.json({ message: 'Als je gegevens kloppen, is er een herstel-link verzonden.' });
+  }
+
+  const token = crypto.randomBytes(32).toString('hex');
+  const tokenHash = await bcrypt.hash(token, 10);
+
+  await prisma.account.update({
+    where: { Account_id: account.Account_id },
+    data: {
+      two_factor_recovery_token: tokenHash,
+      two_factor_recovery_expires: new Date(Date.now() + 15 * 60 * 1000)
+    }
+  });
+
+  // send email with link:
+  // https://jouwdomein.nl/2fa-reset.html?token=TOKEN&email=EMAIL
+
+  res.json({ message: 'Als je gegevens kloppen, is er een herstel-link verzonden.' });
+}));
+
     if (!account) {
       return next(
         new AppError('Ingelogde gebruiker niet gevonden in de database', 404)
