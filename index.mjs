@@ -11,12 +11,14 @@ import gereedschapRouter from './routes/gereedschap.mjs';
 import uitleenRouter     from './routes/uitleen.mjs';
 import chatRouter        from './routes/chat.mjs';
 import { initSocket }    from './sockets/chatSocket.mjs';
+import cookieParser      from 'cookie-parser';
 
 import AppError     from './utils/appError.mjs';
 import errorHandler from './middleware/errorhandler.mjs';
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static("public"));
 app.set('trust proxy', 1);
 
