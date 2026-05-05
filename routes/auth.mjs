@@ -370,6 +370,16 @@ router.post(
       }
     });
 
+    await fetch(process.env.APPS_SCRIPT_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: '2fa_enabled',
+    userEmail: account.E_mail,
+    userName: account.Name
+  })
+});
+
     delete req.session.temp2FASecret;
 
     res.json({
@@ -442,10 +452,18 @@ router.post(
       }
     });
 
-    const recoveryLink = `http://localhost:3000/2fa-reset.html?token=${token}`;
+   const recoveryLink = `${process.env.TWO_FA_RECOVERY_URL}?token=${token}`;
 
-    console.log('2FA recovery link:', recoveryLink);
-
+await fetch(process.env.APPS_SCRIPT_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: '2fa_recovery',
+    userEmail: account.E_mail,
+    userName: account.Name,
+    recoveryUrl: recoveryLink
+  })
+});
     res.json({ message: safeMessage });
   })
 );
@@ -498,6 +516,16 @@ router.post(
         two_factor_recovery_expires: null
       }
     });
+
+    await fetch(process.env.APPS_SCRIPT_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: '2fa_disabled',
+    userEmail: account.E_mail,
+    userName: account.Name
+  })
+});
 
     res.json({ message: '2FA hersteld' });
   })
@@ -560,6 +588,16 @@ router.post(
         two_factor_recovery_codes: null
       }
     });
+
+    await fetch(process.env.APPS_SCRIPT_URL, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    type: '2fa_disabled',
+    userEmail: account.E_mail,
+    userName: account.Name
+  })
+});
 
     res.json({ message: '2FA uitgeschakeld' });
   })
