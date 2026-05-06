@@ -4,7 +4,9 @@ import { isLoggedIn } from '../middleware/auth.mjs';
 
 const router = Router();
 
-// ─── GET /account/:id/reviews  (alle reviews voor een uitlener) ───────────────
+const AFGEROND = ['ingeleverd_op_tijd', 'ingeleverd_te_laat'];
+
+// ─── GET /account/:id/reviews  (reviews ontvangen als verhuurder) ─────────────
 router.get('/account/:id/reviews', async (req, res) => {
   const ontvangerID = parseInt(req.params.id);
   if (isNaN(ontvangerID)) return res.status(400).json({ error: 'Ongeldig id' });
@@ -20,25 +22,125 @@ router.get('/account/:id/reviews', async (req, res) => {
       orderBy: { Datum: 'desc' },
     });
 
-    const dto = reviews.map((r) => ({
-      Review_id:       r.Review_id,
-      Uitleen_id:      r.Uitleen_id,
-      Auteur_id:       r.Auteur_id,
-      auteurNaam:      r.Account_Review_Auteur_idToAccount?.Name ?? 'Onbekend',
+    res.json(reviews.map((r) => ({
+      Review_id:        r.Review_id,
+      Uitleen_id:       r.Uitleen_id,
+      Auteur_id:        r.Auteur_id,
+      auteurNaam:       r.Account_Review_Auteur_idToAccount?.Name ?? 'Onbekend',
       auteurAfbeelding: r.Account_Review_Auteur_idToAccount?.Afbeelding ?? null,
-      Tekst:           r.Tekst,
-      Rating:          r.Rating,
-      Datum:           r.Datum,
-    }));
-
-    res.json(dto);
+      Tekst:            r.Tekst,
+      Rating:           r.Rating,
+      Datum:            r.Datum,
+    })));
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Fout bij ophalen reviews' });
   }
 });
 
-// ─── POST /reviews  (nieuwe review aanmaken) ─────────────────────────────────
+// ─── GET /account/:id/lener-reviews  (reviews ontvangen als lener) ───────────
+router.get('/account/:id/lener-reviews', async (req, res) => {
+  const ontvangerID = parseInt(req.params.id);
+  if (isNaN(ontvangerID)) return res.status(400).json({ error: 'Ongeldig id' });
+
+  try {
+    const reviews = await prisma.review.findMany({
+      where: { Ontvanger_id: ontvangerID },
+      include: {
+        Account_Review_Auteur_idToAccount: {
+          select: { Account_id: true, Name: true, Afbeelding: true },
+        },
+        Uitleen: {
+          select: { Account_id: true },
+        },
+      },
+      orderBy: { Datum: 'desc' },
+    });
+
+    // Alleen reviews waarbij de auteur de verhuurder was van die uitleen
+    const lenerReviews = reviews.filter(
+      (r) => r.Uitleen?.Account_id === r.Auteur_id
+    );
+
+    res.json(lenerReviews.map((r) => ({
+      Review_id:        r.Review_id,
+      Uitleen_id:       r.Uitleen_id,
+      Auteur_id:        r.Auteur_id,
+      auteurNaam:       r.Account_Review_Auteur_idToAccount?.Name ?? 'Onbekend',
+      auteurAfbeelding: r.Account_Review_Auteur_idToAccount?.Afbeelding ?? null,
+      Tekst:            r.Tekst,
+      Rating:           r.Rating,
+      Datum:            r.Datum,
+    })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fout bij ophalen lener-reviews' });
+  }
+});
+
+// GET /uitlenen/te-reviewen?verhuurder=<id>
+router.get('/uitlenen/te-reviewen', isLoggedIn, async (req, res) => {
+  const lenerId    = req.session.userId;
+  const verhuurder = parseInt(req.query.verhuurder);
+
+  if (isNaN(verhuurder)) return res.status(400).json({ error: 'Ongeldige verhuurder id' });
+
+  try {
+    const uitlenen = await prisma.uitleen.findMany({
+      where: {
+        Lener_id:   lenerId,
+        Account_id: verhuurder,
+        Status:     { in: AFGEROND },
+        Review:     { none: { Auteur_id: lenerId } },
+      },
+      include: { Gereedschap: { select: { Naam: true } } },
+      orderBy: { EindDatum: 'desc' },
+    });
+
+    res.json(uitlenen.map((u) => ({
+      Uitleen_id:      u.Uitleen_id,
+      gereedschapNaam: u.Gereedschap?.Naam ?? null,
+      EindDatum:       u.EindDatum,
+    })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fout bij ophalen uitlenen' });
+  }
+});
+
+// ─── GET /uitlenen/als-verhuurder-te-reviewen?lener=<id> ─────────────────────
+// Afgeronde uitlenen waarbij de ingelogde gebruiker verhuurder is
+// en de opgegeven lener heeft geleend — nog geen review geschreven
+router.get('/uitlenen/als-verhuurder-te-reviewen', isLoggedIn, async (req, res) => {
+  const verhuurder = req.session.userId;
+  const lenerId    = parseInt(req.query.lener);
+
+  if (isNaN(lenerId)) return res.status(400).json({ error: 'Ongeldige lener id' });
+
+  try {
+    const uitlenen = await prisma.uitleen.findMany({
+      where: {
+        Account_id: verhuurder,
+        Lener_id:   lenerId,
+        Status:     { in: AFGEROND },
+        Review:     { none: { Auteur_id: verhuurder } },
+      },
+      include: { Gereedschap: { select: { Naam: true } } },
+      orderBy: { EindDatum: 'desc' },
+    });
+
+    res.json(uitlenen.map((u) => ({
+      Uitleen_id:      u.Uitleen_id,
+      gereedschapNaam: u.Gereedschap?.Naam ?? null,
+      EindDatum:       u.EindDatum,
+    })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fout bij ophalen uitlenen' });
+  }
+});
+
+// ─── POST /reviews ────────────────────────────────────────────────────────────
 router.post('/reviews', isLoggedIn, async (req, res) => {
   const auteurId = req.session.userId;
   const { Uitleen_id, Ontvanger_id, Tekst, Rating } = req.body;
@@ -59,9 +161,8 @@ router.post('/reviews', isLoggedIn, async (req, res) => {
     if (uitleen.Lener_id !== auteurId && uitleen.Account_id !== auteurId) {
       return res.status(403).json({ error: 'Geen toegang tot deze uitleen' });
     }
-    const afgerondStatussen = ['ingeleverd_op_tijd', 'ingeleverd_te_laat'];
-    if (!afgerondStatussen.includes(uitleen.Status)) {
-    return res.status(400).json({ error: 'Uitleen moet afgerond zijn om te reviewen' });
+    if (!AFGEROND.includes(uitleen.Status)) {
+      return res.status(400).json({ error: 'Uitleen moet afgerond zijn om te reviewen' });
     }
 
     const bestaand = await prisma.review.findFirst({
@@ -73,12 +174,12 @@ router.post('/reviews', isLoggedIn, async (req, res) => {
 
     const review = await prisma.review.create({
       data: {
-        Uitleen_id:  parseInt(Uitleen_id),
-        Auteur_id:   auteurId,
+        Uitleen_id:   parseInt(Uitleen_id),
+        Auteur_id:    auteurId,
         Ontvanger_id: parseInt(Ontvanger_id),
-        Tekst:       Tekst?.trim() || null,
-        Rating:      parseInt(Rating),
-        Datum:       new Date(),
+        Tekst:        Tekst?.trim() || null,
+        Rating:       parseInt(Rating),
+        Datum:        new Date(),
       },
     });
 
@@ -89,7 +190,7 @@ router.post('/reviews', isLoggedIn, async (req, res) => {
   }
 });
 
-// ─── PUT /reviews/:id  (review bewerken) ─────────────────────────────────────
+// ─── PUT /reviews/:id ─────────────────────────────────────────────────────────
 router.put('/reviews/:id', isLoggedIn, async (req, res) => {
   const reviewId = parseInt(req.params.id);
   const auteurId = req.session.userId;
@@ -123,7 +224,7 @@ router.put('/reviews/:id', isLoggedIn, async (req, res) => {
   }
 });
 
-// ─── DELETE /reviews/:id  (review verwijderen) ───────────────────────────────
+// ─── DELETE /reviews/:id ──────────────────────────────────────────────────────
 router.delete('/reviews/:id', isLoggedIn, async (req, res) => {
   const reviewId = parseInt(req.params.id);
   const auteurId = req.session.userId;
