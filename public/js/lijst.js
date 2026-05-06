@@ -266,6 +266,31 @@ function updateFilterBadge() {
 }
 
 // -----------------------
+// RESET FILTERS
+// -----------------------
+function resetFilters() {
+  // Uncheck alle checkboxes
+  document.querySelectorAll('#filterGroups input[type="checkbox"]:checked')
+    .forEach(cb => cb.checked = false);
+
+  // Reset afstand slider
+  const distanceInput = document.getElementById("distanceFilter");
+  const distanceValue = document.getElementById("distanceValue");
+  if (distanceInput) {
+    distanceInput.value = 250;
+    distanceValue.textContent = "250 km";
+    maxDistance = 250;
+  }
+
+  // UI opruimen
+  updateActiveFilterChips();
+  updateFilterBadge();
+
+  // Opnieuw laden zonder filters
+  fetchAndDisplay("/gereedschap");
+}
+
+// -----------------------
 // HAVERSINE
 // -----------------------
 function haversine(lat1, lon1, lat2, lon2) {
