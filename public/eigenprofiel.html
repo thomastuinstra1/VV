@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mijn profiel - Gereedschapspunt</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/profiel.css" />
+    <link rel="stylesheet" href="css/reviews.css" />
+  </head>
+  <body>
+    <div id="globalSpinner" class="spinner-overlay" style="display: none">
+      <div class="spinner"></div>
+    </div>
+    <div id="toast"></div>
+
+    <a href="#main-content" class="skip-link">Ga naar hoofdinhoud</a>
+
+    <header class="site-header">
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+          </a>
+        </div>
+
+        <form class="header-search" action="zoeken.html" method="get">
+          <input
+            type="text"
+            name="search"
+            placeholder="Zoek gereedschap of profielen..."
+            aria-label="Zoek gereedschap of profielen"
+          />
+          <button type="submit">Zoeken</button>
+        </form>
+
+        <nav class="main-nav">
+          <ul>
+            <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+            <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+            <li data-auth="true">
+              <a href="accountinstellingen.html">
+                <div id="navAvatar">
+                  <span id="navAvatarInitials">?</span>
+                </div>
+              </a>
+            </li>
+            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+            <li data-guest="true"><a href="register.html">Registreren</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content" class="profile-page">
+      <section class="profile-section">
+        <div class="container">
+          <div class="profile-shell">
+
+            <div class="profile-card">
+              <div class="profile-avatar-wrap">
+                <img
+                  id="profileAvatar"
+                  src="/images/default-avatar.jpg"
+                  alt="Profielfoto"
+                  class="profile-avatar"
+                />
+                <div
+                  id="profileAvatarFallback"
+                  class="profile-avatar-fallback"
+                  style="display: none"
+                >?</div>
+              </div>
+
+              <div class="profile-details">
+                <p class="profile-kicker">Mijn profiel</p>
+                <h1 id="profileName">Naam</h1>
+
+                <div class="profile-meta">
+                  <div class="profile-info-row">
+                    <span class="profile-label">📧 E-mail</span>
+                    <span id="profileEmail">—</span>
+                  </div>
+                  <div class="profile-info-row">
+                    <span class="profile-label">📍 Postcode</span>
+                    <span id="profilePostcode">—</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="profile-actions" style="display: flex">
+              <a href="accountinstellingen.html" class="btn-edit-profile">
+                ✏️ Profiel bewerken
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="js/globaal.js"></script>
+    <script src="js/eigenprofiel.js"></script>
+    <script src="js/logincheck.js"></script>
+    <script src="js/reviews.js"></script>
+  </body>
+</html>
