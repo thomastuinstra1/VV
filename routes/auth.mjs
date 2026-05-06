@@ -447,7 +447,7 @@ router.post(
     await prisma.account.update({
       where: { Account_id: account.Account_id },
       data: {
-        two_factor_recovery_token: tokenHash,
+        two_factor_recovery_code: tokenHash,
         two_factor_recovery_expires: new Date(Date.now() + 15 * 60 * 1000)
       }
     });
@@ -492,7 +492,7 @@ router.post(
 
     const accounts = await prisma.account.findMany({
       where: {
-        two_factor_recovery_token: { not: null },
+        two_factor_recovery_code: { not: null },
         two_factor_recovery_expires: { gt: new Date() }
       }
     });
@@ -500,7 +500,7 @@ router.post(
     let account = null;
 
     for (const acc of accounts) {
-      const match = await bcrypt.compare(token, acc.two_factor_recovery_token);
+      const match = await bcrypt.compare(token, acc.two_factor_recovery_code);
 
       if (match) {
         account = acc;
@@ -524,7 +524,7 @@ router.post(
         two_factor_enabled: false,
         two_factor_secret: null,
         two_factor_recovery_codes: null,
-        two_factor_recovery_token: null,
+        two_factor_recovery_code: null,
         two_factor_recovery_expires: null
       }
     });
