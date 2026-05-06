@@ -59,8 +59,9 @@ router.post('/reviews', isLoggedIn, async (req, res) => {
     if (uitleen.Lener_id !== auteurId && uitleen.Account_id !== auteurId) {
       return res.status(403).json({ error: 'Geen toegang tot deze uitleen' });
     }
-    if (uitleen.Status !== 'afgerond') {
-      return res.status(400).json({ error: 'Uitleen moet afgerond zijn om te reviewen' });
+    const afgerondStatussen = ['ingeleverd_op_tijd', 'ingeleverd_te_laat'];
+    if (!afgerondStatussen.includes(uitleen.Status)) {
+    return res.status(400).json({ error: 'Uitleen moet afgerond zijn om te reviewen' });
     }
 
     const bestaand = await prisma.review.findFirst({

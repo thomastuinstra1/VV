@@ -345,7 +345,7 @@ router.get("/uitlenen/te-reviewen", isLoggedIn, async (req, res) => {
       where: {
         Lener_id: lenerId,
         Account_id: verhuurder,
-        Status: "afgerond",
+        Status: { in: ['ingeleverd_op_tijd', 'ingeleverd_te_laat'] },
         // Geen review van deze lener voor deze uitleen
         Review: {
           none: { Auteur_id: lenerId },
