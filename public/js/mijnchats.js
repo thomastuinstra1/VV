@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const initial = naam.charAt(0).toUpperCase() || '?';
       const gereedschapNaam = chat.Gereedschap_naam || 'Geen gereedschap';
       const tijd = formatChatTime(chat.Laatst_bijgewerkt || chat.updated_at || chat.created_at);
+      const unread = Number(chat.unreadCount || 0);
 
       const afbeelding = chat.Afbeelding && chat.Afbeelding.trim() !== ''
         ? chat.Afbeelding
@@ -49,7 +50,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       item.innerHTML = `
         <div class="chat-left">
           ${avatarHtml}
-
           <div class="chat-info">
             <div class="chat-name">${escapeHtml(naam)}</div>
             <div class="chat-last">${escapeHtml(gereedschapNaam)}</div>
@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         <div class="chat-right">
           <div class="chat-meta">${escapeHtml(tijd)}</div>
+          ${unread > 0 ? `<span class="chat-badge">${unread > 99 ? '99+' : unread}</span>` : ''}
           <button class="chat-delete-btn" type="button" aria-label="Verwijder chat">🗑️</button>
         </div>
       `;
