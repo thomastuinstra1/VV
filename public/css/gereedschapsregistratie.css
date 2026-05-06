@@ -430,3 +430,9 @@ textarea {
 .site-footer {
     display: none !important;
 }
+
+@media (max-width: 1100px) {
+    .tool-mascot {
+        display: none;
+    }
+}

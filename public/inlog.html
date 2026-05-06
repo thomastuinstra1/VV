@@ -15,55 +15,46 @@
     <link rel="icon" href="data:," />
   </head>
   <body>
-    <header class="site-header">
-      <div class="container nav-container">
-        <div class="logo">
-          <a href="index.html">
-            <img
-              src="./images/Logo.png"
-              alt="Gereedschapspunt"
-              class="logo-img"
-            />
+<header class="site-header">
+  <div class="container nav-container">
+    <div class="logo">
+      <a href="index.html">
+        <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+      </a>
+    </div>
+
+    <form class="header-search" action="zoeken.html" method="get">
+      <input type="text" name="search" placeholder="Zoek gereedschap of profielen..." aria-label="Zoek gereedschap of profielen" />
+      <button type="submit">Zoeken</button>
+    </form>
+
+    <button class="hamburger" id="hamburger" aria-label="Menu openen" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="main-nav" id="mainNav">
+      <ul>
+        <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+        <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+        <li data-auth="true">
+          <a href="mijnchats.html" style="position:relative;">
+            Berichten
+            <span id="navUnreadBadge" style="display:none;"></span>
           </a>
-        </div>
-
-        <form class="header-search" action="zoeken.html" method="get">
-          <input
-            type="text"
-            name="search"
-            placeholder="Zoek gereedschap of profielen..."
-            aria-label="Zoek gereedschap of profielen"
-          />
-          <button type="submit">Zoeken</button>
-        </form>
-
-        <nav class="main-nav">
-          <ul>
-            <li data-auth="true">
-              <a href="lenerdashboard.html">Lenerdashboard</a>
-            </li>
-            <li data-auth="true">
-              <a href="uitlenerdashboard.html">Uitlenerdashboard</a>
-            </li>
-            <li data-auth="true">
-              <a href="mijnchats.html" style="position:relative;">
-                Berichten
-                <span id="navUnreadBadge" style="display:none;"></span>
-              </a>
-            </li>
-            <li data-auth="true">
-              <a href="accountinstellingen.html">
-                <div id="navAvatar">
-                  <span id="navAvatarInitials">?</span>
-                </div>
-              </a>
-            </li>
-            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
-            <li data-guest="true"><a href="register.html">Registreren</a></li>
-          </ul>
-        </nav>
-      </div>
-    </header>
+        </li>
+        <li data-auth="true">
+          <a href="accountinstellingen.html">
+            <div id="navAvatar"><span id="navAvatarInitials">?</span></div>
+          </a>
+        </li>
+        <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+        <li data-guest="true"><a href="register.html">Registreren</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
 
     <main class="login-page">
       <div class="container">

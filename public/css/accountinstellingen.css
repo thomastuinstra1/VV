@@ -367,3 +367,15 @@
 .toggle-password:hover {
   color: #333;
 }
+
+@media (max-width: 1000px) {
+    .account-mascot {
+        display: none;
+    }
+}
+
+@media (max-width: 800px) {
+    .account-page {
+        padding: 80px 0 50px;
+    }
+}
