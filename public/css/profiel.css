@@ -125,29 +125,6 @@
   color: var(--text-main);
 }
 
-.profile-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 18px;
-}
-
-.btn-report {
-  border: 1px solid #fecaca;
-  background: #fff;
-  color: #991b1b;
-  padding: 12px 18px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 700;
-  transition: 0.2s ease;
-}
-
-.btn-report:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
-}
-
 /* listings */
 .profile-listings-card {
   margin-top: 24px;
@@ -262,114 +239,6 @@
   max-width: 460px;
 }
 
-/* modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  z-index: 1000;
-}
-
-.modal {
-  background: white;
-  border-radius: 22px;
-  padding: 24px;
-  width: 100%;
-  max-width: 520px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.2);
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.modal h2 {
-  margin: 0;
-  color: var(--text-main);
-}
-
-.modal-text {
-  margin: 0;
-  color: var(--text-muted);
-}
-
-.modal-close {
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 12px;
-  background: #f3f4f6;
-  color: var(--text-main);
-  font-size: 1.4rem;
-  cursor: pointer;
-}
-
-.modal-close:hover {
-  background: #e5e7eb;
-}
-
-.modal textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  font-size: 1rem;
-  resize: vertical;
-  box-sizing: border-box;
-  min-height: 120px;
-}
-
-.modal textarea:focus {
-  outline: none;
-  border-color: #f97316;
-  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
-}
-
-.modal-actions {
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-}
-
-.btn-submit {
-  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-  color: #fff;
-  border: none;
-  padding: 12px 18px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-
-.btn-submit:hover {
-  filter: brightness(1.03);
-}
-
-.btn-cancel {
-  background: none;
-  border: 1px solid #ddd;
-  padding: 12px 18px;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 0.95rem;
-}
-
-.btn-cancel:hover {
-  background: #f5f5f5;
-}
-
 @media (max-width: 900px) {
   .user-listings-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -400,24 +269,6 @@
   .user-listings-grid {
     grid-template-columns: 1fr;
   }
-
-  .profile-actions {
-    justify-content: flex-start;
-  }
-
-  .modal {
-    padding: 18px;
-    border-radius: 18px;
-  }
-
-  .modal-actions {
-    flex-direction: column;
-  }
-
-  .btn-submit,
-  .btn-cancel {
-    width: 100%;
-  }
 }
 
 .btn-edit-profile {
@@ -433,9 +284,8 @@
   text-decoration: none;
   transition: background 0.15s, transform 0.1s;
 }
- 
+
 .btn-edit-profile:hover {
   background: var(--color-primary-dark, #1d4ed8);
   transform: translateY(-1px);
 }
- 
