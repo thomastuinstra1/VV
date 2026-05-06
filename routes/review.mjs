@@ -18,11 +18,19 @@ router.get('/account/:id/reviews', async (req, res) => {
         Account_Review_Auteur_idToAccount: {
           select: { Account_id: true, Name: true, Afbeelding: true },
         },
+        Uitleen: {
+          select: { Account_id: true, Lener_id: true },
+        },
       },
       orderBy: { Datum: 'desc' },
     });
 
-    res.json(reviews.map((r) => ({
+    // Verhuurder-review: ontvanger was de VERHUURDER (Account_id) in die uitleen
+    const verhuurderReviews = reviews.filter(
+      (r) => r.Uitleen?.Account_id === ontvangerID
+    );
+
+    res.json(verhuurderReviews.map((r) => ({
       Review_id:        r.Review_id,
       Uitleen_id:       r.Uitleen_id,
       Auteur_id:        r.Auteur_id,
@@ -51,15 +59,15 @@ router.get('/account/:id/lener-reviews', async (req, res) => {
           select: { Account_id: true, Name: true, Afbeelding: true },
         },
         Uitleen: {
-          select: { Account_id: true },
+          select: { Account_id: true, Lener_id: true }, // Lener_id toevoegen
         },
       },
       orderBy: { Datum: 'desc' },
     });
 
-    // Alleen reviews waarbij de auteur de verhuurder was van die uitleen
+    // Lener-review: ontvanger was de LENER in die uitleen
     const lenerReviews = reviews.filter(
-      (r) => r.Uitleen?.Account_id === r.Auteur_id
+      (r) => r.Uitleen?.Lener_id === ontvangerID
     );
 
     res.json(lenerReviews.map((r) => ({
