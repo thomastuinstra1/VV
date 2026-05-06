@@ -44,7 +44,6 @@ const trustedDevicesList = document.getElementById('trustedDevicesList');
     }
     document.getElementById('Name').value = data.Name || '';
     document.getElementById('E_mail').value = data.E_mail || '';
-    document.getElementById('Postcode').value = data.Postcode || '';
     if (data.two_factor_enabled) {
   setup2faBtn.style.display = 'none';
   disable2faBtn.style.display = 'inline-block';

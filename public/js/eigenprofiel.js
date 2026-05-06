@@ -2,6 +2,7 @@
 // Laadt het profiel van de ingelogde gebruiker zelf.
 // reviews.js verwacht een ?id= parameter — die zetten we hier dynamisch.
 
+// js/eigenprofiel.js
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const res = await fetchWithSpinner("/me");
@@ -13,7 +14,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const me = await res.json();
     const accountId = me.Account_id ?? me.id;
 
-    // reviews.js leest de id uit de URL — zet die dus eerst
     const url = new URL(window.location.href);
     if (!url.searchParams.get("id")) {
       url.searchParams.set("id", accountId);
@@ -28,9 +28,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("profileName").textContent     = naam;
     document.getElementById("profileEmail").textContent    = email;
     document.getElementById("profilePostcode").textContent = postcode;
-    document.title = `Mijn profiel - Gereedschapspunt`;
+    document.title = "Mijn profiel - Gereedschapspunt";
 
     setProfileAvatar(naam, me.Afbeelding);
+
+    // Reviews handmatig laden nu de ?id= beschikbaar is
+    await loadVerhuurderReviews(accountId, accountId);
+    await loadLenerReviews(accountId, accountId);
+    // Geen formulieren — je kunt jezelf niet beoordelen
+
   } catch (err) {
     console.error(err);
     showToast("Fout bij ophalen profiel", "error");
