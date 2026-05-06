@@ -46,65 +46,55 @@ function showToast(message, type = 'info', duration = 3000) {
 }
 
 function updateNavAvatar(gebruiker) {
-  const avatar = document.getElementById('navAvatar');
-  if (!avatar || !gebruiker) return;
+    const avatar = document.getElementById('navAvatar');
+    if (!avatar || !gebruiker) return;
 
-  if (gebruiker.Afbeelding) {
-    avatar.innerHTML = `<img src="${gebruiker.Afbeelding}" alt="Profielfoto" style="width:100%;height:100%;object-fit:cover;" />`;
-  } else if (gebruiker.Name) {
-    const delen = gebruiker.Name.trim().split(' ');
-    const initialen = delen.length > 1
-      ? delen[0][0] + delen[delen.length - 1][0]
-      : delen[0].substring(0, 2);
-    avatar.innerHTML = `<span style="font-size:13px;font-weight:500;color:#534AB7;">${initialen.toUpperCase()}</span>`;
-  }
+    if (gebruiker.Afbeelding) {
+        avatar.innerHTML = `<img src="${gebruiker.Afbeelding}" alt="Profielfoto" style="width:100%;height:100%;object-fit:cover;" />`;
+    } else if (gebruiker.Name) {
+        const delen = gebruiker.Name.trim().split(' ');
+        const initialen = delen.length > 1
+            ? delen[0][0] + delen[delen.length - 1][0]
+            : delen[0].substring(0, 2);
+        avatar.innerHTML = `<span style="font-size:13px;font-weight:500;color:#534AB7;">${initialen.toUpperCase()}</span>`;
+    }
 }
 
-function injectFloatingChatHTML() {
-    if (document.getElementById('floating-chat-root')) return;
+// -----------------------
+// NAV UNREAD BADGE
+// -----------------------
+async function updateNavUnreadBadge() {
+    const badge = document.getElementById('navUnreadBadge');
+    if (!badge) return;
 
-    document.body.insertAdjacentHTML('beforeend', `
-        <div id="floating-chat-root" class="floating-chat hidden">
-            <button id="floating-chat-toggle" class="floating-chat-toggle" type="button">
-                💬
-                <span id="floating-chat-count" class="floating-chat-count" style="display:none;">0</span>
-            </button>
+    try {
+        const res = await fetch('/mijn-chats');
+        if (!res || !res.ok) return;
 
-            <div id="floating-chat-window" class="floating-chat-window hidden">
-                <div class="floating-chat-header">
-                    <span>Berichten</span>
-                    <button id="floating-chat-close" type="button">✕</button>
-                </div>
+        const chats = await res.json();
+        if (!Array.isArray(chats)) return;
 
-                <div class="floating-chat-body">
-                    <div class="floating-chat-sidebar">
-                        <div id="floating-chat-contacts"></div>
-                    </div>
+        const total = chats.reduce((sum, chat) => {
+            return sum + Number(chat.unreadCount || 0);
+        }, 0);
 
-                    <div class="floating-chat-main">
-                        <div id="floating-chat-messages" class="floating-chat-messages">
-                            <p class="floating-chat-placeholder">Kies een contact om te chatten</p>
-                        </div>
-
-                        <div class="floating-chat-input-area">
-                            <input
-                                type="text"
-                                id="floating-chat-input"
-                                placeholder="Typ een bericht..."
-                            />
-                            <button id="floating-chat-send" type="button">Verstuur</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `);
+        if (total > 0) {
+            badge.textContent = total > 99 ? '99+' : String(total);
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
+    } catch (err) {
+        console.error('Badge laden mislukt:', err);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const path = window.location.pathname.toLowerCase();
     if (path.includes('inlog') || path.includes('registre')) return;
-    injectFloatingChatHTML();
+
+    updateNavUnreadBadge();
+    setInterval(updateNavUnreadBadge, 30000);
 });
 
 const hamburger = document.getElementById('hamburger');
