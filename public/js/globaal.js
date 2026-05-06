@@ -106,3 +106,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (path.includes('inlog') || path.includes('registre')) return;
     injectFloatingChatHTML();
 });
+
+const hamburger = document.getElementById('hamburger');
+const mainNav = document.getElementById('mainNav');
+
+hamburger.addEventListener('click', () => {
+    const isOpen = mainNav.classList.toggle('open');
+    hamburger.classList.toggle('open');
+    hamburger.setAttribute('aria-expanded', isOpen);
+});
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-container')) {
+        mainNav.classList.remove('open');
+        hamburger.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', false);
+    }
+});
