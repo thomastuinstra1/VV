@@ -325,6 +325,50 @@ router.post('/uitleen/:id/borg/betalen', isLoggedIn, asyncHandler(async (req, re
   res.json({ clientSecret: paymentIntent.client_secret });
 }));
 
+// Voeg toe aan je bestaande uitleenRoutes.js (of een aparte routes file)
+// Deze route haalt afgeronde uitlenen op waarbij:
+//   - de ingelogde gebruiker de lener is (Lener_id)
+//   - de verhuurder de opgegeven accountId is (Account_id)
+//   - er nog geen review bestaat van deze lener voor die uitleen
+
+// GET /uitlenen/te-reviewen?verhuurder=<accountId>
+router.get("/uitlenen/te-reviewen", isLoggedIn, async (req, res) => {
+  const lenerId = req.session.userId;
+  const verhuurder = parseInt(req.query.verhuurder);
+
+  if (isNaN(verhuurder)) {
+    return res.status(400).json({ error: "Ongeldige verhuurder id" });
+  }
+
+  try {
+    const uitlenen = await prisma.uitleen.findMany({
+      where: {
+        Lener_id: lenerId,
+        Account_id: verhuurder,
+        Status: "afgerond",
+        // Geen review van deze lener voor deze uitleen
+        Review: {
+          none: { Auteur_id: lenerId },
+        },
+      },
+      include: {
+        Gereedschap: { select: { Naam: true } },
+      },
+      orderBy: { EindDatum: "desc" },
+    });
+
+    const dto = uitlenen.map((u) => ({
+      Uitleen_id: u.Uitleen_id,
+      gereedschapNaam: u.Gereedschap?.Naam ?? null,
+      EindDatum: u.EindDatum,
+    }));
+
+    res.json(dto);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Fout bij ophalen uitlenen" });
+  }
+});
 
 // ── BORG HANDMATIG TERUGSTORTEN (reserveknop, optioneel gebruik) ─────────
 router.post('/uitleen/:id/borg/terugstorten', isLoggedIn, asyncHandler(async (req, res) => {

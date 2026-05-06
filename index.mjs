@@ -10,6 +10,7 @@ import accountRouter     from './routes/account.mjs';
 import gereedschapRouter from './routes/gereedschap.mjs';
 import uitleenRouter     from './routes/uitleen.mjs';
 import chatRouter        from './routes/chat.mjs';
+import reviewRouter      from './routes/review.mjs'
 import { initSocket }    from './sockets/chatSocket.mjs';
 import cookieParser      from 'cookie-parser';
 
@@ -44,6 +45,7 @@ app.use(accountRouter);
 app.use(gereedschapRouter);
 app.use(uitleenRouter);
 app.use(chatRouter);
+app.use(reviewRouter);
 
 // ── 404 – geen route gevonden ──
 app.all('/{*splat}', (req, res, next) => {
