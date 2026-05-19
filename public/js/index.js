@@ -8,7 +8,7 @@ const MONTHS = ['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov
 // -----------------------
 document.addEventListener("DOMContentLoaded", () => {
     loadFilters();
-    loadNewAds();
+    loadNewestAds();
 
     const searchInput = document.getElementById("searchInput");
     if (searchInput) {
@@ -267,7 +267,54 @@ function escapeHtml(str) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  loadNewestAds();
+    const track = document.getElementById('newAdsTrack');
+    const wrapper = document.querySelector('.ad-slider-wrapper');
+    const prev = document.getElementById('sliderPrev');
+    const next = document.getElementById('sliderNext');
+    const scrollAmount = 320;
+
+    if (next) next.addEventListener('click', () => {
+        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+
+    if (prev) prev.addEventListener('click', () => {
+        track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+
+    function isMobiel() {
+        return window.innerWidth <= 700;
+    }
+
+    let autoScrollInterval = null;
+
+    function startAutoScroll() {
+        if (!isMobiel()) return;
+        autoScrollInterval = setInterval(() => {
+            if (wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 10) {
+                wrapper.scrollTo({ left: 0, behavior: 'smooth' });
+            } else {
+                wrapper.scrollBy({ left: 2, behavior: 'instant' });
+            }
+        }, 16);
+    }
+
+    function stopAutoScroll() {
+        clearInterval(autoScrollInterval);
+    }
+
+    if (wrapper) {
+        wrapper.addEventListener('touchstart', stopAutoScroll);
+        wrapper.addEventListener('touchend', () => {
+            setTimeout(startAutoScroll, 2000);
+        });
+    }
+
+    if (isMobiel()) startAutoScroll();
+
+    window.addEventListener('resize', () => {
+        stopAutoScroll();
+        if (isMobiel()) startAutoScroll();
+    });
 });
 
 // -----------------------
