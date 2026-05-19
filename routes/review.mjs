@@ -25,7 +25,6 @@ router.get('/account/:id/reviews', async (req, res) => {
       orderBy: { Datum: 'desc' },
     });
 
-    // Verhuurder-review: ontvanger was de VERHUURDER (Account_id) in die uitleen
     const verhuurderReviews = reviews.filter(
       (r) => r.Uitleen?.Account_id === ontvangerID
     );
@@ -59,13 +58,12 @@ router.get('/account/:id/lener-reviews', async (req, res) => {
           select: { Account_id: true, Name: true, Afbeelding: true },
         },
         Uitleen: {
-          select: { Account_id: true, Lener_id: true }, // Lener_id toevoegen
+          select: { Account_id: true, Lener_id: true },
         },
       },
       orderBy: { Datum: 'desc' },
     });
 
-    // Lener-review: ontvanger was de LENER in die uitleen
     const lenerReviews = reviews.filter(
       (r) => r.Uitleen?.Lener_id === ontvangerID
     );
@@ -86,7 +84,7 @@ router.get('/account/:id/lener-reviews', async (req, res) => {
   }
 });
 
-// GET /uitlenen/te-reviewen?verhuurder=<id>
+// ─── GET /uitlenen/te-reviewen?verhuurder=<id> ────────────────────────────────
 router.get('/uitlenen/te-reviewen', isLoggedIn, async (req, res) => {
   const lenerId    = req.session.userId;
   const verhuurder = parseInt(req.query.verhuurder);
@@ -117,8 +115,6 @@ router.get('/uitlenen/te-reviewen', isLoggedIn, async (req, res) => {
 });
 
 // ─── GET /uitlenen/als-verhuurder-te-reviewen?lener=<id> ─────────────────────
-// Afgeronde uitlenen waarbij de ingelogde gebruiker verhuurder is
-// en de opgegeven lener heeft geleend — nog geen review geschreven
 router.get('/uitlenen/als-verhuurder-te-reviewen', isLoggedIn, async (req, res) => {
   const verhuurder = req.session.userId;
   const lenerId    = parseInt(req.query.lener);
@@ -265,7 +261,7 @@ router.get('/gereedschap/:id/reviews', async (req, res) => {
     const reviews = await prisma.gereedschap_Review.findMany({
       where: { Gereedschap_id: gereedschapId },
       include: {
-        Auteur: {
+        Account: {
           select: { Account_id: true, Name: true, Afbeelding: true },
         },
       },
@@ -278,13 +274,13 @@ router.get('/gereedschap/:id/reviews', async (req, res) => {
 
     res.json({
       gemiddelde: gemiddelde ? parseFloat(gemiddelde.toFixed(1)) : null,
-      aantal: reviews.length,
-      reviews: reviews.map((r) => ({
+      aantal:     reviews.length,
+      reviews:    reviews.map((r) => ({
         Review_id:        r.Review_id,
         Uitleen_id:       r.Uitleen_id,
         Auteur_id:        r.Auteur_id,
-        auteurNaam:       r.Auteur?.Name ?? 'Onbekend',
-        auteurAfbeelding: r.Auteur?.Afbeelding ?? null,
+        auteurNaam:       r.Account?.Name ?? 'Onbekend',
+        auteurAfbeelding: r.Account?.Afbeelding ?? null,
         Tekst:            r.Tekst,
         Rating:           r.Rating,
         Datum:            r.Datum,
@@ -297,8 +293,6 @@ router.get('/gereedschap/:id/reviews', async (req, res) => {
 });
 
 // ─── GET /gereedschap/:id/uitleen-te-reviewen ─────────────────────────────────
-// Afgeronde uitlenen van dit gereedschap door de ingelogde gebruiker
-// waarbij nog geen review is geschreven
 router.get('/gereedschap/:id/uitleen-te-reviewen', isLoggedIn, async (req, res) => {
   const gereedschapId = parseInt(req.params.id);
   const lenerId       = req.session.userId;
@@ -308,9 +302,9 @@ router.get('/gereedschap/:id/uitleen-te-reviewen', isLoggedIn, async (req, res) 
   try {
     const uitlenen = await prisma.uitleen.findMany({
       where: {
-        Gereedschap_id: gereedschapId,
-        Lener_id:       lenerId,
-        Status:         { in: AFGEROND },
+        Gereedschap_id:     gereedschapId,
+        Lener_id:           lenerId,
+        Status:             { in: AFGEROND },
         Gereedschap_Review: { none: { Auteur_id: lenerId } },
       },
       orderBy: { EindDatum: 'desc' },
@@ -436,6 +430,5 @@ router.delete('/gereedschap/reviews/:id', isLoggedIn, async (req, res) => {
     res.status(500).json({ error: 'Fout bij verwijderen review' });
   }
 });
-
 
 export default router;
