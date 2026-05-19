@@ -210,75 +210,94 @@ async function applyFilters() {
 // SLIDER (Nieuwste Gereedschap)
 // -----------------------
 async function loadNewestAds() {
-  const track = document.getElementById('newAdsTrack');
-  if (!track) return;
+    const track = document.getElementById('newAdsTrack');
+    if (!track) return;
 
-  try {
-    const res = await fetch('/gereedschappen/nieuw'); 
-    if (!res.ok) throw new Error('Kon nieuwste advertenties niet ophalen');
+    try {
+        const res = await fetch('/gereedschappen/nieuw');
+        if (!res.ok) throw new Error('Kon nieuwste advertenties niet ophalen');
 
-    const ads = await res.json();
+        const ads = await res.json();
+        const latestAds = Array.isArray(ads) ? ads.slice(0, 10) : [];
 
-    const latestAds = Array.isArray(ads) ? ads.slice(0, 10) : [];
+        if (!latestAds.length) {
+            track.innerHTML = '<p>Er zijn nog geen advertenties.</p>';
+            return;
+        }
 
-    if (!latestAds.length) {
-      track.innerHTML = '<p>Er zijn nog geen advertenties.</p>';
-      return;
+        // Dupliceer voor naadloze herhaling
+        const renderSet = [...latestAds, ...latestAds];
+
+        track.innerHTML = renderSet.map(ad => {
+            const afbeelding = ad.Afbeelding || '/images/default-tool.jpg';
+            const titel = escapeHtml(ad.Naam || ad.Titel || 'Gereedschap');
+            const beschrijving = escapeHtml(ad.Beschrijving || 'Bekijk deze advertentie');
+            const plaats = escapeHtml(ad.Plaats || '');
+            const id = encodeURIComponent(ad.Gereedschap_id);
+
+            return `
+                <a class="ad-card" href="gereedschap.html?id=${id}">
+                    <img class="ad-image" src="${afbeelding}" alt="${titel}">
+                    <div class="ad-content">
+                        <span class="ad-label">${plaats || 'Nieuw'}</span>
+                        <h3>${titel}</h3>
+                        <p>${beschrijving}</p>
+                    </div>
+                </a>
+            `;
+        }).join('');
+
+        // Start in het midden zodat je links én rechts kunt scrollen
+        setTimeout(() => {
+            const w = document.querySelector('.ad-slider-wrapper');
+            if (w) w.scrollLeft = w.scrollWidth / 2;
+        }, 100);
+
+    } catch (err) {
+        console.error(err);
+        track.innerHTML = '<p>Kon advertenties niet laden.</p>';
     }
-
-    // duplicate for smooth infinite scroll
-    const renderSet = [...latestAds, ...latestAds];
-
-    track.innerHTML = renderSet.map(ad => {
-      const afbeelding = ad.Afbeelding || '/images/default-tool.jpg';
-      const titel = escapeHtml(ad.Naam || ad.Titel || 'Gereedschap');
-      const beschrijving = escapeHtml(ad.Beschrijving || 'Bekijk deze advertentie');
-      const plaats = escapeHtml(ad.Plaats || '');
-      const id = encodeURIComponent(ad.Gereedschap_id);
-
-      return `
-        <a class="ad-card" href="gereedschap.html?id=${id}">
-          <img class="ad-image" src="${afbeelding}" alt="${titel}">
-          <div class="ad-content">
-            <span class="ad-label">${plaats || 'Nieuw'}</span>
-            <h3>${titel}</h3>
-            <p>${beschrijving}</p>
-          </div>
-        </a>
-      `;
-    }).join('');
-  } catch (err) {
-    console.error(err);
-    track.innerHTML = '<p>Kon advertenties niet laden.</p>';
-  }
 }
 
 function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, (match) => {
-    const map = {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    };
-    return map[match];
-  });
+    return String(str).replace(/[&<>"']/g, (match) => {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#39;'
+        };
+        return map[match];
+    });
 }
 
+// -----------------------
+// SLIDER CONTROLS
+// -----------------------
 document.addEventListener('DOMContentLoaded', () => {
-    const track = document.getElementById('newAdsTrack');
     const wrapper = document.querySelector('.ad-slider-wrapper');
     const prev = document.getElementById('sliderPrev');
     const next = document.getElementById('sliderNext');
     const scrollAmount = 320;
 
     if (next) next.addEventListener('click', () => {
+        const halfWidth = wrapper.scrollWidth / 2;
         wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        setTimeout(() => {
+            if (wrapper.scrollLeft >= halfWidth) {
+                wrapper.scrollLeft = wrapper.scrollLeft - halfWidth;
+            }
+        }, 300);
     });
 
     if (prev) prev.addEventListener('click', () => {
         wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        setTimeout(() => {
+            if (wrapper.scrollLeft <= 0) {
+                wrapper.scrollLeft = wrapper.scrollWidth / 2;
+            }
+        }, 300);
     });
 
     function isMobiel() {
