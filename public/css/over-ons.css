@@ -1,0 +1,76 @@
+/* over-ons.css
+	 Styles for the "Over Ons" (About Us) page
+*/
+
+:root{
+	--bg:#ffffff;
+	--accent:#1e88e5;
+	--muted:#666666;
+	--card:#f7f9fb;
+}
+
+body.over-ons{
+	background:var(--bg);
+	color:#111;
+	font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+	line-height:1.45;
+}
+
+.over-ons__container{
+	max-width:1100px;
+	margin:32px auto;
+	padding:24px;
+}
+
+.over-ons__hero{
+	display:flex;
+	gap:24px;
+	align-items:center;
+	padding:24px;
+	background:linear-gradient(90deg, var(--card), #fff);
+	border-radius:8px;
+}
+
+.over-ons__hero img{
+	width:160px;
+	height:160px;
+	object-fit:cover;
+	border-radius:8px;
+}
+
+.over-ons__title{
+	font-size:28px;
+	margin:0 0 8px 0;
+	color:var(--accent);
+}
+
+.over-ons__subtitle{
+	margin:0;
+	color:var(--muted);
+}
+
+.team-grid{
+	display:grid;
+	grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+	gap:18px;
+	margin-top:22px;
+}
+
+.team-card{
+	background:var(--card);
+	padding:14px;
+	border-radius:8px;
+	text-align:center;
+}
+
+.team-card img{width:96px;height:96px;border-radius:50%;object-fit:cover;margin-bottom:12px}
+.team-card h4{margin:6px 0 4px 0;font-size:16px}
+.team-card p{margin:0;color:var(--muted);font-size:14px}
+
+@media(max-width:600px){
+	.over-ons__hero{flex-direction:column;text-align:center}
+	.over-ons__hero img{width:120px;height:120px}
+}
+
+/* utility */
+.muted{color:var(--muted)}
