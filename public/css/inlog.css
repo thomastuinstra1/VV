@@ -278,6 +278,10 @@
   margin-bottom: 16px;
 }
 
+#twoFaCode::placeholder {
+    color: #d1d5db;
+}
+
 #twoFaCode {
   text-align: center;
   font-size: 1.15rem;
