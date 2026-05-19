@@ -256,4 +256,191 @@ router.delete('/reviews/:id', isLoggedIn, async (req, res) => {
   }
 });
 
+// ─── Voeg toe aan routes/review.mjs ──────────────────────────────────────────
+// Zet deze routes onder de bestaande account-review routes
+
+const AFGEROND = ['ingeleverd_op_tijd', 'ingeleverd_te_laat']; // al gedeclareerd bovenaan
+
+// ─── GET /gereedschap/:id/reviews ─────────────────────────────────────────────
+router.get('/gereedschap/:id/reviews', async (req, res) => {
+  const gereedschapId = parseInt(req.params.id);
+  if (isNaN(gereedschapId)) return res.status(400).json({ error: 'Ongeldig id' });
+
+  try {
+    const reviews = await prisma.gereedschap_Review.findMany({
+      where: { Gereedschap_id: gereedschapId },
+      include: {
+        Auteur: {
+          select: { Account_id: true, Name: true, Afbeelding: true },
+        },
+      },
+      orderBy: { Datum: 'desc' },
+    });
+
+    const gemiddelde = reviews.length
+      ? reviews.reduce((s, r) => s + r.Rating, 0) / reviews.length
+      : null;
+
+    res.json({
+      gemiddelde: gemiddelde ? parseFloat(gemiddelde.toFixed(1)) : null,
+      aantal: reviews.length,
+      reviews: reviews.map((r) => ({
+        Review_id:        r.Review_id,
+        Uitleen_id:       r.Uitleen_id,
+        Auteur_id:        r.Auteur_id,
+        auteurNaam:       r.Auteur?.Name ?? 'Onbekend',
+        auteurAfbeelding: r.Auteur?.Afbeelding ?? null,
+        Tekst:            r.Tekst,
+        Rating:           r.Rating,
+        Datum:            r.Datum,
+      })),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fout bij ophalen reviews' });
+  }
+});
+
+// ─── GET /gereedschap/:id/uitleen-te-reviewen ─────────────────────────────────
+// Afgeronde uitlenen van dit gereedschap door de ingelogde gebruiker
+// waarbij nog geen review is geschreven
+router.get('/gereedschap/:id/uitleen-te-reviewen', isLoggedIn, async (req, res) => {
+  const gereedschapId = parseInt(req.params.id);
+  const lenerId       = req.session.userId;
+
+  if (isNaN(gereedschapId)) return res.status(400).json({ error: 'Ongeldig id' });
+
+  try {
+    const uitlenen = await prisma.uitleen.findMany({
+      where: {
+        Gereedschap_id: gereedschapId,
+        Lener_id:       lenerId,
+        Status:         { in: AFGEROND },
+        Gereedschap_Review: { none: { Auteur_id: lenerId } },
+      },
+      orderBy: { EindDatum: 'desc' },
+    });
+
+    res.json(uitlenen.map((u) => ({
+      Uitleen_id: u.Uitleen_id,
+      EindDatum:  u.EindDatum,
+    })));
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fout bij ophalen uitlenen' });
+  }
+});
+
+// ─── POST /gereedschap/:id/reviews ────────────────────────────────────────────
+router.post('/gereedschap/:id/reviews', isLoggedIn, async (req, res) => {
+  const gereedschapId = parseInt(req.params.id);
+  const auteurId      = req.session.userId;
+  const { Uitleen_id, Tekst, Rating } = req.body;
+
+  if (!Uitleen_id || !Rating) {
+    return res.status(400).json({ error: 'Uitleen_id en Rating zijn verplicht' });
+  }
+  if (Rating < 1 || Rating > 5) {
+    return res.status(400).json({ error: 'Rating moet tussen 1 en 5 zijn' });
+  }
+
+  try {
+    const uitleen = await prisma.uitleen.findUnique({
+      where: { Uitleen_id: parseInt(Uitleen_id) },
+    });
+
+    if (!uitleen) return res.status(404).json({ error: 'Uitleen niet gevonden' });
+    if (uitleen.Lener_id !== auteurId) {
+      return res.status(403).json({ error: 'Alleen de lener kan dit gereedschap reviewen' });
+    }
+    if (!AFGEROND.includes(uitleen.Status)) {
+      return res.status(400).json({ error: 'Uitleen moet afgerond zijn om te reviewen' });
+    }
+    if (uitleen.Gereedschap_id !== gereedschapId) {
+      return res.status(400).json({ error: 'Uitleen hoort niet bij dit gereedschap' });
+    }
+
+    const bestaand = await prisma.gereedschap_Review.findFirst({
+      where: { Uitleen_id: parseInt(Uitleen_id), Auteur_id: auteurId },
+    });
+    if (bestaand) {
+      return res.status(409).json({ error: 'Je hebt dit gereedschap al beoordeeld voor deze uitleen' });
+    }
+
+    const review = await prisma.gereedschap_Review.create({
+      data: {
+        Gereedschap_id: gereedschapId,
+        Auteur_id:      auteurId,
+        Uitleen_id:     parseInt(Uitleen_id),
+        Tekst:          Tekst?.trim() || null,
+        Rating:         parseInt(Rating),
+      },
+    });
+
+    res.status(201).json(review);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fout bij aanmaken review' });
+  }
+});
+
+// ─── PUT /gereedschap/reviews/:id ─────────────────────────────────────────────
+router.put('/gereedschap/reviews/:id', isLoggedIn, async (req, res) => {
+  const reviewId = parseInt(req.params.id);
+  const auteurId = req.session.userId;
+  const { Tekst, Rating } = req.body;
+
+  if (isNaN(reviewId)) return res.status(400).json({ error: 'Ongeldig id' });
+  if (Rating && (Rating < 1 || Rating > 5)) {
+    return res.status(400).json({ error: 'Rating moet tussen 1 en 5 zijn' });
+  }
+
+  try {
+    const review = await prisma.gereedschap_Review.findUnique({ where: { Review_id: reviewId } });
+
+    if (!review) return res.status(404).json({ error: 'Review niet gevonden' });
+    if (review.Auteur_id !== auteurId) {
+      return res.status(403).json({ error: 'Geen toegang' });
+    }
+
+    const updated = await prisma.gereedschap_Review.update({
+      where: { Review_id: reviewId },
+      data: {
+        ...(Tekst  !== undefined && { Tekst:  Tekst.trim() || null }),
+        ...(Rating !== undefined && { Rating: parseInt(Rating) }),
+      },
+    });
+
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fout bij bewerken review' });
+  }
+});
+
+// ─── DELETE /gereedschap/reviews/:id ──────────────────────────────────────────
+router.delete('/gereedschap/reviews/:id', isLoggedIn, async (req, res) => {
+  const reviewId = parseInt(req.params.id);
+  const auteurId = req.session.userId;
+
+  if (isNaN(reviewId)) return res.status(400).json({ error: 'Ongeldig id' });
+
+  try {
+    const review = await prisma.gereedschap_Review.findUnique({ where: { Review_id: reviewId } });
+
+    if (!review) return res.status(404).json({ error: 'Review niet gevonden' });
+    if (review.Auteur_id !== auteurId) {
+      return res.status(403).json({ error: 'Geen toegang' });
+    }
+
+    await prisma.gereedschap_Review.delete({ where: { Review_id: reviewId } });
+
+    res.json({ message: 'Review verwijderd' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fout bij verwijderen review' });
+  }
+});
+
+
 export default router;

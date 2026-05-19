@@ -1,0 +1,56 @@
+/* css/gereedschap-reviews.css */
+/* Voeg toe aan gereedschap.html: <link rel="stylesheet" href="css/gereedschap-reviews.css" /> */
+/* Hergebruikt .review-* klassen uit reviews.css — zorg dat reviews.css ook geladen is */
+
+/* ── Sectie wrapper ──────────────────────────────────────────────────────────── */
+.gereedschap-reviews-section {
+  padding: 3rem 0;
+  background: var(--color-bg, #fff);
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.gereedschap-reviews-inner {
+  max-width: 760px;
+}
+
+.gereedschap-reviews-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.gereedschap-reviews-heading h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+/* ── Sterren badge naast toolnaam ────────────────────────────────────────────── */
+.tool-rating-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.25rem 0 1rem;
+}
+
+.tool-rating-stars .star {
+  font-size: 1rem;
+}
+
+.tool-rating-score {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text, #1a1a1a);
+}
+
+.tool-rating-count {
+  font-size: 0.85rem;
+  color: var(--color-primary, #2563eb);
+  text-decoration: none;
+}
+
+.tool-rating-count:hover {
+  text-decoration: underline;
+}
