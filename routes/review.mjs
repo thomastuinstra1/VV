@@ -256,11 +256,6 @@ router.delete('/reviews/:id', isLoggedIn, async (req, res) => {
   }
 });
 
-// ─── Voeg toe aan routes/review.mjs ──────────────────────────────────────────
-// Zet deze routes onder de bestaande account-review routes
-
-const AFGEROND = ['ingeleverd_op_tijd', 'ingeleverd_te_laat']; // al gedeclareerd bovenaan
-
 // ─── GET /gereedschap/:id/reviews ─────────────────────────────────────────────
 router.get('/gereedschap/:id/reviews', async (req, res) => {
   const gereedschapId = parseInt(req.params.id);
