@@ -271,15 +271,14 @@
     display: flex;
     gap: 22px;
     width: max-content;
-    /* geen animatie standaard */
 }
 
 .ad-slider-track.is-loaded {
     animation: adScroll 40s linear infinite;
 }
 
-.ad-slider-track.ad-slider-track.is-loaded:hover {
-    animation-play-state: paused; /* pauzeert scroll bij hover */
+.ad-slider-track.is-loaded:hover {
+    animation-play-state: paused;
 }
 
 .ad-card {
@@ -334,17 +333,48 @@
     line-height: 1.5;
 }
 
-/* animatie van slider */
 @keyframes adScroll {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
 }
 
-/* responsive */
+/* SLIDER CONTAINER & PIJLTJES */
+.ad-slider-container {
+    position: relative;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.ad-slider-wrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+.slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: 0.2s ease;
+}
+
+.slider-arrow:hover {
+    background: #1f2937;
+    color: white;
+}
+
+.slider-arrow-left { left: -20px; }
+.slider-arrow-right { right: -20px; }
+
+/* RESPONSIVE */
 @media (max-width: 980px) {
     .hero-layout,
     .waarom-top,
@@ -374,6 +404,10 @@
 
     .waarom-text {
         text-align: center;
+    }
+
+    .waarom-visual img {
+        display: none;
     }
 }
 
@@ -407,52 +441,11 @@
     .hero-buttons {
         flex-direction: column;
     }
-}
 
-@media (max-width: 980px) {
-    .waarom-visual img {
-        display: none;
-    }
-}
-
-@media (max-width: 700px) {
     .hero-visual {
         display: none;
     }
-}
 
-.ad-slider-wrapper {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-    padding: 10px 0;
-}
-
-.slider-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 10;
-    background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: 0.2s ease;
-}
-
-.slider-arrow:hover {
-    background: #1f2937;
-    color: white;
-}
-
-.slider-arrow-left { left: -20px; }
-.slider-arrow-right { right: -20px; }
-
-@media (max-width: 700px) {
     .ad-slider-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
