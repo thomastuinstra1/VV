@@ -103,7 +103,6 @@ async function fetchProfielen(zoekterm) {
                 </div>
                 <div class="profiel-info">
                     <strong>${p.Name}</strong>
-                    <span>📍 ${p.Postcode || "Onbekend"}</span>
                 </div>
             </a>
         `).join("");
