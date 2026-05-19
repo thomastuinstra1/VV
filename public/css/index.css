@@ -267,13 +267,6 @@
     padding: 55px 0 70px;
 }
 
-.ad-slider-wrapper {
-    overflow: hidden;
-    width: 100%;
-    position: relative;
-    padding: 10px 0;
-}
-
 .ad-slider-track {
     display: flex;
     gap: 22px;
@@ -430,6 +423,9 @@
 
 .ad-slider-wrapper {
     position: relative;
+    width: 100%;
+    overflow: hidden;
+    padding: 10px 0;
 }
 
 .slider-arrow {

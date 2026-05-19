@@ -274,11 +274,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const scrollAmount = 320;
 
     if (next) next.addEventListener('click', () => {
-        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        wrapper.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     });
 
     if (prev) prev.addEventListener('click', () => {
-        track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        wrapper.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
     });
 
     function isMobiel() {
@@ -290,10 +290,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function startAutoScroll() {
         if (!isMobiel()) return;
         autoScrollInterval = setInterval(() => {
-            if (wrapper.scrollLeft + wrapper.clientWidth >= wrapper.scrollWidth - 10) {
-                wrapper.scrollTo({ left: 0, behavior: 'smooth' });
+            const halfWidth = wrapper.scrollWidth / 2;
+            if (wrapper.scrollLeft >= halfWidth) {
+                wrapper.scrollTo({ left: 0, behavior: 'instant' });
             } else {
-                wrapper.scrollBy({ left: 2, behavior: 'instant' });
+                wrapper.scrollBy({ left: 0.5, behavior: 'instant' });
             }
         }, 16);
     }
