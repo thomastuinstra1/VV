@@ -1,4 +1,3 @@
-
 // js/gereedschap-reviews.js
 // Voeg toe aan gereedschap.html: <script src="js/gereedschap-reviews.js"></script>
 // Vereist: globaal.js geladen voor dit script
@@ -65,13 +64,19 @@ async function loadGereedschapReviews(gereedschapId, mijnId) {
 }
 
 function renderGereedschapReviewCard(r, mijnId) {
-  const isOwn    = mijnId && Number(mijnId) === Number(r.Auteur_id);
-  const datum    = r.Datum ? new Date(r.Datum).toLocaleDateString("nl-NL") : "";
-  const initials = (r.auteurNaam || "?").trim().charAt(0).toUpperCase();
+  const isOwn     = mijnId && Number(mijnId) === Number(r.Auteur_id);
+  const datum     = r.Datum ? new Date(r.Datum).toLocaleDateString("nl-NL") : "";
+  const initials  = (r.auteurNaam || "?").trim().charAt(0).toUpperCase();
   const starsHtml = renderStarsHtml(r.Rating ?? 0);
+  const verdacht  = (r.aantalRapportages ?? 0) >= 5;
 
   return `
-    <div class="review-card" data-id="${r.Review_id}">
+    <div class="review-card ${verdacht ? "review-card--verdacht" : ""}" data-id="${r.Review_id}">
+      ${verdacht ? `
+        <div class="review-warning-badge" title="Deze review heeft 5 of meer rapportages ontvangen">
+          ⚠️ <span>Mogelijk niet betrouwbaar</span>
+        </div>
+      ` : ""}
       <div class="review-header">
         <div class="review-avatar">
           ${r.auteurAfbeelding
@@ -86,18 +91,24 @@ function renderGereedschapReviewCard(r, mijnId) {
         <div class="review-stars">${starsHtml}</div>
       </div>
       ${r.Tekst ? `<p class="review-tekst">${escapeHtml(r.Tekst)}</p>` : ""}
-      ${isOwn ? `
-        <div class="review-own-actions">
-          <button class="btn-review-edit" data-review-id="${r.Review_id}" data-rating="${r.Rating}" data-tekst="${escapeHtml(r.Tekst || "")}">✏️ Bewerken</button>
-          <button class="btn-review-delete" data-review-id="${r.Review_id}">🗑️ Verwijderen</button>
-        </div>
-      ` : ""}
+      <div class="review-footer-actions">
+        ${isOwn ? `
+          <div class="review-own-actions">
+            <button class="btn-review-edit" data-review-id="${r.Review_id}" data-rating="${r.Rating}" data-tekst="${escapeHtml(r.Tekst || "")}">✏️ Bewerken</button>
+            <button class="btn-review-delete" data-review-id="${r.Review_id}">🗑️ Verwijderen</button>
+          </div>
+        ` : mijnId ? `
+          <button class="btn-review-report" data-review-id="${r.Review_id}" data-review-type="gereedschap">🚩 Rapporteren</button>
+        ` : ""}
+      </div>
     </div>
   `;
 }
 
 function attachGereedschapReviewActions(container, gereedschapId) {
   container.addEventListener("click", async (e) => {
+
+    // ── Verwijderen ──────────────────────────────────────────────────────────
     if (e.target.closest(".btn-review-delete")) {
       const btn      = e.target.closest(".btn-review-delete");
       const reviewId = btn.dataset.reviewId;
@@ -120,6 +131,7 @@ function attachGereedschapReviewActions(container, gereedschapId) {
       }
     }
 
+    // ── Bewerken ─────────────────────────────────────────────────────────────
     if (e.target.closest(".btn-review-edit")) {
       const btn          = e.target.closest(".btn-review-edit");
       const card         = btn.closest(".review-card");
@@ -127,6 +139,16 @@ function attachGereedschapReviewActions(container, gereedschapId) {
       const huidigRating = parseInt(btn.dataset.rating) || 0;
       const huidigTekst  = btn.dataset.tekst || "";
       openGereedschapInlineEdit(card, reviewId, huidigRating, huidigTekst, gereedschapId);
+    }
+
+    // ── Rapporteren ──────────────────────────────────────────────────────────
+    if (e.target.closest(".btn-review-report")) {
+      const btn        = e.target.closest(".btn-review-report");
+      const reviewId   = btn.dataset.reviewId;
+      const reviewType = btn.dataset.reviewType; // "gereedschap"
+      if (window.openReviewRapportModal) {
+        window.openReviewRapportModal(reviewId, reviewType);
+      }
     }
   });
 }
@@ -262,7 +284,6 @@ function injectGereedschapReviewForm(uitlenen, gereedschapId, mijnId) {
 function injectGereedschapReviewSection() {
   if (document.getElementById("gereedschapReviewsSection")) return;
 
-  // Voeg de sectie toe na .tool-detail-section
   const detailSection = document.querySelector(".tool-detail-section");
   if (!detailSection) return;
 
@@ -309,7 +330,7 @@ function injectSummaryBadge(gemiddelde, aantal) {
   toolName.insertAdjacentElement("afterend", badge);
 }
 
-// ─── Gedeelde helpers (ook gebruikt in reviews.js — geen dubbele declaraties) ──
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function setupStarInteraction(starsEl, onSelect) {
   starsEl.querySelectorAll(".form-star").forEach((star) => {

@@ -41,9 +41,9 @@ async function loadVerhuurderReviews(accountId, mijnId) {
     "verhuurderAantal"
   );
 
-  const container   = document.getElementById("verhuurderReviewsList");
+  const container    = document.getElementById("verhuurderReviewsList");
   const gemiddeldeEl = document.getElementById("verhuurderGemiddelde");
-  const aantalEl    = document.getElementById("verhuurderAantal");
+  const aantalEl     = document.getElementById("verhuurderAantal");
 
   try {
     const res     = await fetch(`/account/${accountId}/reviews`);
@@ -120,7 +120,6 @@ async function loadLenerReviews(accountId, mijnId) {
 }
 
 async function setupLenerReviewForm(accountId, mijnId) {
-  // Toon formulier alleen als ingelogde gebruiker verhuurder is van deze lener
   try {
     const res = await fetch(`/uitlenen/als-verhuurder-te-reviewen?lener=${accountId}`);
     if (!res.ok) return;
@@ -180,17 +179,12 @@ function renderGemiddelde(reviews, gemiddeldeEl, aantalEl, starsElId) {
   }
 }
 
-// ─── Vervang de renderReviewCard functie in reviews.js door dit ──────────────
-// (de versie in gereedschap-reviews.js heet renderGereedschapReviewCard,
-//  vervang die ook met dezelfde logica maar met reviewType = 'gereedschap')
-
-// ── Voor reviews.js ───────────────────────────────────────────────────────────
 function renderReviewCard(r, mijnId) {
-  const isOwn      = mijnId && Number(mijnId) === Number(r.Auteur_id);
-  const datum      = r.Datum ? new Date(r.Datum).toLocaleDateString("nl-NL") : "";
-  const initials   = (r.auteurNaam || "?").trim().charAt(0).toUpperCase();
-  const starsHtml  = renderStarsHtml(r.Rating ?? 0);
-  const verdacht   = (r.aantalRapportages ?? 0) >= 5;
+  const isOwn     = mijnId && Number(mijnId) === Number(r.Auteur_id);
+  const datum     = r.Datum ? new Date(r.Datum).toLocaleDateString("nl-NL") : "";
+  const initials  = (r.auteurNaam || "?").trim().charAt(0).toUpperCase();
+  const starsHtml = renderStarsHtml(r.Rating ?? 0);
+  const verdacht  = (r.aantalRapportages ?? 0) >= 5;
 
   return `
     <div class="review-card ${verdacht ? "review-card--verdacht" : ""}" data-id="${r.Review_id}">
@@ -227,51 +221,10 @@ function renderReviewCard(r, mijnId) {
   `;
 }
 
-// ── Voor gereedschap-reviews.js ───────────────────────────────────────────────
-function renderGereedschapReviewCard(r, mijnId) {
-  const isOwn      = mijnId && Number(mijnId) === Number(r.Auteur_id);
-  const datum      = r.Datum ? new Date(r.Datum).toLocaleDateString("nl-NL") : "";
-  const initials   = (r.auteurNaam || "?").trim().charAt(0).toUpperCase();
-  const starsHtml  = renderStarsHtml(r.Rating ?? 0);
-  const verdacht   = (r.aantalRapportages ?? 0) >= 5;
-
-  return `
-    <div class="review-card ${verdacht ? "review-card--verdacht" : ""}" data-id="${r.Review_id}">
-      ${verdacht ? `
-        <div class="review-warning-badge" title="Deze review heeft 5 of meer rapportages ontvangen">
-          ⚠️ <span>Mogelijk niet betrouwbaar</span>
-        </div>
-      ` : ""}
-      <div class="review-header">
-        <div class="review-avatar">
-          ${r.auteurAfbeelding
-            ? `<img src="${r.auteurAfbeelding}" alt="${escapeHtml(r.auteurNaam)}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">`
-            : ""}
-          <span class="review-avatar-initial" style="${r.auteurAfbeelding ? "display:none" : ""}">${initials}</span>
-        </div>
-        <div class="review-meta">
-          <span class="review-auteur">${escapeHtml(r.auteurNaam)}</span>
-          <span class="review-datum">${datum}</span>
-        </div>
-        <div class="review-stars">${starsHtml}</div>
-      </div>
-      ${r.Tekst ? `<p class="review-tekst">${escapeHtml(r.Tekst)}</p>` : ""}
-      <div class="review-footer-actions">
-        ${isOwn ? `
-          <div class="review-own-actions">
-            <button class="btn-review-edit" data-review-id="${r.Review_id}" data-rating="${r.Rating}" data-tekst="${escapeHtml(r.Tekst || "")}">✏️ Bewerken</button>
-            <button class="btn-review-delete" data-review-id="${r.Review_id}">🗑️ Verwijderen</button>
-          </div>
-        ` : mijnId ? `
-          <button class="btn-review-report" data-review-id="${r.Review_id}" data-review-type="gereedschap">🚩 Rapporteren</button>
-        ` : ""}
-      </div>
-    </div>
-  `;
-}
-
 function attachReviewActions(container, accountId) {
   container.addEventListener("click", async (e) => {
+
+    // ── Verwijderen ──────────────────────────────────────────────────────────
     if (e.target.closest(".btn-review-delete")) {
       const btn      = e.target.closest(".btn-review-delete");
       const reviewId = btn.dataset.reviewId;
@@ -288,6 +241,7 @@ function attachReviewActions(container, accountId) {
       }
     }
 
+    // ── Bewerken ─────────────────────────────────────────────────────────────
     if (e.target.closest(".btn-review-edit")) {
       const btn          = e.target.closest(".btn-review-edit");
       const card         = btn.closest(".review-card");
@@ -295,6 +249,16 @@ function attachReviewActions(container, accountId) {
       const huidigRating = parseInt(btn.dataset.rating) || 0;
       const huidigTekst  = btn.dataset.tekst || "";
       openInlineEdit(card, reviewId, huidigRating, huidigTekst, accountId);
+    }
+
+    // ── Rapporteren ──────────────────────────────────────────────────────────
+    if (e.target.closest(".btn-review-report")) {
+      const btn        = e.target.closest(".btn-review-report");
+      const reviewId   = btn.dataset.reviewId;
+      const reviewType = btn.dataset.reviewType; // "account"
+      if (window.openReviewRapportModal) {
+        window.openReviewRapportModal(reviewId, reviewType);
+      }
     }
   });
 }
@@ -383,10 +347,9 @@ function injectReviewForm(sectionId, formId, uitlenen, ontvangerAccountId, titel
 
   section.insertAdjacentHTML("beforeend", formHtml);
 
-  const formEl   = document.getElementById(formId);
-  const starsEl  = formEl.querySelector(".review-new-stars");
+  const formEl  = document.getElementById(formId);
+  const starsEl = formEl.querySelector(".review-new-stars");
 
-  // Render lege sterren
   starsEl.innerHTML = [1,2,3,4,5].map((i) =>
     `<span class="form-star" data-val="${i}">★</span>`
   ).join("");
