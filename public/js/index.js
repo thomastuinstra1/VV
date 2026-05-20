@@ -307,16 +307,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let autoScrollInterval = null;
 
     function startAutoScroll() {
-        if (!isMobiel()) return;
-        autoScrollInterval = setInterval(() => {
-            const halfWidth = wrapper.scrollWidth / 2;
-            if (wrapper.scrollLeft >= halfWidth) {
-                wrapper.scrollTo({ left: 0, behavior: 'instant' });
-            } else {
-                wrapper.scrollBy({ left: 0.87, behavior: 'instant' });
-            }
-        }, 16);
-    }
+    if (!isMobiel()) return;
+    autoScrollInterval = setInterval(() => {
+        if (isScrolling) return;
+        const halfWidth = wrapper.scrollWidth / 2;
+        if (wrapper.scrollLeft >= halfWidth) {
+            wrapper.scrollTo({ left: 0, behavior: 'instant' });
+        } else {
+            wrapper.scrollBy({ left: 1, behavior: 'instant' });
+        }
+    }, 16);
+}
 
     function stopAutoScroll() {
         clearInterval(autoScrollInterval);
