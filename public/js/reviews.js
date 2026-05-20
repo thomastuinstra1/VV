@@ -180,14 +180,25 @@ function renderGemiddelde(reviews, gemiddeldeEl, aantalEl, starsElId) {
   }
 }
 
+// ─── Vervang de renderReviewCard functie in reviews.js door dit ──────────────
+// (de versie in gereedschap-reviews.js heet renderGereedschapReviewCard,
+//  vervang die ook met dezelfde logica maar met reviewType = 'gereedschap')
+
+// ── Voor reviews.js ───────────────────────────────────────────────────────────
 function renderReviewCard(r, mijnId) {
-  const isOwn    = mijnId && Number(mijnId) === Number(r.Auteur_id);
-  const datum    = r.Datum ? new Date(r.Datum).toLocaleDateString("nl-NL") : "";
-  const initials = (r.auteurNaam || "?").trim().charAt(0).toUpperCase();
-  const starsHtml = renderStarsHtml(r.Rating ?? 0);
+  const isOwn      = mijnId && Number(mijnId) === Number(r.Auteur_id);
+  const datum      = r.Datum ? new Date(r.Datum).toLocaleDateString("nl-NL") : "";
+  const initials   = (r.auteurNaam || "?").trim().charAt(0).toUpperCase();
+  const starsHtml  = renderStarsHtml(r.Rating ?? 0);
+  const verdacht   = (r.aantalRapportages ?? 0) >= 5;
 
   return `
-    <div class="review-card" data-id="${r.Review_id}">
+    <div class="review-card ${verdacht ? "review-card--verdacht" : ""}" data-id="${r.Review_id}">
+      ${verdacht ? `
+        <div class="review-warning-badge" title="Deze review heeft 5 of meer rapportages ontvangen">
+          ⚠️ <span>Mogelijk niet betrouwbaar</span>
+        </div>
+      ` : ""}
       <div class="review-header">
         <div class="review-avatar">
           ${r.auteurAfbeelding
@@ -202,12 +213,59 @@ function renderReviewCard(r, mijnId) {
         <div class="review-stars">${starsHtml}</div>
       </div>
       ${r.Tekst ? `<p class="review-tekst">${escapeHtml(r.Tekst)}</p>` : ""}
-      ${isOwn ? `
-        <div class="review-own-actions">
-          <button class="btn-review-edit" data-review-id="${r.Review_id}" data-rating="${r.Rating}" data-tekst="${escapeHtml(r.Tekst || "")}">✏️ Bewerken</button>
-          <button class="btn-review-delete" data-review-id="${r.Review_id}">🗑️ Verwijderen</button>
+      <div class="review-footer-actions">
+        ${isOwn ? `
+          <div class="review-own-actions">
+            <button class="btn-review-edit" data-review-id="${r.Review_id}" data-rating="${r.Rating}" data-tekst="${escapeHtml(r.Tekst || "")}">✏️ Bewerken</button>
+            <button class="btn-review-delete" data-review-id="${r.Review_id}">🗑️ Verwijderen</button>
+          </div>
+        ` : mijnId ? `
+          <button class="btn-review-report" data-review-id="${r.Review_id}" data-review-type="account">🚩 Rapporteren</button>
+        ` : ""}
+      </div>
+    </div>
+  `;
+}
+
+// ── Voor gereedschap-reviews.js ───────────────────────────────────────────────
+function renderGereedschapReviewCard(r, mijnId) {
+  const isOwn      = mijnId && Number(mijnId) === Number(r.Auteur_id);
+  const datum      = r.Datum ? new Date(r.Datum).toLocaleDateString("nl-NL") : "";
+  const initials   = (r.auteurNaam || "?").trim().charAt(0).toUpperCase();
+  const starsHtml  = renderStarsHtml(r.Rating ?? 0);
+  const verdacht   = (r.aantalRapportages ?? 0) >= 5;
+
+  return `
+    <div class="review-card ${verdacht ? "review-card--verdacht" : ""}" data-id="${r.Review_id}">
+      ${verdacht ? `
+        <div class="review-warning-badge" title="Deze review heeft 5 of meer rapportages ontvangen">
+          ⚠️ <span>Mogelijk niet betrouwbaar</span>
         </div>
       ` : ""}
+      <div class="review-header">
+        <div class="review-avatar">
+          ${r.auteurAfbeelding
+            ? `<img src="${r.auteurAfbeelding}" alt="${escapeHtml(r.auteurNaam)}" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">`
+            : ""}
+          <span class="review-avatar-initial" style="${r.auteurAfbeelding ? "display:none" : ""}">${initials}</span>
+        </div>
+        <div class="review-meta">
+          <span class="review-auteur">${escapeHtml(r.auteurNaam)}</span>
+          <span class="review-datum">${datum}</span>
+        </div>
+        <div class="review-stars">${starsHtml}</div>
+      </div>
+      ${r.Tekst ? `<p class="review-tekst">${escapeHtml(r.Tekst)}</p>` : ""}
+      <div class="review-footer-actions">
+        ${isOwn ? `
+          <div class="review-own-actions">
+            <button class="btn-review-edit" data-review-id="${r.Review_id}" data-rating="${r.Rating}" data-tekst="${escapeHtml(r.Tekst || "")}">✏️ Bewerken</button>
+            <button class="btn-review-delete" data-review-id="${r.Review_id}">🗑️ Verwijderen</button>
+          </div>
+        ` : mijnId ? `
+          <button class="btn-review-report" data-review-id="${r.Review_id}" data-review-type="gereedschap">🚩 Rapporteren</button>
+        ` : ""}
+      </div>
     </div>
   `;
 }
