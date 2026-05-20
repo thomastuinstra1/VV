@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (wrapper.scrollLeft >= halfWidth) {
                 wrapper.scrollTo({ left: 0, behavior: 'instant' });
             } else {
-                wrapper.scrollBy({ left: 0.75, behavior: 'instant' });
+                wrapper.scrollBy({ left: 0.87, behavior: 'instant' });
             }
         }, 16);
     }
