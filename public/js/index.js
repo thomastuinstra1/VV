@@ -305,28 +305,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let autoScrollInterval = null;
+    let isScrolling = false; // ← dit miste
 
     function startAutoScroll() {
-    if (!isMobiel()) return;
-    autoScrollInterval = setInterval(() => {
-        if (isScrolling) return;
-        const halfWidth = wrapper.scrollWidth / 2;
-        if (wrapper.scrollLeft >= halfWidth) {
-            wrapper.scrollTo({ left: 0, behavior: 'instant' });
-        } else {
-            wrapper.scrollBy({ left: 1, behavior: 'instant' });
-        }
-    }, 16);
-}
+        if (!isMobiel()) return;
+        autoScrollInterval = setInterval(() => {
+            if (isScrolling) return;
+            const halfWidth = wrapper.scrollWidth / 2;
+            if (wrapper.scrollLeft >= halfWidth) {
+                wrapper.scrollTo({ left: 0, behavior: 'instant' });
+            } else {
+                wrapper.scrollBy({ left: 1, behavior: 'instant' });
+            }
+        }, 16);
+    }
 
     function stopAutoScroll() {
         clearInterval(autoScrollInterval);
     }
 
     if (wrapper) {
-        wrapper.addEventListener('touchstart', stopAutoScroll);
+        wrapper.addEventListener('touchstart', () => {
+            stopAutoScroll();
+            isScrolling = true;
+        });
+
         wrapper.addEventListener('touchend', () => {
-            setTimeout(startAutoScroll, 2000);
+            setTimeout(() => {
+                isScrolling = false;
+                if (wrapper.scrollLeft < 10) {
+                    wrapper.scrollLeft = wrapper.scrollWidth / 2;
+                }
+                startAutoScroll();
+            }, 500);
         });
     }
 
