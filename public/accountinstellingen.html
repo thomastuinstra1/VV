@@ -172,12 +172,19 @@
   </button>
 </div>
 
-  <div id="disable2faBox" style="display: none">
-    <h3>2FA uitschakelen</h3>
+ <button type="button" id="setup2faBtn" class="secondary-btn">
+  2FA inschakelen
+</button>
 
-  <button type="button" id="twofaHelpBtn" class="twofa-help-btn">
+<button type="button" id="disable2faBtn" class="secondary-btn" style="display: none">
+  2FA uitschakelen
+</button>
+
+<button type="button" id="twofaHelpBtn" class="twofa-help-btn">
   Hoe werkt 2FA?
-  </button>
+</button>
+
+<div id="twoFaSetupBox" style="display: none">
 
     <div class="form-group">
       <label for="disable2faPassword">Wachtwoord</label>
