@@ -178,26 +178,29 @@
 </div>
 
 
-    <div class="form-group">
-      <label for="disable2faPassword">Wachtwoord</label>
-      <input type="password" id="disable2faPassword" />
-    </div>
+   <div id="disable2faBox" style="display: none">
+  <h3>2FA uitschakelen</h3>
 
-    <div class="form-group">
-      <label for="disable2faCode">2FA code</label>
-      <input
-        type="text"
-        id="disable2faCode"
-        maxlength="6"
-        inputmode="numeric"
-        placeholder="123456"
-      />
-    </div>
-
-    <button type="button" id="confirmDisable2faBtn" class="primary-btn">
-      Bevestig uitschakelen
-    </button>
+  <div class="form-group">
+    <label for="disable2faPassword">Wachtwoord</label>
+    <input type="password" id="disable2faPassword" />
   </div>
+
+  <div class="form-group">
+    <label for="disable2faCode">2FA code</label>
+    <input
+      type="text"
+      id="disable2faCode"
+      maxlength="6"
+      inputmode="numeric"
+      placeholder="123456"
+    />
+  </div>
+
+  <button type="button" id="confirmDisable2faBtn" class="primary-btn">
+    Bevestig uitschakelen
+  </button>
+</div>
   <div id="trustedDevicesBox" style="display:none; margin-top:20px;">
   <h3>Vertrouwde apparaten</h3>
   <div id="trustedDevicesList"></div>
