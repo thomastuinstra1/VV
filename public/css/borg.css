@@ -1,0 +1,180 @@
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.borg-page {
+  flex: 1;
+  padding: 130px 0 80px;
+  background: linear-gradient(180deg, #fffaf5 0%, #eef4ff 100%);
+}
+
+.borg-card {
+  max-width: 760px;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid #e5e7eb;
+  border-radius: 28px;
+  padding: 38px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.1);
+}
+
+.borg-pill {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: #1e3a8a;
+  font-weight: 800;
+  font-size: 0.85rem;
+  margin-bottom: 12px;
+}
+
+.borg-card h1 {
+  font-size: 2rem;
+  color: #1f2937;
+  margin-bottom: 22px;
+}
+
+.borg-info {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 26px;
+}
+
+.borg-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  color: #64748b;
+}
+
+.borg-row + .borg-row {
+  border-top: 1px solid #e5e7eb;
+}
+
+.borg-row strong {
+  color: #111827;
+}
+
+.borg-uitleg {
+  margin-top: 14px;
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.methode-keuze h2 {
+  font-size: 1.25rem;
+  color: #1f2937;
+  margin-bottom: 16px;
+}
+
+.methode-opties {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.methode-btn {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  text-align: left;
+  padding: 22px;
+  border-radius: 20px;
+  border: 2px solid #e5e7eb;
+  background: white;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.methode-btn:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: 0 18px 34px rgba(249, 115, 22, 0.15);
+}
+
+.methode-icon {
+  font-size: 2rem;
+}
+
+.methode-btn strong {
+  display: block;
+  color: #111827;
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.methode-btn small {
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.betaal-sectie {
+  margin-top: 24px;
+}
+
+#payment-element {
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+#card-error {
+  color: #b91c1c;
+  margin-top: 12px;
+}
+
+.betaal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.primary-pay-btn,
+.secondary-pay-btn {
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.primary-pay-btn {
+  flex: 1;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  color: white;
+}
+
+.secondary-pay-btn {
+  border: 1px solid #dbe1ea;
+  background: white;
+  color: #1e3a8a;
+}
+
+#status-bericht {
+  margin-top: 18px;
+  color: #166534;
+  font-weight: 700;
+}
+
+@media (max-width: 700px) {
+  .borg-page {
+    padding: 100px 0 50px;
+  }
+
+  .borg-card {
+    padding: 26px 20px;
+    border-radius: 22px;
+  }
+
+  .methode-opties,
+  .betaal-actions {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+  }
+}
