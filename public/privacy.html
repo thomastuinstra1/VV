@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy - Gereedschapspunt</title>
+  <link rel="stylesheet" href="css/privacy.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container nav-container">
+      <div class="logo">
+        <a href="index.html">
+          <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+        </a>
+      </div>
+
+      <form class="header-search" action="zoeken.html" method="get">
+        <input type="text" name="search" placeholder="Zoek gereedschap of profielen..." aria-label="Zoek gereedschap of profielen" />
+        <button type="submit">Zoeken</button>
+      </form>
+
+      <button class="hamburger" id="hamburger" aria-label="Menu openen" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="main-nav" id="mainNav">
+        <form class="header-search mobile-search" action="zoeken.html" method="get">
+          <input type="text" name="search" placeholder="Zoek gereedschap..." aria-label="Zoek gereedschap" />
+          <button type="submit">Zoeken</button>
+        </form>
+
+        <ul>
+          <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+          <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+          <li data-auth="true">
+            <a href="mijnchats.html" style="position:relative;">
+              Berichten
+              <span id="navUnreadBadge" style="display:none;"></span>
+            </a>
+          </li>
+          <li data-auth="true">
+            <a href="accountinstellingen.html">
+              <div id="navAvatar"><span id="navAvatarInitials">?</span></div>
+            </a>
+          </li>
+          <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+          <li data-guest="true"><a href="register.html">Registreren</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="privacy-page">
+    <div class="container">
+      <h1>Privacybeleid</h1>
+      <p class="privacy-sub">Laatst bijgewerkt: mei 2026</p>
+
+      <div class="privacy-content">
+
+        <section class="privacy-section">
+          <h2>1. Wie zijn wij?</h2>
+          <p>Gereedschapspunt is een platform waarop buurtbewoners gereedschap kunnen uitlenen en lenen. Wij zijn verantwoordelijk voor de verwerking van jouw persoonsgegevens zoals beschreven in dit privacybeleid.</p>
+        </section>
+
+        <section class="privacy-section">
+          <h2>2. Welke gegevens verzamelen wij?</h2>
+          <p>Wij verzamelen de volgende gegevens wanneer je een account aanmaakt of gebruik maakt van ons platform:</p>
+          <ul>
+            <li>Naam en gebruikersnaam</li>
+            <li>E-mailadres</li>
+            <li>Postcode en locatiegegevens (voor het vinden van gereedschap in de buurt)</li>
+            <li>Profielfoto (optioneel)</li>
+            <li>Berichten via het chatplatform</li>
+            <li>Activiteitsgegevens zoals uitleen- en leenhistorie</li>
+          </ul>
+        </section>
+
+        <section class="privacy-section">
+          <h2>3. Waarvoor gebruiken wij jouw gegevens?</h2>
+          <p>Jouw gegevens worden gebruikt voor:</p>
+          <ul>
+            <li>Het aanmaken en beheren van jouw account</li>
+            <li>Het tonen van gereedschap in jouw buurt</li>
+            <li>Communicatie tussen leners en uitleners via de chat</li>
+            <li>Het verbeteren van onze diensten</li>
+            <li>Het versturen van belangrijke meldingen over jouw account</li>
+          </ul>
+        </section>
+
+        <section class="privacy-section">
+          <h2>4. Hoe lang bewaren wij jouw gegevens?</h2>
+          <p>Wij bewaren jouw gegevens zolang jouw account actief is. Wanneer je jouw account verwijdert, worden jouw persoonsgegevens binnen 30 dagen verwijderd, tenzij wij wettelijk verplicht zijn deze langer te bewaren.</p>
+        </section>
+
+        <section class="privacy-section">
+          <h2>5. Delen wij jouw gegevens?</h2>
+          <p>Wij verkopen jouw gegevens nooit aan derden. Gegevens worden alleen gedeeld wanneer dit noodzakelijk is voor de werking van het platform, bijvoorbeeld jouw gebruikersnaam die zichtbaar is voor andere gebruikers bij een advertentie.</p>
+        </section>
+
+        <section class="privacy-section">
+          <h2>6. Beveiliging</h2>
+          <p>Wij nemen de beveiliging van jouw gegevens serieus. Wachtwoorden worden versleuteld opgeslagen en wij bieden tweefactorauthenticatie (2FA) aan voor extra beveiliging van jouw account.</p>
+        </section>
+
+        <section class="privacy-section">
+          <h2>7. Jouw rechten</h2>
+          <p>Je hebt het recht om jouw gegevens in te zien, te corrigeren of te laten verwijderen. Neem hiervoor contact op via de <a href="contact.html">contactpagina</a>.</p>
+        </section>
+
+        <section class="privacy-section">
+          <h2>8. Cookies</h2>
+          <p>Gereedschapspunt maakt gebruik van sessiecookies voor het bijhouden van jouw inlogstatus. Er worden geen tracking- of advertentiecookies gebruikt.</p>
+        </section>
+
+        <section class="privacy-section">
+          <h2>9. Contact</h2>
+          <p>Heb je vragen over dit privacybeleid? Neem dan contact met ons op via de <a href="contact.html">contactpagina</a>.</p>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-brand">
+        <h3>Gereedschapspunt</h3>
+        <p>Leen slim, lokaal en duurzaam.</p>
+      </div>
+      <ul class="footer-links">
+        <li><a href="over-ons.html">Over ons</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="privacy.html">Privacy</a></li>
+      </ul>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Gereedschapspunt</p>
+    </div>
+  </footer>
+
+  <div id="toast"></div>
+
+  <script src="js/globaal.js"></script>
+  <script src="js/logincheck.js"></script>
+</body>
+</html>
