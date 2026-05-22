@@ -1,77 +1,86 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-// ── Wachtwoord tonen/verbergen ──
-document.getElementById('togglePassword').addEventListener('click', () => {
-  const input = document.getElementById('Password');
-  const icon = document.getElementById('eyeIcon');
-  const isPassword = input.type === 'password';
-  input.type = isPassword ? 'text' : 'password';
-  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
-});
+  // ── Wachtwoord tonen/verbergen ──
+  document.getElementById('togglePassword').addEventListener('click', () => {
+    const input = document.getElementById('Password');
+    const icon = document.getElementById('eyeIcon');
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+  });
 
-document.getElementById('toggleConfirm').addEventListener('click', () => {
-  const input = document.getElementById('confirm-password');
-  const icon = document.getElementById('eyeIconConfirm');
-  const isPassword = input.type === 'password';
-  input.type = isPassword ? 'text' : 'password';
-  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
-});
-    
-// ── Registratie formulier ──
+  document.getElementById('toggleConfirm').addEventListener('click', () => {
+    const input = document.getElementById('confirm-password');
+    const icon = document.getElementById('eyeIconConfirm');
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+  });
 
-    const form = document.getElementById('register-form');
+  // ── Live confirm-check ──
+  const passwordInput = document.getElementById('Password');
+  const confirmInput  = document.getElementById('confirm-password');
+  const confirmError  = document.getElementById('confirm-error');
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+  confirmInput.addEventListener('input', () => {
+    const mismatch = confirmInput.value.length > 0 && confirmInput.value !== passwordInput.value;
+    confirmError.style.display = mismatch ? 'block' : 'none';
+  });
 
-        const E_mail = document.getElementById("E_mail").value;
-        const Name = document.getElementById("Name").value;
-        const Password = document.getElementById("Password").value;
-        const confirmPassword = document.getElementById("confirm-password").value;
-        const Postcode = document.getElementById("Postcode").value;
+  // ── Registratie formulier ──
+  const form = document.getElementById('register-form');
 
-        if (Password !== confirmPassword) {
-            showToast('Wachtwoorden komen niet overeen', 'error');
-            return;
-        }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-        if (Password.length < 6 || !Password.match(/[0-9]/) || !Password.match(/[A-Z]/)) {
-            showToast('Minimaal 6 tekens, 1 cijfer en 1 hoofdletter', 'error');
-            return;
-        }
+    const E_mail          = document.getElementById('E_mail').value;
+    const Name            = document.getElementById('Name').value;
+    const Password        = passwordInput.value;
+    const confirmPassword = confirmInput.value;
+    const Postcode        = document.getElementById('Postcode').value;
 
-        const postcodeRegex = /^[1-9][0-9]{3}\s?[A-Za-z]{2}$/;
-        if (!postcodeRegex.test(Postcode)) {
-            showToast('Vul een geldige postcode in (bijv. 1234 AB)', 'error');
-            return;
-        }
+    if (Password !== confirmPassword) {
+      confirmError.style.display = 'block';
+      confirmInput.focus();
+      return;
+    }
 
-        try {
-            const response = await fetchWithSpinner('/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ Name, E_mail, Password, Postcode })
-            });
+    if (Password.length < 6 || !/[0-9]/.test(Password) || !/[A-Z]/.test(Password)) {
+      showToast('Wachtwoord voldoet niet aan de eisen', 'error');
+      passwordInput.focus();
+      return;
+    }
 
-            if (!response) {
-                showToast('Netwerkfout, probeer later opnieuw', 'error');
-                return;
-            }
+    const postcodeRegex = /^[1-9][0-9]{3}\s?[A-Za-z]{2}$/;
+    if (!postcodeRegex.test(Postcode)) {
+      showToast('Vul een geldige postcode in (bijv. 1234 AB)', 'error');
+      return;
+    }
 
-            const data = await response.json();
+    try {
+      const response = await fetchWithSpinner('/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ Name, E_mail, Password, Postcode })
+      });
 
-            if (response.ok) {
-                showToast('Account aangemaakt!', 'success');
-                setTimeout(() => {
-                    window.location.href = 'inlog.html';
-                }, 2000);
-            } else {
-                showToast(data.message || 'Er is iets misgegaan', 'error');
-            }
+      if (!response) {
+        showToast('Netwerkfout, probeer later opnieuw', 'error');
+        return;
+      }
 
-        } catch (error) {
-            console.error(error);
-            showToast('Serverfout, probeer later opnieuw', 'error');
-        }
-    });
+      const data = await response.json();
+
+      if (response.ok) {
+        showToast('Account aangemaakt!', 'success');
+        setTimeout(() => { window.location.href = 'inlog.html'; }, 2000);
+      } else {
+        showToast(data.message || 'Er is iets misgegaan', 'error');
+      }
+
+    } catch (error) {
+      console.error(error);
+      showToast('Serverfout, probeer later opnieuw', 'error');
+    }
+  });
 });

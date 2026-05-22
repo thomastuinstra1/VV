@@ -13,6 +13,17 @@ function escapeHtml(str) {
   });
 }
 
+async function getCurrentUserId() {
+  try {
+    const res = await fetch('/me', { cache: 'no-store' });
+    if (!res.ok) return null;
+    const user = await res.json();
+    return user?.Account_id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function loadNewAds() {
   if (isLoading) return;
   isLoading = true;
@@ -24,11 +35,15 @@ async function loadNewAds() {
   }
 
   try {
-    const res = await fetch('/gereedschappen/nieuw', { cache: 'no-store' });
+    const [res, currentUserId] = await Promise.all([
+      fetch('/gereedschappen/nieuw', { cache: 'no-store' }),
+      getCurrentUserId()
+    ]);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const ads = await res.json();
-    const latestAds = Array.isArray(ads) ? ads.slice(0, 10) : [];
+    const latestAds = (Array.isArray(ads) ? ads.slice(0, 10) : [])
+      .filter(ad => ad.eigenaar?.Account_id !== currentUserId);
 
     if (latestAds.length === 0) {
       track.innerHTML = '<p>Er zijn nog geen advertenties.</p>';
