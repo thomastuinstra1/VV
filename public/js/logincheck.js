@@ -18,3 +18,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 });
+
+const beschermdePaginas = [
+    'gereedschapsregistratie.html',
+    'lenerdashboard.html',
+    'uitlenerdashboard.html',
+    'mijnchats.html',
+    'accountinstellingen.html',
+    'eigenprofiel.html',
+    'chat.html',
+    'borg.html'
+];
+
+const huidigePagina = window.location.pathname.split('/').pop();
+
+if (!ingelogd && beschermdePaginas.includes(huidigePagina)) {
+    window.location.href = '/inlog.html';
+}
