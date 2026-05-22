@@ -1,85 +1,157 @@
 <!DOCTYPE html>
 <html lang="nl">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Over Ons</title>
-    <link rel="stylesheet" href="css/over-ons.css">
-    <link rel="stylesheet" href="css/style.css">
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Over ons - Gereedschapspunt</title>
+  <link rel="stylesheet" href="css/over-ons.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
 
   <header class="site-header">
-  <div class="container nav-container">
-    <div class="logo">
-      <a href="index.html">
-        <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
-      </a>
-    </div>
+    <div class="container nav-container">
+      <div class="logo">
+        <a href="index.html">
+          <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+        </a>
+      </div>
 
-    <form class="header-search" action="zoeken.html" method="get">
-      <input type="text" name="search" placeholder="Zoek gereedschap of profielen..." aria-label="Zoek gereedschap of profielen" />
-      <button type="submit">Zoeken</button>
-    </form>
-
-    <button class="hamburger" id="hamburger" aria-label="Menu openen" aria-expanded="false">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-
-    <nav class="main-nav" id="mainNav">
-      <form class="header-search mobile-search" action="zoeken.html" method="get">
-        <input type="text" name="search" placeholder="Zoek gereedschap..." aria-label="Zoek gereedschap" />
+      <form class="header-search" action="zoeken.html" method="get">
+        <input type="text" name="search" placeholder="Zoek gereedschap of profielen..." aria-label="Zoek gereedschap of profielen" />
         <button type="submit">Zoeken</button>
       </form>
 
-      <ul>
-        <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
-        <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
-        <li data-auth="true">
-          <a href="mijnchats.html" style="position:relative;">
-            Berichten
-            <span id="navUnreadBadge" style="display:none;"></span>
-          </a>
-        </li>
-        <li data-auth="true">
-          <a href="accountinstellingen.html">
-            <div id="navAvatar"><span id="navAvatarInitials">?</span></div>
-          </a>
-        </li>
-        <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
-        <li data-guest="true"><a href="register.html">Registreren</a></li>
-      </ul>
-    </nav>
-  </div>
-</header>
+      <button class="hamburger" id="hamburger" aria-label="Menu openen" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
-  <body>
-    <main>
-      <h1>Over Ons</h1>
-      <p>Welkom op onze pagina. Hier vindt u meer informatie over ons team en onze missie.</p>
-    </main>
-  </body>
+      <nav class="main-nav" id="mainNav">
+        <form class="header-search mobile-search" action="zoeken.html" method="get">
+          <input type="text" name="search" placeholder="Zoek gereedschap..." aria-label="Zoek gereedschap" />
+          <button type="submit">Zoeken</button>
+        </form>
 
-      <footer class="site-footer">
-      <div class="container footer-container">
-        <div class="footer-brand">
-          <h3>Gereedschapspunt</h3>
-          <p>Leen slim, lokaal en duurzaam.</p>
+        <ul>
+          <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+          <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+          <li data-auth="true">
+            <a href="mijnchats.html" style="position:relative;">
+              Berichten
+              <span id="navUnreadBadge" style="display:none;"></span>
+            </a>
+          </li>
+          <li data-auth="true">
+            <a href="accountinstellingen.html">
+              <div id="navAvatar"><span id="navAvatarInitials">?</span></div>
+            </a>
+          </li>
+          <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+          <li data-guest="true"><a href="register.html">Registreren</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="over-ons-page">
+    <div class="container">
+
+      <section class="over-ons-hero">
+        <span class="over-ons-tag">Over ons</span>
+        <h1>Wij geloven in slim delen</h1>
+        <p class="over-ons-sub">
+          Gereedschapspunt is een platform waar buren elkaar helpen. Leen wat je nodig hebt,
+          deel wat je hebt. Goedkoper, duurzamer en gezeliger dan altijd maar kopen.
+        </p>
+      </section>
+
+      <section class="over-ons-missie">
+        <div class="missie-card">
+          <div class="missie-icon">🌱</div>
+          <h3>Onze missie</h3>
+          <p>Wij willen dat mensen minder kopen en meer delen. Zo besparen ze geld en is het beter voor het milieu.</p>
+        </div>
+        <div class="missie-card">
+          <div class="missie-icon">🤝</div>
+          <h3>Lokaal verbinden</h3>
+          <p>Door te lenen van mensen uit jouw buurt leer je je buren kennen en help je elkaar verder.</p>
+        </div>
+        <div class="missie-card">
+          <div class="missie-icon">⚡</div>
+          <h3>Snel en simpel</h3>
+          <p>In een paar klikken gereedschap vinden, reserveren en ophalen. Zonder gedoe.</p>
+        </div>
+      </section>
+
+      <section class="over-ons-verhaal">
+        <div class="verhaal-tekst">
+          <span class="over-ons-tag">Ons verhaal</span>
+          <h2>Hoe het begon</h2>
+          <p>
+            Gereedschapspunt is begonnen als een schoolproject. We zagen dat veel mensen gereedschap kopen voor één klus en het daarna nooit meer gebruiken. Dat kan slimmer.
+          </p>
+          <p>
+            We bouwden een platform waarop iedereen gereedschap kan uitlenen en lenen. Simpel, lokaal en duurzaam.
+          </p>
+          <a href="register.html" class="btn-primary">Doe mee</a>
+        </div>
+        <div class="verhaal-visual">
+          <div class="verhaal-blob"></div>
+          <img src="./images/illustration_2.png" alt="Mensen die gereedschap delen" />
+        </div>
+      </section>
+
+      <section class="over-ons-team">
+        <div class="section-heading">
+          <h2>Het team</h2>
+          <p>De mensen achter Gereedschapspunt.</p>
         </div>
 
-        <ul class="footer-links">
-          <li><a href="#">Over ons</a></li>
-          <li><a href="#">Contact</a></li>
-          <li><a href="#">Privacy</a></li>
-        </ul>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-avatar">👤</div>
+            <h3>Boris</h3>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">👤</div>
+            <h3>Jochem</h3>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">👤</div>
+            <h3>Julian</h3>
+          </div>
+          <div class="team-card">
+            <div class="team-avatar">👤</div>
+            <h3>Thomas</h3>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-brand">
+        <h3>Gereedschapspunt</h3>
+        <p>Leen slim, lokaal en duurzaam.</p>
       </div>
+      <ul class="footer-links">
+        <li><a href="over-ons.html">Over ons</a></li>
+        <li><a href="contact.html">Contact</a></li>
+        <li><a href="#">Privacy</a></li>
+      </ul>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Gereedschapspunt</p>
+    </div>
+  </footer>
 
-      <div class="footer-bottom">
-        <p>&copy; 2026 Gereedschapspunt</p>
-      </div>
-    </footer>
+  <div id="toast"></div>
 
-    <div id="toast"></div>
-
+  <script src="js/globaal.js"></script>
+  <script src="js/logincheck.js"></script>
+</body>
 </html>
