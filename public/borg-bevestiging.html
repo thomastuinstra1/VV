@@ -5,23 +5,92 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Borgbetaling bevestigd</title>
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/borg-bevestiging.css" />
     <script src="https://js.stripe.com/v3/"></script>
   </head>
+
   <body>
-    <div id="bevestiging-wrapper">
-      <div id="bevestiging-card">
-        <div id="bevestiging-icon">⏳</div>
-        <h2 id="bevestiging-titel">Betaling controleren...</h2>
-        <p id="bevestiging-tekst"></p>
-        <div id="borg-details" style="display: none">
-          <p>Uitleen #<span id="uitleen-id"></span></p>
-          <p>Borgbedrag: €<span id="borg-bedrag"></span></p>
+    <header class="site-header">
+      <div class="container nav-container">
+        <div class="logo">
+          <a href="index.html">
+            <img src="./images/Logo.png" alt="Gereedschapspunt" class="logo-img" />
+          </a>
         </div>
-        <a id="terug-btn" href="#" style="display: none">← Terug naar chat</a>
+
+        <form class="header-search" action="zoeken.html" method="get">
+          <input type="text" name="search" placeholder="Zoek gereedschap of profielen..." />
+          <button type="submit">Zoeken</button>
+        </form>
+
+        <nav class="main-nav">
+          <ul>
+            <li data-auth="true"><a href="lenerdashboard.html">Lenerdashboard</a></li>
+            <li data-auth="true"><a href="uitlenerdashboard.html">Uitlenerdashboard</a></li>
+            <li data-auth="true"><a href="mijnchats.html">Berichten</a></li>
+            <li data-auth="true"><a href="accountinstellingen.html">Account</a></li>
+            <li data-guest="true"><a href="inlog.html">Inloggen</a></li>
+            <li data-guest="true"><a href="register.html">Registreren</a></li>
+          </ul>
+        </nav>
       </div>
-    </div>
+    </header>
+
+    <main class="borg-confirm-page">
+      <div class="container">
+        <section id="bevestiging-wrapper">
+          <div id="bevestiging-card">
+            <div id="bevestiging-icon">⏳</div>
+
+            <span class="borg-confirm-pill">Borgbetaling</span>
+
+            <h1 id="bevestiging-titel">Betaling controleren...</h1>
+
+            <p id="bevestiging-tekst">
+              We controleren je betaling. Dit duurt meestal maar een paar seconden.
+            </p>
+
+            <div id="borg-details" style="display: none">
+              <div class="borg-detail-row">
+                <span>Uitleen</span>
+                <strong>#<span id="uitleen-id"></span></strong>
+              </div>
+
+              <div class="borg-detail-row">
+                <span>Borgbedrag</span>
+                <strong>€<span id="borg-bedrag"></span></strong>
+              </div>
+            </div>
+
+            <a id="terug-btn" href="#" style="display: none">← Terug naar chat</a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container footer-container">
+        <div class="footer-brand">
+          <h3>Gereedschapspunt</h3>
+          <p>Leen slim, lokaal en duurzaam.</p>
+        </div>
+
+        <ul class="footer-links">
+          <li><a href="#">Over ons</a></li>
+          <li><a href="#">Contact</a></li>
+          <li><a href="#">Privacy</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 Gereedschapspunt</p>
+      </div>
+    </footer>
+
+    <div id="toast"></div>
 
     <script src="js/globaal.js"></script>
+    <script src="js/logincheck.js"></script>
     <script type="module" src="js/borg-bevestiging.js"></script>
   </body>
 </html>

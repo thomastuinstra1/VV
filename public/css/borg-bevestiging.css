@@ -4,9 +4,8 @@ body {
   flex-direction: column;
 }
 
-.borg-page {
+.borg-confirm-page {
   flex: 1;
-  min-height: calc(100vh - 180px);
   padding: 130px 0 80px;
   background: linear-gradient(180deg, #fffaf5 0%, #eef4ff 100%);
   display: flex;
@@ -16,48 +15,42 @@ body {
 #bevestiging-wrapper {
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
 #bevestiging-card {
   width: 100%;
-  max-width: 520px;
+  max-width: 560px;
   text-align: center;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid #e5e7eb;
   border-radius: 28px;
   padding: 42px 34px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
-  backdrop-filter: blur(10px);
 }
 
 #bevestiging-icon {
-  width: 76px;
-  height: 76px;
+  width: 78px;
+  height: 78px;
   margin: 0 auto 18px;
   border-radius: 50%;
   background: #fff7ed;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   font-size: 2rem;
-  box-shadow: 0 12px 26px rgba(249, 115, 22, 0.18);
 }
 
-.borg-label {
+.borg-confirm-pill {
   display: inline-block;
-  margin-bottom: 10px;
-  padding: 7px 13px;
+  padding: 8px 14px;
   border-radius: 999px;
   background: #eef4ff;
   color: #1e3a8a;
-  font-size: 0.85rem;
   font-weight: 800;
+  margin-bottom: 12px;
 }
 
 #bevestiging-titel {
   font-size: 1.9rem;
-  line-height: 1.15;
   color: #1f2937;
   margin-bottom: 12px;
 }
@@ -71,15 +64,14 @@ body {
 #borg-details {
   margin: 24px 0;
   padding: 18px;
-  border: 1px solid #e5e7eb;
   border-radius: 18px;
   background: #f8fafc;
+  border: 1px solid #e5e7eb;
 }
 
 .borg-detail-row {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
   padding: 12px 0;
   color: #64748b;
 }
@@ -94,39 +86,16 @@ body {
 
 #terug-btn {
   display: inline-flex !important;
-  align-items: center;
   justify-content: center;
-  margin-top: 10px;
+  align-items: center;
   padding: 14px 20px;
   border-radius: 12px;
   background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   color: white;
   text-decoration: none;
   font-weight: 800;
-  box-shadow: 0 12px 24px rgba(249, 115, 22, 0.22);
-  transition: 0.2s ease;
-}
-
-#terug-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 16px 28px rgba(249, 115, 22, 0.3);
 }
 
 #terug-btn[style*="display: none"] {
   display: none !important;
-}
-
-@media (max-width: 700px) {
-  .borg-page {
-    padding: 100px 0 50px;
-  }
-
-  #bevestiging-card {
-    padding: 32px 22px;
-    border-radius: 22px;
-  }
-
-  #bevestiging-titel {
-    font-size: 1.55rem;
-  }
 }
