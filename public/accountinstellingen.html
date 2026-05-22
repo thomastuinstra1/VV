@@ -175,6 +175,10 @@
   <div id="disable2faBox" style="display: none">
     <h3>2FA uitschakelen</h3>
 
+  <button type="button" id="twofaHelpBtn" class="twofa-help-btn">
+  Hoe werkt 2FA?
+  </button>
+
     <div class="form-group">
       <label for="disable2faPassword">Wachtwoord</label>
       <input type="password" id="disable2faPassword" />
@@ -232,6 +236,41 @@
         <p>&copy; 2026 Gereedschapspunt</p>
       </div>
     </footer>
+
+<div id="twofaHelpModal" class="twofa-help-modal" style="display:none;">
+  <div class="twofa-help-box">
+    <button type="button" id="closeTwofaHelp" class="twofa-help-close">&times;</button>
+
+    <h2>Hoe werkt 2FA?</h2>
+    <p class="twofa-help-sub">
+      Met 2FA beveilig je je account met een extra code uit een authenticator app.
+    </p>
+
+    <div class="twofa-help-steps">
+      <div class="twofa-help-step">
+        <div class="step-number">1</div>
+        <h3>Open je authenticator app</h3>
+        <p>Gebruik bijvoorbeeld Google Authenticator of Microsoft Authenticator.</p>
+        <img src="./images/google_authenticator.png" alt="Authenticator app openen" />
+      </div>
+
+      <div class="twofa-help-step">
+        <div class="step-number">2</div>
+        <h3>Scan de QR-code</h3>
+        <p>Klik op “2FA inschakelen” en scan de QR-code op het scherm.</p>
+        <img src="./images/Scan_qr_code.png" alt="QR-code scannen" />
+      </div>
+
+      <div class="twofa-help-step">
+        <div class="step-number">3</div>
+        <h3>Vul de 6-cijferige code in</h3>
+        <p>De app toont elke 30 seconden een nieuwe code. Vul die in om 2FA te bevestigen.</p>
+        <img src="./images/Authenticator_code.png" alt="2FA code invullen" />
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
     <script src="js/globaal.js"></script>
