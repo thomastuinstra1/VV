@@ -1,255 +1,284 @@
 document.addEventListener('DOMContentLoaded', async () => {
+  const setup2faBtn = document.getElementById('setup2faBtn');
+  const disable2faBtn = document.getElementById('disable2faBtn');
+  const enable2faBtn = document.getElementById('enable2faBtn');
+  const twoFaSetupBox = document.getElementById('twoFaSetupBox');
+  const twoFaQrCode = document.getElementById('twoFaQrCode');
+  const twoFaSetupCode = document.getElementById('twoFaSetupCode');
 
-// ── Wachtwoord tonen/verbergen ──
-document.getElementById('togglePassword').addEventListener('click', () => {
-  const input = document.getElementById('Password');
-  const icon = document.getElementById('eyeIcon');
-  const isPassword = input.type === 'password';
-  input.type = isPassword ? 'text' : 'password';
-  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
-});
+  const disable2faBox = document.getElementById('disable2faBox');
+  const disable2faPassword = document.getElementById('disable2faPassword');
+  const disable2faCode = document.getElementById('disable2faCode');
+  const confirmDisable2faBtn = document.getElementById('confirmDisable2faBtn');
 
-document.getElementById('toggleConfirm').addEventListener('click', () => {
-  const input = document.getElementById('confirm-password');
-  const icon = document.getElementById('eyeIconConfirm');
-  const isPassword = input.type === 'password';
-  input.type = isPassword ? 'text' : 'password';
-  icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
-});
+  const twofaHelpBtn = document.getElementById('twofaHelpBtn');
+  const twofaHelpModal = document.getElementById('twofaHelpModal');
+  const closeTwofaHelp = document.getElementById('closeTwofaHelp');
 
-
-document.getElementById('logout-btn').addEventListener('click', async () => {
-    const response = await fetchWithSpinner('/logout', { method: 'POST' });
-    if (response.ok) {
-        window.location.href = 'inlog.html';
-    } else {
-        showToast('Er is iets misgegaan bij het uitloggen', 'error');
-    }
-});
-    
-    // Huidige gegevens ophalen en invullen
-    try {
-        const response = await fetchWithSpinner('/me');
-        if (!response.ok) {
-            showToast('Je bent niet ingelogd', 'error');
-            window.location.href = 'inlog.html';
-            return;
-        }
-        const data = await response.json();
-        if (data.Afbeelding) {
-            document.getElementById('profielfoto').src = data.Afbeelding;
-        }
-        document.getElementById('Name').value = data.Name || '';
-        document.getElementById('E_mail').value = data.E_mail || '';
-        document.getElementById('Postcode').value = data.Postcode || '';
-
-    } catch (error) {
-        console.error(error);
-    }
-
-    // Formulier opslaan
-    const form = document.getElementById('settings-form');
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const Name = document.getElementById('Name').value;
-        const E_mail = document.getElementById('E_mail').value;
-        const Postcode = document.getElementById('Postcode').value;
-        const Password = document.getElementById('Password').value;
-        const confirmPassword = document.getElementById('confirm-password').value;
-
-
-        const postcodeRegex = /^[1-9][0-9]{3}\s?[A-Za-z]{2}$/;
-        if (Postcode && !postcodeRegex.test(Postcode)) {
-            showToast('Vul een geldige postcode in (bijv. 1234 AB)', 'error');
-            return;
-        }
-
-        if (Password && Password !== confirmPassword) {
-            showToast('Wachtwoorden komen niet overeen', 'error');
-            return;
-        }
-
-        if (Password && (Password.length < 6 || !Password.match(/[0-9]/) || !Password.match(/[A-Z]/))) {
-            showToast('Wachtwoord moet minimaal 6 tekens bevatten, een cijfer en een hoofdletter', 'error');
-            return;
-        }
-
-        const body = {};
-        if (Name) body.Name = Name;
-        if (E_mail) body.E_mail = E_mail;
-        if (Postcode) body.Postcode = Postcode;
-        if (Password) body.Password = Password;
-
-
-        // ✅ afbeelding toevoegen
-        const afbeeldingUrl = document.getElementById('afbeelding-url').value;
-        if (afbeeldingUrl) {
-          body.Afbeelding = afbeeldingUrl;
-        }
-
-        try {
-            const response = await fetchWithSpinner('/account', {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                showToast('Gegevens opgeslagen!', 'success');
-            } else {
-                showToast(data.message || 'Er is iets misgegaan', 'error');
-            }
-        } catch (error) {
-            console.error(error);
-            showToast('Er is iets misgegaan', 'error');
-        }
-    });
-
-    // ==============================
-    // 🖼️ AFBEELDING SELECT + AUTO UPLOAD
-    // ==============================
-    document.getElementById('afbeelding-input').addEventListener('change', async () => {
-        const file = document.getElementById('afbeelding-input').files[0];
-        if (!file) return;
-
-        // Preview
-        const preview = document.getElementById('profielfoto');
-        preview.src = URL.createObjectURL(file);
-
-        const formData = new FormData();
-        formData.append('afbeelding', file);
-
-        try {
-            const response = await fetchWithSpinner('/account/afbeelding', {
-                method: 'POST',
-                body: formData,
-                credentials: 'include'
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // 🔥 BELANGRIJK
-                document.getElementById('afbeelding-url').value = data.url;
-
-                preview.src = data.url;
-                showToast('Profielfoto opgeslagen!', 'success');
-            } else {
-                showToast(data.error || 'Upload mislukt', 'error');
-            }
-
-        } catch (err) {
-            showToast('Server fout bij upload', 'error');
-        }
-    });
-    // ── 2FA inschakelen ──
-const setup2faBtn = document.getElementById('setup2faBtn');
-const enable2faBtn = document.getElementById('enable2faBtn');
-const twoFaSetupBox = document.getElementById('twoFaSetupBox');
-const twoFaQrCode = document.getElementById('twoFaQrCode');
-const twoFaSetupCode = document.getElementById('twoFaSetupCode');
-
-setup2faBtn.addEventListener('click', async () => {
-  try {
-    const response = await fetchWithSpinner('/2fa/setup', {
-      method: 'POST',
-      credentials: 'include'
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      showToast(data.message || '2FA setup mislukt', 'error');
-      return;
-    }
-
-    twoFaQrCode.src = data.qrCodeUrl;
-    twoFaSetupBox.style.display = 'block';
-
-    showToast('Scan de QR-code met je authenticator app', 'success');
-
-  } catch (error) {
-    console.error(error);
-    showToast('Er is iets misgegaan bij 2FA setup', 'error');
-  }
-});
-
-enable2faBtn.addEventListener('click', async () => {
-  const token = twoFaSetupCode.value.trim();
-
-  if (!token) {
-    showToast('Vul je 2FA-code in', 'error');
-    return;
-  }
-
-  try {
-    const response = await fetchWithSpinner('/2fa/enable', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ token })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      showToast(data.message || 'Ongeldige 2FA-code', 'error');
-      return;
-    }
-
-    showToast('2FA is ingeschakeld!', 'success');
-
-    twoFaSetupBox.style.display = 'none';
-    setup2faBtn.textContent = '2FA is ingeschakeld';
-    setup2faBtn.disabled = true;
-
-  } catch (error) {
-    console.error(error);
-    showToast('Er is iets misgegaan bij 2FA inschakelen', 'error');
-  }
-});
-const disableBtn = document.getElementById('disable2faBtn');
-const disableInput = document.getElementById('disable2faCode');
-
-disableBtn.addEventListener('click', async () => {
-  const token = prompt('Voer je 2FA code in om uit te schakelen:');
-
-  if (!token) return;
-
-  const response = await fetchWithSpinner('/2fa/disable', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token }),
-    credentials: 'include'
+  document.getElementById('togglePassword').addEventListener('click', () => {
+    const input = document.getElementById('Password');
+    const icon = document.getElementById('eyeIcon');
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
   });
 
-  const data = await response.json();
+  document.getElementById('toggleConfirm').addEventListener('click', () => {
+    const input = document.getElementById('confirm-password');
+    const icon = document.getElementById('eyeIconConfirm');
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    icon.src = isPassword ? './images/eye-off.svg' : './images/eye.svg';
+  });
 
-  if (response.ok) {
-    showToast('2FA uitgeschakeld', 'success');
-  } else {
-    showToast(data.message, 'error');
+  document.getElementById('logout-btn').addEventListener('click', async () => {
+    const response = await fetchWithSpinner('/logout', { method: 'POST' });
+    if (response.ok) window.location.href = 'inlog.html';
+    else showToast('Er is iets misgegaan bij het uitloggen', 'error');
+  });
+
+  try {
+    const response = await fetchWithSpinner('/me');
+
+    if (!response.ok) {
+      showToast('Je bent niet ingelogd', 'error');
+      window.location.href = 'inlog.html';
+      return;
+    }
+
+    const data = await response.json();
+
+    if (data.Afbeelding) {
+      document.getElementById('profielfoto').src = data.Afbeelding;
+    }
+
+    document.getElementById('Name').value = data.Name || '';
+    document.getElementById('E_mail').value = data.E_mail || '';
+    document.getElementById('Postcode').value = data.Postcode || '';
+
+    if (data.two_factor_enabled) {
+      setup2faBtn.style.display = 'none';
+      disable2faBtn.style.display = 'inline-block';
+    } else {
+      setup2faBtn.style.display = 'inline-block';
+      disable2faBtn.style.display = 'none';
+    }
+  } catch (error) {
+    console.error(error);
   }
-});
 
-const twofaHelpBtn = document.getElementById('twofaHelpBtn');
-const twofaHelpModal = document.getElementById('twofaHelpModal');
-const closeTwofaHelp = document.getElementById('closeTwofaHelp');
+  const form = document.getElementById('settings-form');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-twofaHelpBtn.addEventListener('click', () => {
-  twofaHelpModal.style.display = 'flex';
-});
+    const Name = document.getElementById('Name').value;
+    const E_mail = document.getElementById('E_mail').value;
+    const Postcode = document.getElementById('Postcode').value;
+    const Password = document.getElementById('Password').value;
+    const confirmPassword = document.getElementById('confirm-password').value;
 
-closeTwofaHelp.addEventListener('click', () => {
-  twofaHelpModal.style.display = 'none';
-});
+    const postcodeRegex = /^[1-9][0-9]{3}\s?[A-Za-z]{2}$/;
+    if (Postcode && !postcodeRegex.test(Postcode)) {
+      showToast('Vul een geldige postcode in (bijv. 1234 AB)', 'error');
+      return;
+    }
 
-twofaHelpModal.addEventListener('click', (e) => {
-  if (e.target === twofaHelpModal) {
-    twofaHelpModal.style.display = 'none';
+    if (Password && Password !== confirmPassword) {
+      showToast('Wachtwoorden komen niet overeen', 'error');
+      return;
+    }
+
+    if (
+      Password &&
+      (Password.length < 6 || !Password.match(/[0-9]/) || !Password.match(/[A-Z]/))
+    ) {
+      showToast('Wachtwoord moet minimaal 6 tekens bevatten, een cijfer en een hoofdletter', 'error');
+      return;
+    }
+
+    const body = {};
+    if (Name) body.Name = Name;
+    if (E_mail) body.E_mail = E_mail;
+    if (Postcode) body.Postcode = Postcode;
+    if (Password) body.Password = Password;
+
+    const afbeeldingUrl = document.getElementById('afbeelding-url').value;
+    if (afbeeldingUrl) body.Afbeelding = afbeeldingUrl;
+
+    try {
+      const response = await fetchWithSpinner('/account', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) showToast('Gegevens opgeslagen!', 'success');
+      else showToast(data.message || 'Er is iets misgegaan', 'error');
+    } catch (error) {
+      console.error(error);
+      showToast('Er is iets misgegaan', 'error');
+    }
+  });
+
+  document.getElementById('afbeelding-input').addEventListener('change', async () => {
+    const file = document.getElementById('afbeelding-input').files[0];
+    if (!file) return;
+
+    const preview = document.getElementById('profielfoto');
+    preview.src = URL.createObjectURL(file);
+
+    const formData = new FormData();
+    formData.append('afbeelding', file);
+
+    try {
+      const response = await fetchWithSpinner('/account/afbeelding', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        document.getElementById('afbeelding-url').value = data.url;
+        preview.src = data.url;
+        showToast('Profielfoto opgeslagen!', 'success');
+      } else {
+        showToast(data.error || 'Upload mislukt', 'error');
+      }
+    } catch {
+      showToast('Server fout bij upload', 'error');
+    }
+  });
+
+  setup2faBtn.addEventListener('click', async () => {
+    try {
+      const response = await fetchWithSpinner('/2fa/setup', {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showToast(data.message || '2FA setup mislukt', 'error');
+        return;
+      }
+
+      twoFaQrCode.src = data.qrCodeUrl;
+      document.getElementById('manual2faCode').textContent = data.manualCode || '';
+      twoFaSetupBox.style.display = 'block';
+
+      showToast('Scan de QR-code met je authenticator app', 'success');
+    } catch (error) {
+      console.error(error);
+      showToast('Er is iets misgegaan bij 2FA setup', 'error');
+    }
+  });
+
+  enable2faBtn.addEventListener('click', async () => {
+    const token = twoFaSetupCode.value.trim();
+
+    enable2faBtn.disabled = true;
+    enable2faBtn.textContent = 'Bezig...';
+
+    if (!token) {
+      showToast('Vul je 2FA-code in', 'error');
+      enable2faBtn.disabled = false;
+      enable2faBtn.textContent = 'Bevestig 2FA';
+      return;
+    }
+
+    try {
+      const response = await fetchWithSpinner('/2fa/enable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ token })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showToast(data.message || 'Ongeldige 2FA-code', 'error');
+        enable2faBtn.disabled = false;
+        enable2faBtn.textContent = 'Bevestig 2FA';
+        return;
+      }
+
+      showToast('2FA is ingeschakeld!', 'success');
+
+      twoFaSetupBox.style.display = 'none';
+      setup2faBtn.style.display = 'none';
+      disable2faBtn.style.display = 'inline-block';
+
+      enable2faBtn.disabled = false;
+      enable2faBtn.textContent = 'Bevestig 2FA';
+    } catch (error) {
+      console.error(error);
+      showToast('Er is iets misgegaan bij 2FA inschakelen', 'error');
+      enable2faBtn.disabled = false;
+      enable2faBtn.textContent = 'Bevestig 2FA';
+    }
+  });
+
+  disable2faBtn.addEventListener('click', () => {
+    disable2faBox.style.display = 'block';
+  });
+
+  confirmDisable2faBtn.addEventListener('click', async () => {
+    const password = disable2faPassword.value.trim();
+    const token = disable2faCode.value.trim();
+
+    if (!password || !token) {
+      showToast('Vul wachtwoord en 2FA-code in', 'error');
+      return;
+    }
+
+    try {
+      const response = await fetchWithSpinner('/2fa/disable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ password, token })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        showToast(data.message || '2FA uitschakelen mislukt', 'error');
+        return;
+      }
+
+      showToast('2FA uitgeschakeld', 'success');
+
+      disable2faBox.style.display = 'none';
+      disable2faBtn.style.display = 'none';
+      setup2faBtn.style.display = 'inline-block';
+
+      disable2faPassword.value = '';
+      disable2faCode.value = '';
+    } catch (error) {
+      console.error(error);
+      showToast('Er is iets misgegaan bij 2FA uitschakelen', 'error');
+    }
+  });
+
+  if (twofaHelpBtn && twofaHelpModal && closeTwofaHelp) {
+    twofaHelpBtn.addEventListener('click', () => {
+      twofaHelpModal.style.display = 'flex';
+    });
+
+    closeTwofaHelp.addEventListener('click', () => {
+      twofaHelpModal.style.display = 'none';
+    });
+
+    twofaHelpModal.addEventListener('click', (e) => {
+      if (e.target === twofaHelpModal) {
+        twofaHelpModal.style.display = 'none';
+      }
+    });
   }
-});
 });
