@@ -64,6 +64,12 @@ router.get(
   '/gereedschappen/nieuw',
   asyncHandler(async (req, res) => {
 
+    const where = {};
+
+    if (req.session?.userId) {
+    where.Account_id = { not: req.session.userId };
+    }
+
     const tools = await prisma.gereedschap.findMany({
       orderBy: { Gereedschap_id: 'desc' },
       take: 10,
@@ -191,28 +197,22 @@ router.get(
 
 
 // ── MIJN GEREEDSCHAP ──
+// ── GET EIGEN GEREEDSCHAP ──
 router.get(
-  '/mijn-gereedschap',
+  '/mijn-gereedschap/:id',
   isLoggedIn,
+  idParamValidator,
+  validate,
   asyncHandler(async (req, res) => {
-
-    const tools = await prisma.gereedschap.findMany({
-      where:   { Account_id: req.session.userId },
-      orderBy: { Gereedschap_id: 'desc' },
-      include: {
-        Gereedschap_Categorie: {
-          include: {
-            Categorie: {
-              include: {
-                Categorie: true
-              }
-            }
-          }
-        }
-      }
+    const tool = await prisma.gereedschap.findUnique({
+      where: { Gereedschap_id: parseInt(req.params.id) }
     });
 
-    res.json(toGereedschapResponseDTO(tools));
+    if (!tool || tool.Account_id !== req.session.userId) {
+      return res.status(403).json({ error: 'Geen toegang' });
+    }
+
+    res.json([tool]); // array zodat toolData[0] blijft werken
   })
 );
 

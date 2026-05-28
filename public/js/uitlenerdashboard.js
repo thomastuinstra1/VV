@@ -286,7 +286,7 @@ function renderGereedschap(data) {
 async function openGmModal(id) {
   try {
     const [toolRes, allCatRes, toolCatRes] = await Promise.all([
-      fetchWithSpinner(`/gereedschap?id=${id}`),
+      fetchWithSpinner(`/mijn-gereedschap/${id}`),
       fetchWithSpinner('/categorieen'),
       fetchWithSpinner(`/gereedschap/${id}/categorieen`),
     ]);
