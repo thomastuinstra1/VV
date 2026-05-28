@@ -24,6 +24,7 @@ const router = Router();
 router.get('/mijn-chats', isLoggedIn, asyncHandler(async (req, res) => {
 
   const userId = req.session.userId;
+  console.log('userId uit sessie:', userId);
 
     const chats = await prisma.chats.findMany({
       where: {

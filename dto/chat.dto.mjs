@@ -7,6 +7,8 @@ export const toMijnChatsResponseDTO = (chats, userId) => {
         ? chat.Account_Chats_ReceiverIdToAccount
         : chat.Account_Chats_SenderIdToAccount;
 
+    if (!partner) return null;
+
     const unreadCount = (chat.Berichten ?? []).filter(
       b => b.receiverId === userId && !b.isRead
     ).length;
@@ -18,11 +20,10 @@ export const toMijnChatsResponseDTO = (chats, userId) => {
       Afbeelding:       partner.Afbeelding,
       Gereedschap_id:   chat.Gereedschap_id,
       Gereedschap_naam: chat.Gereedschap?.Naam || '',
-      unreadCount                               // ← nieuw
+      unreadCount
     };
-  });
+  }).filter(Boolean);  // ← helemaal aan het einde, buiten de map-callback
 };
-
 
 // ── CHAT START ──
 export const toChatStartDTO = (body) => ({
