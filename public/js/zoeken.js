@@ -123,3 +123,114 @@ if (zoekterm) {
     document.getElementById("gereedschapGrid").innerHTML = `<p class="geen-resultaten">Voer een zoekterm in om te beginnen.</p>`;
     document.getElementById("profielenGrid").innerHTML = `<p class="geen-resultaten">Voer een zoekterm in om te beginnen.</p>`;
 }
+
+// -----------------------
+// FILTERS
+// -----------------------
+async function loadFilters() {
+    const container = document.getElementById("filterGroups");
+    if (!container) return;
+
+    try {
+        const res = await fetch("/categorieen");
+        const cats = await res.json();
+        if (!Array.isArray(cats)) return;
+
+        const parents = cats.filter(c => c.Parent_id === null);
+        const children = cats.filter(c => c.Parent_id !== null);
+
+        container.innerHTML = "";
+
+        for (const parent of parents) {
+            const groep = document.createElement("div");
+            groep.classList.add("filter-group");
+
+            const title = document.createElement("div");
+            title.classList.add("filter-group-title");
+            title.textContent = parent.Naam;
+            groep.appendChild(title);
+
+            for (const cat of children.filter(c => c.Parent_id === parent.Categorie_id)) {
+                const label = document.createElement("label");
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = cat.Categorie_id;
+                checkbox.id = `cat-${cat.Categorie_id}`;
+                checkbox.addEventListener("change", applyFilters);
+
+                label.setAttribute("for", `cat-${cat.Categorie_id}`);
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(cat.Naam));
+                groep.appendChild(label);
+            }
+
+            container.appendChild(groep);
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function applyFilters() {
+    const checkboxes = document.querySelectorAll('#filterGroups input[type="checkbox"]:checked');
+    const ids = Array.from(checkboxes).map(cb => cb.value);
+
+    const params = new URLSearchParams();
+    params.set("search", zoekterm);
+    if (ids.length > 0) params.set("categorieen", ids.join(","));
+
+    const resetBtn = document.getElementById("resetBtn");
+    if (resetBtn) resetBtn.hidden = ids.length === 0;
+
+    const badge = document.getElementById("filterBadge");
+    if (badge) {
+        badge.hidden = ids.length === 0;
+        badge.textContent = ids.length;
+    }
+
+    const grid = document.getElementById("gereedschapGrid");
+    grid.innerHTML = '<p class="laden-tekst">Laden...</p>';
+
+    try {
+        const res = await fetch(`/gereedschap?${params.toString()}`);
+        const items = await res.json();
+        document.getElementById("countGereedschap").textContent = `(${items.length})`;
+
+        if (!items.length) {
+            grid.innerHTML = `<p class="geen-resultaten">Geen resultaten gevonden.</p>`;
+            return;
+        }
+
+        grid.innerHTML = items.map(item => `
+            <a href="gereedschap.html?id=${item.Gereedschap_id}" class="tool-card">
+                <div class="tool-img-wrapper">
+                    <img src="${item.Afbeelding || './images/placeholder.png'}" alt="${item.Naam}" onerror="this.src='./images/placeholder.png'" />
+                </div>
+                <div class="tool-info">
+                    <h3>${item.Naam}</h3>
+                    <p class="tool-locatie">📍 ${item.eigenaar?.Name || "Onbekend"}</p>
+                    ${item.BorgBedrag ? `<p class="tool-prijs">Borg: €${item.BorgBedrag}</p>` : ""}
+                </div>
+            </a>
+        `).join("");
+    } catch (err) {
+        grid.innerHTML = `<p class="fout-melding">Kon resultaten niet laden.</p>`;
+    }
+}
+
+function resetFilters() {
+    document.querySelectorAll('#filterGroups input[type="checkbox"]').forEach(cb => cb.checked = false);
+    applyFilters();
+}
+
+function toggleFilterPanel() {
+    const panel = document.getElementById("filterPanel");
+    const overlay = document.getElementById("filterOverlay");
+    const btn = document.getElementById("filterToggle");
+    const isOpen = panel.classList.toggle("open");
+    overlay.classList.toggle("show", isOpen);
+    btn.setAttribute("aria-expanded", isOpen);
+}
+
+// Filters laden bij opstarten
+loadFilters();

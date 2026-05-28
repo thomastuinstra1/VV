@@ -52,33 +52,59 @@
     </header>
 
     <main id="main-content">
-      <section class="zoeken-header container">
-        <h1>Zoekresultaten voor: <span id="zoektermLabel"></span></h1>
+  <section class="zoeken-header container">
+    <h1>Zoekresultaten voor: <span id="zoektermLabel"></span></h1>
 
-        <div class="zoeken-tabs" role="tablist">
-          <button class="tab-btn active" id="tabGereedschap" role="tab" onclick="switchTab('gereedschap')">
-            Gereedschap <span class="tab-count" id="countGereedschap"></span>
-          </button>
-          <button class="tab-btn" id="tabProfielen" role="tab" onclick="switchTab('profielen')">
-            Profielen <span class="tab-count" id="countProfielen"></span>
-          </button>
-        </div>
-      </section>
+    <div class="zoeken-tabs" role="tablist">
+      <button class="tab-btn active" id="tabGereedschap" role="tab" onclick="switchTab('gereedschap')">
+        Gereedschap <span class="tab-count" id="countGereedschap"></span>
+      </button>
+      <button class="tab-btn" id="tabProfielen" role="tab" onclick="switchTab('profielen')">
+        Profielen <span class="tab-count" id="countProfielen"></span>
+      </button>
+    </div>
+  </section>
 
-      <section class="container zoeken-resultaten">
-        <div id="panelGereedschap" class="resultaten-panel">
+  <section class="container zoeken-resultaten">
+
+    <div id="panelGereedschap" class="resultaten-panel">
+      <div class="browse-layout">
+
+        <button class="filter-toggle-btn" id="filterToggle" onclick="toggleFilterPanel()" aria-expanded="false">
+          Filters
+          <span class="filter-badge" id="filterBadge" hidden>0</span>
+        </button>
+
+        <div class="filter-overlay" id="filterOverlay" onclick="toggleFilterPanel()"></div>
+
+        <aside class="filter-panel" id="filterPanel">
+          <div class="filter-header">
+            <span class="filter-title">Filteren</span>
+            <button class="filter-reset" id="resetBtn" onclick="resetFilters()" hidden>Wis alles</button>
+          </div>
+          <div id="filterGroups">
+            <p style="color:#6b7280;font-size:.95rem">Filters laden...</p>
+          </div>
+        </aside>
+
+        <div class="tools-section">
+          <div id="activeFilters" class="active-filters" hidden></div>
           <div id="gereedschapGrid" class="tools-grid">
             <p class="laden-tekst">Gereedschap laden...</p>
           </div>
         </div>
 
-        <div id="panelProfielen" class="resultaten-panel" hidden>
-          <div id="profielenGrid" class="profielen-grid">
-            <p class="laden-tekst">Profielen laden...</p>
-          </div>
-        </div>
-      </section>
-    </main>
+      </div>
+    </div>
+
+    <div id="panelProfielen" class="resultaten-panel" hidden>
+      <div id="profielenGrid" class="profielen-grid">
+        <p class="laden-tekst">Profielen laden...</p>
+      </div>
+    </div>
+
+  </section>
+</main>
 
     <footer class="site-footer">
       <div class="container footer-container">
