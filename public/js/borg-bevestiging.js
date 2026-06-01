@@ -44,7 +44,7 @@ async function controleerBetaling() {
         case 'payment_failed':
         case 'canceled':
           toonFout('De betaling is mislukt of geannuleerd. Probeer het opnieuw.');
-          terugBtn.href    = `/borg.html?uitleenId=${uitleenId}`;
+          terugBtn.href         = '/chat.html?uitleenId=' + uitleenId; // directe link naar chat
           terugBtn.textContent = '← Opnieuw proberen';
           terugBtn.style.display = 'inline-block';
           break;
@@ -74,7 +74,7 @@ function toonSucces(uitleen) {
   detailsEl.style.display = 'block';
 
   // Zoek de chat terug op basis van uitleen — simpelste aanpak: history.back()
-  terugBtn.href         = 'javascript:history.back()';
+  terugBtn.href         = '/chat.html?uitleenId=' + uitleenId; // directe link naar chat
   terugBtn.textContent  = '← Terug naar chat';
   terugBtn.style.display = 'inline-block';
 }
@@ -85,7 +85,7 @@ function toonVerwerking() {
   tekstEl.textContent =
     'Je betaling is ontvangen en wordt verwerkt. Dit kan enkele minuten duren. ' +
     'Je ontvangt een bevestiging zodra de betaling is afgerond.';
-  terugBtn.href         = 'javascript:history.back()';
+  terugBtn.href         = '/chat.html?uitleenId=' + uitleenId; // directe link naar chat
   terugBtn.textContent  = '← Terug naar chat';
   terugBtn.style.display = 'inline-block';
 }
