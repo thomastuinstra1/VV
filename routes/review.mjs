@@ -17,10 +17,43 @@ async function getReportCounts(reviewIds, reviewType) {
   return Object.fromEntries(reports.map((r) => [r.review_id, r._count.review_id]));
 }
 
+// ─── Helper: Set van account-ids waarmee melder een uitleen heeft gehad ───────
+// Eén query, in-memory matchen — voorkomt N queries per review
+async function getAccountInteractieSet(melderId) {
+  if (!melderId) return new Set();
+  const uitlenen = await prisma.uitleen.findMany({
+    where: {
+      OR: [
+        { Lener_id:   melderId },
+        { Account_id: melderId },
+      ],
+    },
+    select: { Lener_id: true, Account_id: true },
+  });
+  const ids = new Set();
+  for (const u of uitlenen) {
+    if (u.Lener_id   !== melderId) ids.add(u.Lener_id);
+    if (u.Account_id !== melderId) ids.add(u.Account_id);
+  }
+  return ids;
+}
+
+// ─── Helper: Set van gereedschap-ids die de melder ooit heeft geleend ─────────
+async function getGereedschapInteractieSet(melderId) {
+  if (!melderId) return new Set();
+  const uitlenen = await prisma.uitleen.findMany({
+    where:  { Lener_id: melderId },
+    select: { Gereedschap_id: true },
+  });
+  return new Set(uitlenen.map((u) => u.Gereedschap_id));
+}
+
 // ─── GET /account/:id/reviews  (reviews ontvangen als verhuurder) ─────────────
 router.get('/account/:id/reviews', async (req, res) => {
   const ontvangerID = parseInt(req.params.id);
   if (isNaN(ontvangerID)) return res.status(400).json({ error: 'Ongeldig id' });
+
+  const mijnId = req.session?.userId ?? null;
 
   try {
     const reviews = await prisma.review.findMany({
@@ -38,9 +71,8 @@ router.get('/account/:id/reviews', async (req, res) => {
       (r) => r.Uitleen?.Account_id === ontvangerID
     );
 
-    const reportCounts = await getReportCounts(
-      verhuurderReviews.map((r) => r.Review_id), 'account'
-    );
+    const reportCounts   = await getReportCounts(verhuurderReviews.map((r) => r.Review_id), 'account');
+    const interactieSet  = await getAccountInteractieSet(mijnId);
 
     res.json(verhuurderReviews.map((r) => ({
       Review_id:         r.Review_id,
@@ -52,6 +84,8 @@ router.get('/account/:id/reviews', async (req, res) => {
       Rating:            r.Rating,
       Datum:             r.Datum,
       aantalRapportages: reportCounts[r.Review_id] ?? 0,
+      // Knop tonen als: ingelogd + niet eigen review + uitleen gehad met auteur
+      kanRapporteren:    !!mijnId && mijnId !== r.Auteur_id && interactieSet.has(r.Auteur_id),
     })));
   } catch (err) {
     console.error(err);
@@ -63,6 +97,8 @@ router.get('/account/:id/reviews', async (req, res) => {
 router.get('/account/:id/lener-reviews', async (req, res) => {
   const ontvangerID = parseInt(req.params.id);
   if (isNaN(ontvangerID)) return res.status(400).json({ error: 'Ongeldig id' });
+
+  const mijnId = req.session?.userId ?? null;
 
   try {
     const reviews = await prisma.review.findMany({
@@ -76,13 +112,9 @@ router.get('/account/:id/lener-reviews', async (req, res) => {
       orderBy: { Datum: 'desc' },
     });
 
-    const lenerReviews = reviews.filter(
-      (r) => r.Uitleen?.Lener_id === ontvangerID
-    );
-
-    const reportCounts = await getReportCounts(
-      lenerReviews.map((r) => r.Review_id), 'account'
-    );
+    const lenerReviews  = reviews.filter((r) => r.Uitleen?.Lener_id === ontvangerID);
+    const reportCounts  = await getReportCounts(lenerReviews.map((r) => r.Review_id), 'account');
+    const interactieSet = await getAccountInteractieSet(mijnId);
 
     res.json(lenerReviews.map((r) => ({
       Review_id:         r.Review_id,
@@ -94,6 +126,7 @@ router.get('/account/:id/lener-reviews', async (req, res) => {
       Rating:            r.Rating,
       Datum:             r.Datum,
       aantalRapportages: reportCounts[r.Review_id] ?? 0,
+      kanRapporteren:    !!mijnId && mijnId !== r.Auteur_id && interactieSet.has(r.Auteur_id),
     })));
   } catch (err) {
     console.error(err);
@@ -260,7 +293,7 @@ router.delete('/reviews/:id', isLoggedIn, async (req, res) => {
   }
 });
 
-// ─── POST /reviews/:id/report ────────────────────────────────────────────────
+// ─── POST /reviews/:id/report ─────────────────────────────────────────────────
 router.post('/reviews/:id/report', isLoggedIn, async (req, res) => {
   const reviewId = parseInt(req.params.id);
   const melderId = req.session.userId;
@@ -273,6 +306,21 @@ router.post('/reviews/:id/report', isLoggedIn, async (req, res) => {
     if (!review) return res.status(404).json({ error: 'Review niet gevonden' });
     if (review.Auteur_id === melderId) {
       return res.status(400).json({ error: 'Je kunt je eigen review niet rapporteren' });
+    }
+
+    // ── Interactie-check ──────────────────────────────────────────────────────
+    const interactie = await prisma.uitleen.findFirst({
+      where: {
+        OR: [
+          { Lener_id: melderId, Account_id: review.Auteur_id },
+          { Lener_id: review.Auteur_id, Account_id: melderId },
+        ],
+      },
+    });
+    if (!interactie) {
+      return res.status(403).json({
+        error: 'Je kunt alleen reviews rapporteren van mensen waarmee je een uitleen hebt gehad',
+      });
     }
 
     await prisma.review_Report.create({
@@ -292,6 +340,8 @@ router.get('/gereedschap/:id/reviews', async (req, res) => {
   const gereedschapId = parseInt(req.params.id);
   if (isNaN(gereedschapId)) return res.status(400).json({ error: 'Ongeldig id' });
 
+  const mijnId = req.session?.userId ?? null;
+
   try {
     const reviews = await prisma.gereedschap_Review.findMany({
       where:   { Gereedschap_id: gereedschapId },
@@ -299,9 +349,8 @@ router.get('/gereedschap/:id/reviews', async (req, res) => {
       orderBy: { Datum: 'desc' },
     });
 
-    const reportCounts = await getReportCounts(
-      reviews.map((r) => r.Review_id), 'gereedschap'
-    );
+    const reportCounts          = await getReportCounts(reviews.map((r) => r.Review_id), 'gereedschap');
+    const gereedschapInteractie = await getGereedschapInteractieSet(mijnId);
 
     const gemiddelde = reviews.length
       ? reviews.reduce((s, r) => s + r.Rating, 0) / reviews.length
@@ -320,6 +369,8 @@ router.get('/gereedschap/:id/reviews', async (req, res) => {
         Rating:            r.Rating,
         Datum:             r.Datum,
         aantalRapportages: reportCounts[r.Review_id] ?? 0,
+        // Knop tonen als: ingelogd + niet eigen review + dit gereedschap ooit geleend
+        kanRapporteren:    !!mijnId && mijnId !== r.Auteur_id && gereedschapInteractie.has(gereedschapId),
       })),
     });
   } catch (err) {
@@ -467,6 +518,19 @@ router.post('/gereedschap/reviews/:id/report', isLoggedIn, async (req, res) => {
     if (!review) return res.status(404).json({ error: 'Review niet gevonden' });
     if (review.Auteur_id === melderId) {
       return res.status(400).json({ error: 'Je kunt je eigen review niet rapporteren' });
+    }
+
+    // ── Interactie-check ──────────────────────────────────────────────────────
+    const interactie = await prisma.uitleen.findFirst({
+      where: {
+        Lener_id:       melderId,
+        Gereedschap_id: review.Gereedschap_id,
+      },
+    });
+    if (!interactie) {
+      return res.status(403).json({
+        error: 'Je kunt alleen reviews rapporteren van gereedschap dat je zelf hebt geleend',
+      });
     }
 
     await prisma.review_Report.create({

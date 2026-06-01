@@ -213,7 +213,7 @@ function renderReviewCard(r, mijnId) {
             <button class="btn-review-edit" data-review-id="${r.Review_id}" data-rating="${r.Rating}" data-tekst="${escapeHtml(r.Tekst || "")}">✏️ Bewerken</button>
             <button class="btn-review-delete" data-review-id="${r.Review_id}">🗑️ Verwijderen</button>
           </div>
-        ` : mijnId ? `
+        ` : r.kanRapporteren ? `
           <button class="btn-review-report" data-review-id="${r.Review_id}" data-review-type="account">🚩 Rapporteren</button>
         ` : ""}
       </div>
