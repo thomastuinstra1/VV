@@ -17,7 +17,6 @@ async function controleerBetaling() {
     const uitleen = await fetchWithSpinner(`/uitleen/${uitleenId}`).then(r => r.json());
     document.getElementById('uitleen-id').textContent  = uitleenId;
     document.getElementById('borg-bedrag').textContent = Number(uitleen.BorgBedrag).toFixed(2);
-    console.log(uitleen);
 
     // Stripe PaymentIntent status ophalen via clientSecret uit de URL
     // (Stripe voegt payment_intent_client_secret automatisch toe aan de return_url)
@@ -45,7 +44,7 @@ async function controleerBetaling() {
         case 'payment_failed':
         case 'canceled':
           toonFout('De betaling is mislukt of geannuleerd. Probeer het opnieuw.');
-          terugBtn.href         = '/chat.html?uitleenId=' + uitleenId; // directe link naar chat
+          terugBtn.href         = '/mijnchats.html'; // directe link naar chat
           terugBtn.textContent = '← Opnieuw proberen';
           terugBtn.style.display = 'inline-block';
           break;
@@ -74,14 +73,8 @@ function toonSucces(uitleen) {
     'Bij tijdige inlevering ontvang je je borg automatisch terug.';
   detailsEl.style.display = 'block';
 
-  // Haal partner en tool op uit het uitleen-object
-  const partner = uitleen.UitlenerID;   // ← pas aan naar jouw veldnaam
-  const tool    = uitleen.GereedschapID; // ← pas aan naar jouw veldnaam
-
-  const chatUrl = `https://gereedschapspunt.student.open-ict.hu/chat.html?partner=${partner}&tool=${tool}`;
-
-  terugBtn.href         = chatUrl;
-  terugBtn.textContent  = '← Terug naar chat';
+  terugBtn.href         = '/mijnchats.html';
+  terugBtn.textContent  = '← Terug naar mijn chats';
   terugBtn.style.display = 'inline-block';
 }
 
@@ -91,8 +84,8 @@ function toonVerwerking() {
   tekstEl.textContent =
     'Je betaling is ontvangen en wordt verwerkt. Dit kan enkele minuten duren. ' +
     'Je ontvangt een bevestiging zodra de betaling is afgerond.';
-  terugBtn.href         = '/chat.html?uitleenId=' + uitleenId; // directe link naar chat
-  terugBtn.textContent  = '← Terug naar chat';
+  terugBtn.href         = '/mijnchats.html'; // directe link naar chat
+  terugBtn.textContent  = '← Terug naar mijn chats';
   terugBtn.style.display = 'inline-block';
 }
 
