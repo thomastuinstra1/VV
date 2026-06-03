@@ -119,6 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Valideer e-mailformaat
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showToast('Vul een geldig e-mailadres in (bijv. naam@domein.nl).', 'error');
+      return;
+    }
+
     const res = await fetchWithSpinner('/2fa/recovery/request', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -126,6 +133,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.error || data.message || 'Er is iets misgegaan.', 'error');
+      return;
+    }
 
     feedback2fa.textContent = data.message;
     feedback2fa.style.display = 'block';
@@ -160,6 +172,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Valideer e-mailformaat
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      showToast('Vul een geldig e-mailadres in (bijv. naam@domein.nl).', 'error');
+      return;
+    }
+
     const res = await fetchWithSpinner('/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -167,6 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const data = await res.json();
+
+    if (!res.ok) {
+      showToast(data.error || data.message || 'Er is iets misgegaan.', 'error');
+      return;
+    }
 
     feedback.textContent = data.message;
     feedback.style.display = 'block';
