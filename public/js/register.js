@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    if (Password.length < 6 || !/[0-9]/.test(Password) || !/[A-Z]/.test(Password)) {
+    if (Password.length < 8 || !/[0-9]/.test(Password) || !/[A-Z]/.test(Password)) {
       showToast('Wachtwoord voldoet niet aan de eisen', 'error');
       passwordInput.focus();
       return;
