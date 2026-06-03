@@ -3,6 +3,7 @@ let CHAT_ID;
 let socket;
 let TOOL_BORG = 0;
 let IS_OWNER = false;
+let TOOL_ID = null; // voeg toe bovenaan bij de andere variabelen
 
 async function getCurrentUserId() {
   try {
@@ -36,7 +37,7 @@ async function getChatInfo() {
 
     const chat = await res.json();
     CHAT_ID = chat.Chat_id;
-
+    TOOL_ID = toolId; // sla de tool ID op
     const partnerNameEl = document.getElementById('chat-partner-name');
     const toolNameEl = document.getElementById('chat-tool-name');
     const partnerInitialEl = document.getElementById('chat-partner-initial');
@@ -52,9 +53,11 @@ async function getChatInfo() {
     }
 
     if (toolNameEl) {
-      toolNameEl.textContent = chat.Gereedschap_naam
-        ? `Over: ${chat.Gereedschap_naam}`
-        : 'Geen gereedschap geselecteerd';
+      if (chat.Gereedschap_naam && TOOL_ID) {
+        toolNameEl.innerHTML = `Over: <a href="gereedschap.html?id=${TOOL_ID}" class="chat-tool-link">${chat.Gereedschap_naam}</a>`;
+      } else {
+        toolNameEl.textContent = 'Geen gereedschap geselecteerd';
+      }
     }
 
     IS_OWNER = Number(chat.Tool_owner_id) === Number(CURRENT_USER_ID);

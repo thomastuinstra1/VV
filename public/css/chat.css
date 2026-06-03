@@ -532,3 +532,15 @@
     width: 100%;
   }
 }
+
+.chat-tool-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  opacity: 0.8;
+}
+
+.chat-tool-link:hover {
+  opacity: 1;
+  text-decoration-style: solid;
+}
