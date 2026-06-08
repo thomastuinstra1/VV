@@ -112,6 +112,15 @@
 document.getElementById("contactForm").addEventListener("submit", async function(e) {
     e.preventDefault();
 
+    const submitButton = this.querySelector('button[type="submit"]');
+    const toast = document.getElementById("toast");
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Ticket wordt verstuurd...";
+
+    toast.textContent = "Je ticket wordt verstuurd, even geduld...";
+    toast.style.display = "block";
+
     const data = {
         name: document.getElementById("name").value,
         email: document.getElementById("email").value,
@@ -131,13 +140,20 @@ document.getElementById("contactForm").addEventListener("submit", async function
         const result = await response.json();
 
         if (result.success) {
-            alert("Ticket aangemaakt! Ticket #" + result.ticket_id);
+            toast.textContent = "Je ticket is verstuurd! Ticket #" + result.ticket_id;
             this.reset();
         } else {
-            alert(result.message);
+            toast.textContent = result.message || "Er ging iets mis.";
         }
     } catch (err) {
-        alert("Er ging iets mis.");
+        toast.textContent = "Er ging iets mis bij het versturen.";
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = "Verstuur bericht";
+
+        setTimeout(() => {
+            toast.style.display = "none";
+        }, 5000);
     }
 });
 </script>

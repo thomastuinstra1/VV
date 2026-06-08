@@ -89,6 +89,20 @@
     box-shadow: 0 14px 24px rgba(194, 65, 12, 0.28);
 }
 
+#toast {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #1f2937;
+    color: white;
+    padding: 14px 18px;
+    border-radius: 10px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.2);
+    z-index: 9999;
+    font-weight: 600;
+}
+
 @media (max-width: 700px) {
     .contact-page {
         padding: 40px 0 60px;

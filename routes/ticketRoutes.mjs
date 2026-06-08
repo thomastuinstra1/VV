@@ -24,33 +24,49 @@ router.post(
       }
     });
 
-    console.log("APPS_SCRIPT_URL:", process.env.APPS_SCRIPT_URL);
+   console.log("APPS_SCRIPT_URL:", process.env.APPS_SCRIPT_URL);
 
-    try {
-      const mailRes = await fetch(process.env.APPS_SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'new_ticket',
-          ticketId: ticket.id,
-          name,
-          email,
-          subject,
-          message
-        })
-      });
+try {
+  // Mail naar admin
+  const adminMailRes = await fetch(process.env.APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'new_ticket',
+      ticketId: ticket.id,
+      name,
+      email,
+      subject,
+      message
+    })
+  });
 
-      const mailText = await mailRes.text();
-      console.log("Ticket mail response:", mailText);
+  console.log("Admin ticket mail response:", await adminMailRes.text());
 
-    } catch (err) {
-      console.error("Ticket mail error:", err);
-    }
+  // Bevestiging naar gebruiker
+  const userMailRes = await fetch(process.env.APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      type: 'ticket_confirmation',
+      ticketId: ticket.id,
+      name,
+      email,
+      subject
+    })
+  });
 
-    res.status(201).json({
-      success: true,
-      ticket_id: ticket.id
-    });
+  console.log("User ticket mail response:", await userMailRes.text());
+
+} catch (err) {
+  console.error("Ticket mail error:", err);
+}
+
+res.status(201).json({
+  success: true,
+  ticket_id: ticket.id
+});
+
   })
 );
 
