@@ -24,18 +24,28 @@ router.post(
       }
     });
 
-    fetch(process.env.APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: 'new_ticket',
-        ticketId: ticket.id,
-        name,
-        email,
-        subject,
-        message
-      })
-    }).catch(err => console.error('Ticket mail error:', err));
+    console.log("APPS_SCRIPT_URL:", process.env.APPS_SCRIPT_URL);
+
+    try {
+      const mailRes = await fetch(process.env.APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'new_ticket',
+          ticketId: ticket.id,
+          name,
+          email,
+          subject,
+          message
+        })
+      });
+
+      const mailText = await mailRes.text();
+      console.log("Ticket mail response:", mailText);
+
+    } catch (err) {
+      console.error("Ticket mail error:", err);
+    }
 
     res.status(201).json({
       success: true,
