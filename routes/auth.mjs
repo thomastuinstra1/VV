@@ -10,6 +10,7 @@ import validate from '../middleware/validate.mjs';
 import { registerValidator, loginValidator } from '../validators/authValidator.mjs';
 import asyncHandler from '../middleware/asyncHandler.mjs';
 import AppError from '../utils/appError.mjs';
+import ticketRoutes from './routes/ticketRoutes.mjs';
 
 import {
   toAuthStatusResponseDTO,

@@ -13,6 +13,7 @@ import chatRouter        from './routes/chat.mjs';
 import reviewRouter      from './routes/review.mjs'
 import { initSocket }    from './sockets/chatSocket.mjs';
 import cookieParser      from 'cookie-parser';
+import ticketRoutes from './routes/ticketRoutes.mjs';
 
 import AppError     from './utils/appError.mjs';
 import errorHandler from './middleware/errorhandler.mjs';
@@ -46,6 +47,7 @@ app.use(gereedschapRouter);
 app.use(uitleenRouter);
 app.use(chatRouter);
 app.use(reviewRouter);
+app.use('/api/create-ticket', ticketRoutes);
 
 // ── 404 – geen route gevonden ──
 app.all('/{*splat}', (req, res, next) => {
