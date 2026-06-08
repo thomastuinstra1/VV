@@ -89,6 +89,54 @@
     box-shadow: 0 14px 24px rgba(194, 65, 12, 0.28);
 }
 
+.ticket-popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(17, 24, 39, 0.55);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.ticket-popup-box {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 34px 30px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
+}
+
+.ticket-popup-icon {
+    font-size: 3rem;
+    margin-bottom: 12px;
+}
+
+.ticket-popup-box h2 {
+    margin: 0 0 10px;
+    color: #1f2937;
+    font-size: 1.5rem;
+}
+
+.ticket-popup-box p {
+    margin: 0 0 24px;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+.ticket-popup-box button {
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #c2410c, #9a3412);
+    color: white;
+    padding: 12px 22px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
 #toast {
     display: none;
     position: fixed;

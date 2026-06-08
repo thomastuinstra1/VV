@@ -85,7 +85,17 @@
         <button type="submit">Verstuur bericht</button>
       </form>
     </div>
+    
   </main>
+
+  <div id="ticketPopup" class="ticket-popup-overlay">
+  <div class="ticket-popup-box">
+    <div id="ticketPopupIcon" class="ticket-popup-icon">⏳</div>
+    <h2 id="ticketPopupTitle">Ticket wordt verstuurd</h2>
+    <p id="ticketPopupMessage">Even geduld...</p>
+    <button id="ticketPopupClose" onclick="closeTicketPopup()">Sluiten</button>
+  </div>
+</div>
 
   <footer class="site-footer">
     <div class="container footer-container">
@@ -109,17 +119,20 @@
   <script src="js/globaal.js"></script>
   <script src="js/logincheck.js"></script>
   <script>
+let ticketSubmitting = false;
+
 document.getElementById("contactForm").addEventListener("submit", async function(e) {
     e.preventDefault();
 
+    if (ticketSubmitting) return;
+    ticketSubmitting = true;
+
     const submitButton = this.querySelector('button[type="submit"]');
-    const toast = document.getElementById("toast");
 
     submitButton.disabled = true;
-    submitButton.textContent = "Ticket wordt verstuurd...";
+    submitButton.textContent = "Bezig met versturen...";
 
-    toast.textContent = "Je ticket wordt verstuurd, even geduld...";
-    toast.style.display = "block";
+    showTicketPopup("loading", "Ticket wordt verstuurd", "Even geduld, we verwerken je bericht...");
 
     const data = {
         name: document.getElementById("name").value,
@@ -140,22 +153,62 @@ document.getElementById("contactForm").addEventListener("submit", async function
         const result = await response.json();
 
         if (result.success) {
-            toast.textContent = "Je ticket is verstuurd! Ticket #" + result.ticket_id;
+            showTicketPopup(
+                "success",
+                "Ticket verstuurd",
+                "Je ticket is succesvol aangemaakt. Ticket #" + result.ticket_id
+            );
+
             this.reset();
         } else {
-            toast.textContent = result.message || "Er ging iets mis.";
+            ticketSubmitting = false;
+            submitButton.disabled = false;
+            submitButton.textContent = "Verstuur bericht";
+
+            showTicketPopup(
+                "error",
+                "Versturen mislukt",
+                result.message || "Er ging iets mis."
+            );
         }
     } catch (err) {
-        toast.textContent = "Er ging iets mis bij het versturen.";
-    } finally {
+        ticketSubmitting = false;
         submitButton.disabled = false;
         submitButton.textContent = "Verstuur bericht";
 
-        setTimeout(() => {
-            toast.style.display = "none";
-        }, 5000);
+        showTicketPopup(
+            "error",
+            "Versturen mislukt",
+            "Er ging iets mis bij het versturen."
+        );
     }
 });
+
+function showTicketPopup(type, title, message) {
+    const popup = document.getElementById("ticketPopup");
+    const icon = document.getElementById("ticketPopupIcon");
+    const titleEl = document.getElementById("ticketPopupTitle");
+    const messageEl = document.getElementById("ticketPopupMessage");
+    const closeBtn = document.getElementById("ticketPopupClose");
+
+    popup.style.display = "flex";
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+
+    closeBtn.style.display = type === "loading" ? "none" : "inline-block";
+
+    if (type === "loading") {
+        icon.textContent = "⏳";
+    } else if (type === "success") {
+        icon.textContent = "✅";
+    } else {
+        icon.textContent = "⚠️";
+    }
+}
+
+function closeTicketPopup() {
+    document.getElementById("ticketPopup").style.display = "none";
+}
 </script>
 </body>
 </html>
