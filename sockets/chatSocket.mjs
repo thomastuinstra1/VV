@@ -1,4 +1,5 @@
 import prisma from '../prismaClient.mjs';
+import { createWelcomeMessage } from '../utils/chatHelpers.mjs';
 
 export function initSocket(io) {
   io.on("connection", (socket) => {
@@ -29,17 +30,34 @@ export function initSocket(io) {
               { SenderId: userId, ReceiverId: partnerId },
               { SenderId: partnerId, ReceiverId: userId }
             ]
-          }
+          },
+          include: { Gereedschap: true }
         });
+
+        let isNew = false;
 
         if (!chat) {
           chat = await prisma.chats.create({
-            data: { SenderId: userId, ReceiverId: partnerId, Gereedschap_id: toolId }
+            data: { SenderId: userId, ReceiverId: partnerId, Gereedschap_id: toolId },
+            include: { Gereedschap: true }
           });
+          isNew = true;
         }
 
         socket.join(`chat_${chat.Chat_id}`);
         io.to(`chat_${chat.Chat_id}`).emit("chat_started", chat);
+
+        // ✅ Standaardbericht aanmaken bij nieuwe chat
+        if (isNew) {
+          const welcomeMessage = await createWelcomeMessage({
+            chatId: chat.Chat_id,
+            senderId: userId,
+            receiverId: partnerId,
+            toolName: chat.Gereedschap?.Naam
+          });
+
+          io.to(`chat_${chat.Chat_id}`).emit("receive_message", welcomeMessage);
+        }
       } catch (err) {
         console.error("Fout bij starten chat:", err);
       }

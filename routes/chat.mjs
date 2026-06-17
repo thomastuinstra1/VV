@@ -6,6 +6,7 @@ import { chatStartValidator } from '../validators/chatValidator.mjs';
 import { chatIdParamValidator, userIdParamValidator } from '../validators/idParamValidator.mjs';
 import asyncHandler from '../middleware/asyncHandler.mjs';
 import AppError from '../utils/appError.mjs';
+import { createWelcomeMessage } from '../utils/chatHelpers.mjs';
 
 import {
   toMijnChatsResponseDTO,
@@ -45,7 +46,6 @@ router.get('/mijn-chats', isLoggedIn, asyncHandler(async (req, res) => {
 }));
 
 
-// ── Chat starten ──
 // ── Chat starten ──
 router.post(
   '/chat/start',
@@ -92,6 +92,20 @@ router.post(
         where: { Account_id: userId },
         select: { Name: true }
       });
+
+      // ✅ Standaardbericht aanmaken bij nieuwe chat
+      const welcomeMessage = await createWelcomeMessage({
+        chatId: chat.Chat_id,
+        senderId: userId,
+        receiverId: partnerId,
+        toolName: chat.Gereedschap?.Naam
+      });
+
+      // ✅ Direct doorsturen via Socket.IO zodat actieve chat-rooms het bericht live zien
+      const io = req.app.get('io');
+      if (io) {
+        io.to(`chat_${chat.Chat_id}`).emit("receive_message", welcomeMessage);
+      }
 
       fetch(process.env.APPS_SCRIPT_URL, {
         method: 'POST',
