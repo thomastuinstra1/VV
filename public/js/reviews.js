@@ -214,7 +214,10 @@ function renderReviewCard(r, mijnId) {
             <button class="btn-review-delete" data-review-id="${r.Review_id}">🗑️ Verwijderen</button>
           </div>
         ` : r.kanRapporteren ? `
-          <button class="btn-review-report" data-review-id="${r.Review_id}" data-review-type="account">🚩 Rapporteren</button>
+          <button class="btn-review-report" 
+  data-review-id="${r.Review_id}" 
+  data-auteur-id="${r.Auteur_id}"
+  data-review-type="account">🚩 Rapporteren</button>
         ` : ""}
       </div>
     </div>
@@ -257,7 +260,7 @@ function attachReviewActions(container, accountId) {
       const reviewId   = btn.dataset.reviewId;
       const reviewType = btn.dataset.reviewType; // "account"
       if (window.openReviewRapportModal) {
-        window.openReviewRapportModal(reviewId, reviewType);
+        window.openReviewRapportModal(btn.dataset.reviewId, 'account', btn.dataset.auteurId)
       }
     }
   });

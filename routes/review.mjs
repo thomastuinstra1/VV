@@ -545,4 +545,51 @@ router.post('/gereedschap/reviews/:id/report', isLoggedIn, async (req, res) => {
   }
 });
 
+// ─── GET /reviews/:id/mag-rapporteren ─────────────────────────────────────────
+router.get('/reviews/:id/mag-rapporteren', isLoggedIn, async (req, res) => {
+  const reviewId = parseInt(req.params.id);
+  const melderId = req.session.userId;
+
+  if (isNaN(reviewId)) return res.status(400).json({ error: 'Ongeldig id' });
+
+  try {
+    const review = await prisma.review.findUnique({ where: { Review_id: reviewId } });
+    if (!review) return res.status(404).json({ error: 'Review niet gevonden' });
+
+    // Eigen review?
+    if (review.Auteur_id === melderId) {
+      return res.json({ magRapporteren: false, reden: 'Je kunt je eigen review niet rapporteren' });
+    }
+
+    // Al eerder gerapporteerd?
+    const bestaand = await prisma.review_Report.findFirst({
+      where: { review_id: reviewId, melder_id: melderId, review_type: 'account' },
+    });
+    if (bestaand) {
+      return res.json({ magRapporteren: false, reden: 'Je hebt deze review al gerapporteerd' });
+    }
+
+    // Interactie gehad?
+    const interactie = await prisma.uitleen.findFirst({
+      where: {
+        OR: [
+          { Lener_id: melderId, Account_id: review.Auteur_id },
+          { Lener_id: review.Auteur_id, Account_id: melderId },
+        ],
+      },
+    });
+    if (!interactie) {
+      return res.json({
+        magRapporteren: false,
+        reden: 'Je kunt alleen reviews rapporteren van mensen waarmee je een uitleen hebt gehad',
+      });
+    }
+
+    res.json({ magRapporteren: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Fout bij controle' });
+  }
+});
+
 export default router;

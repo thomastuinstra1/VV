@@ -98,7 +98,10 @@ function renderGereedschapReviewCard(r, mijnId) {
             <button class="btn-review-delete" data-review-id="${r.Review_id}">🗑️ Verwijderen</button>
           </div>
         ` : mijnId ? `
-          <button class="btn-review-report" data-review-id="${r.Review_id}" data-review-type="gereedschap">🚩 Rapporteren</button>
+          <button class="btn-review-report" 
+  data-review-id="${r.Review_id}" 
+  data-auteur-id="${r.Auteur_id}"
+  data-review-type="gereedschap">🚩 Rapporteren</button>
         ` : ""}
       </div>
     </div>
@@ -147,7 +150,7 @@ function attachGereedschapReviewActions(container, gereedschapId) {
       const reviewId   = btn.dataset.reviewId;
       const reviewType = btn.dataset.reviewType; // "gereedschap"
       if (window.openReviewRapportModal) {
-        window.openReviewRapportModal(reviewId, reviewType);
+        window.openReviewRapportModal(btn.dataset.reviewId, 'gereedschap', btn.dataset.auteurId)
       }
     }
   });
